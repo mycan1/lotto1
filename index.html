@@ -50,14 +50,21 @@
             if (!response.ok) throw new Error('lotto.txt 파일을 찾을 수 없습니다.');
             const text = await response.text();
             
-            const rows = text.trim().split('\n').map(row => row.replace(/[r]/g, '').split(/[,\.]/).map(Number));
+            // [수정된 부분] 데이터 파싱 로직 강화
+            const rows = text.trim().split('\n').map(row => {
+                return row.replace(/\r/g, '')        // 줄바꿈 기호 제거
+                          .split(/[,\.]+/)           // 쉼표 또는 마침표(여러 개 포함)로 분리
+                          .filter(v => v.trim() !== "") // 빈 문자열 제거
+                          .map(Number);
+            });
+
             const lastRound = rows[0][0];
             analysisData.nextRound = lastRound + 1;
 
             const recent35 = rows.slice(0, 35);
             const allNums = recent35.flatMap(r => r.slice(1, 7));
             const counts = {};
-            allNums.forEach(n => counts[n] = (counts[n] || 0) + 1);
+            allNums.forEach(n => { if(!isNaN(n)) counts[n] = (counts[n] || 0) + 1; });
             analysisData.base12 = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 12).map(v => Number(v[0]));
 
             const recent30 = rows.slice(0, 30);
@@ -66,7 +73,7 @@
             for(let i=1; i<=45; i++) if(!appeared30.has(i)) analysisData.missing.push(i);
 
             const bnCounts = {};
-            recent35.forEach(r => bnCounts[r[7]] = (bnCounts[r[7]] || 0) + 1);
+            recent35.forEach(r => { if(!isNaN(r[7])) bnCounts[r[7]] = (bnCounts[r[7]] || 0) + 1; });
             analysisData.eligibleBN = Object.entries(bnCounts).filter(v => v[1] > 1.5).sort((a,b) => b[1] - a[1]).map(v => Number(v[0]));
 
             analysisData.pool = Array.from(new Set([...analysisData.base12, ...analysisData.eligibleBN.slice(0,3), ...analysisData.missing])).sort((a,b)=>a-b);
@@ -103,10 +110,8 @@
         const bn6 = analysisData.eligibleBN[1] || bn5;
         const bn7 = analysisData.eligibleBN[2] || bn5;
         
-        // 미출수 데이터 존재 여부 확인
         const mCount = analysisData.missing.length;
 
-        // 시도 횟수를 50만 번으로 늘려 정확도 확보
         while(results.length < count && attempts < 500000) {
             attempts++;
             let shuffled = [...analysisData.pool].sort(() => Math.random() - 0.5);
@@ -118,25 +123,23 @@
             let missingCnt = comb.filter(n => analysisData.missing.includes(n)).length;
             let coreMatch = comb.filter(n => core5.has(n)).length;
 
-            // [공통 필터]
             if(sum < 95 || sum > 180 || ac < 7 || odd === 0 || odd === 6 || !isConsecOk(comb)) continue;
 
             let idx = results.length + 1;
             let pass = false;
 
-            // [수정된 지능형 1~10번 필터]
-            if(idx <= 4) { // 1~4번: 안정형 (미출수 0 선호)
+            if(idx <= 4) { 
                 if(missingCnt === 0) pass = true;
-            } else if(idx <= 7) { // 5~7번: 보너스 공략
+            } else if(idx <= 7) { 
                 let targetBN = (idx === 5) ? bn5 : (idx === 6) ? bn6 : bn7;
                 if(missingCnt === 0 && comb.includes(targetBN)) pass = true;
-            } else if(idx === 8) { // 8번: 전략형 (미출수 1개, 없으면 핵심수 2개 이상)
+            } else if(idx === 8) { 
                 if(mCount >= 1) {
-                    if(missingCnt === 1 && comb.includes(bn5)) pass = true;
+                    if(missingCnt === 1) pass = true;
                 } else {
                     if(coreMatch >= 2) pass = true;
                 }
-            } else if(idx === 9) { // 9번: 전략형 (미출수 최대한 활용, 없으면 핵심수 3개)
+            } else if(idx === 9) { 
                 if(mCount >= 2) {
                     if(missingCnt >= 2) pass = true;
                 } else if(mCount === 1) {
@@ -144,7 +147,7 @@
                 } else {
                     if(coreMatch >= 3) pass = true;
                 }
-            } else if(idx === 10) { // 10번: 핵심수 + 미출수 혼합형
+            } else if(idx === 10) { 
                 if(coreMatch >= 2) pass = true;
             }
 
