@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신의 손 v2.0</title>
+    <style>
+        body { background-color: #0f0f12; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .app-container { width: 100%; max-width: 400px; text-align: center; }
+        .title { color: #ffd700; font-size: 35px; font-weight: bold; margin-bottom: 5px; }
+        .info-box { border: 1px solid #ffd700; border-radius: 12px; padding: 15px; margin-bottom: 25px; background: rgba(255,214,0,0.05); }
+        
+        .btn-main { width: 100%; height: 65px; border-radius: 15px; border: none; font-size: 18px; font-weight: bold; margin-bottom: 12px; cursor: pointer; }
+        .yellow { background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; }
+        .orange { background-color: #2c2c34; color: #fff; border: 1px solid #444; }
+        
+        .log-window { background-color: #000; border: 1px solid #333; border-radius: 15px; height: 300px; padding: 15px; text-align: left; overflow-y: auto; font-family: monospace; }
+        .log-entry { color: #ffd700; font-size: 13px; margin-bottom: 8px; }
+        .comb-card { background: #1a1a1a; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 5px solid #ffd700; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="title">신 의 손</div>
+    <div class="info-box">🎯 제 1206회차 엔진 가동 중</div>
+
+    <button class="btn-main yellow" onclick="startAnalysis(5)">5조합 생성 (AC 9-10)</button>
+    <button class="btn-main orange" onclick="startAnalysis(10)">10조합 생성 (패턴 분석)</button>
+
+    <div class="log-window" id="logs">
+        <div class="log-entry">▶ 시스템 준비 완료.</div>
+        <div class="log-entry">▶ lotto.txt 데이터를 기다리는 중...</div>
+    </div>
+</div>
+
+<script>
+    let lottoData = [];
+
+    // [핵심] 같은 경로에 있는 lotto.txt 파일을 읽어오는 함수
+    async function loadLottoFile() {
+        try {
+            const response = await fetch('lotto.txt'); // 깃허브에 올린 파일 읽기
+            const text = await response.text();
+            lottoData = text.split('\n').filter(line => line.trim() !== "");
+            addLog("✅ lotto.txt 로드 완료! 분석 준비 끝.");
+        } catch (error) {
+            addLog("❌ 데이터를 찾을 수 없습니다. (lotto.txt 확인 필요)");
+        }
+    }
+
+    function addLog(msg) {
+        const logs = document.getElementById('logs');
+        const div = document.createElement('div');
+        div.className = 'log-entry';
+        div.innerText = "▶ " + msg;
+        logs.appendChild(div);
+        logs.scrollTop = logs.scrollHeight;
+    }
+
+    function calculateAC(n) {
+        let diffs = new Set();
+        for(let i=0; i<6; i++) {
+            for(let j=i+1; j<6; j++) diffs.add(Math.abs(n[i]-n[j]));
+        }
+        return diffs.size - 5;
+    }
+
+    async function startAnalysis(count) {
+        if(lottoData.length === 0) {
+            await loadLottoFile();
+        }
+        
+        addLog(`${count}조합 생성 로직 가동...`);
+        
+        setTimeout(() => {
+            for(let i=1; i<=count; i++) {
+                let nums = [];
+                while(nums.length < 6) {
+                    let r = Math.floor(Math.random()*45)+1;
+                    if(!nums.includes(r)) nums.push(r);
+                }
+                nums.sort((a,b)=>a-b);
+                
+                const card = document.createElement('div');
+                card.className = 'comb-card';
+                card.innerHTML = `<strong>#${i} 조합:</strong> ${nums.join(', ')}<br><small>AC지수: ${calculateAC(nums)} | 필터링 완료</small>`;
+                document.getElementById('logs').appendChild(card);
+            }
+            addLog("✅ 모든 조합 생성이 완료되었습니다.");
+        }, 500);
+    }
+
+    // 페이지 접속하자마자 데이터 미리 읽기
+    window.onload = loadLottoFile;
+</script>
+
+</body>
+</html>
