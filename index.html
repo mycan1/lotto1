@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>신의 손 v3.6 - 데이터 내장형</title>
+    <title>신의 손 v3.8 - 보너스 점수제 이식판</title>
     <style>
         body { background-color: #000; color: #fff; font-family: 'Malgun Gothic', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .outer-border { border: 4px solid #ffd700; border-radius: 40px; padding: 12px; width: 95%; max-width: 420px; box-shadow: 0 0 30px rgba(255, 215, 0, 0.6); }
@@ -15,9 +15,9 @@
         .yellow-btn { background: linear-gradient(to bottom, #fdf24d, #b8a000); color: #000; }
         .grey-btn { background: #2c2c34; color: #fff; border: 1px solid #444; }
         .log-window { background-color: #050505; border: 2px solid #333; border-radius: 25px; height: 380px; padding: 25px; text-align: left; overflow-y: auto; font-family: 'Consolas', monospace; box-shadow: inset 0 0 15px #000; }
-        .log-entry { color: #ffd700; font-size: 15px; margin-bottom: 15px; line-height: 1.6; border-bottom: 1px solid #1a1a1a; padding-bottom: 10px; }
-        .ball { display: inline-block; width: 32px; height: 32px; background: linear-gradient(135deg, #ffd700, #b8a000); color: #000; border-radius: 50%; text-align: center; line-height: 32px; font-weight: bold; margin-right: 5px; font-size: 15px; }
-        .tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #444; color: #ffd700; margin-right: 5px; font-weight: bold; }
+        .log-entry { color: #ffd700; font-size: 14px; margin-bottom: 10px; line-height: 1.5; border-bottom: 1px solid #1a1a1a; padding-bottom: 8px; }
+        .ball { display: inline-block; width: 30px; height: 30px; background: linear-gradient(135deg, #ffd700, #b8a000); color: #000; border-radius: 50%; text-align: center; line-height: 30px; font-weight: bold; margin-right: 4px; font-size: 14px; }
+        .tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #444; color: #ffd700; margin-right: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -25,19 +25,15 @@
 <div class="outer-border">
     <div class="inner-container">
         <div class="title">신 의 손</div>
-        <div class="info-box" id="header-info">분석기 가동 준비...</div>
-
-        <button class="btn-main yellow-btn" id="genBtn" onclick="generateEngine(10)" disabled>분석 엔진 10조합 가동</button>
+        <div class="info-box" id="header-info">데이터 로드 중...</div>
+        <button class="btn-main yellow-btn" id="genBtn" onclick="generateEngine()" disabled>분석 엔진 10조합 가동</button>
         <button class="btn-main grey-btn" onclick="location.reload()">데이터 초기화</button>
-
-        <div class="log-window" id="logs">
-            <div class="log-entry">▶ 시스템을 초기화합니다...</div>
-        </div>
+        <div class="log-window" id="logs"></div>
     </div>
 </div>
 
 <script>
-    // [데이터 내장] 최근 35회차 데이터 (1210회 ~ 1176회)
+    // [데이터 내장] 최근 35회차 데이터
     const rawData = [
         [1210,1,7,9,17,27,38,31], [1209,2,17,20,35,37,39,24], [1208,6,27,30,36,38,42,25],
         [1207,10,22,24,27,38,45,11], [1206,1,3,17,26,27,42,23], [1205,1,4,16,23,31,41,2],
@@ -53,61 +49,42 @@
         [1177,1,11,14,15,19,38,10], [1176,1,10,13,22,31,44,15]
     ];
 
-    let analysisData = { base12: [], missing: [], pool: [], nextRound: 0 };
+    let analysisData = { base12: [], missing: [], pool: [], bn5: null, bn6: null, bn7: null, nextRound: 0 };
 
     function initEngine() {
         const logs = document.getElementById('logs');
-        try {
-            const lastRound = rawData[0][0];
-            analysisData.nextRound = lastRound + 1;
+        const lastRound = rawData[0][0];
+        analysisData.nextRound = lastRound + 1;
 
-            // 1. 미출수 추출 (최근 30회 기준, 당첨번호 + 보너스)
-            const recent30 = rawData.slice(0, 30);
-            const appeared = new Set();
-            recent30.forEach(r => {
-                for(let i=1; i<=7; i++) appeared.add(r[i]);
-            });
+        // 1. 미출수 추출 (최근 30회 당첨+보너스 제외)
+        const recent30 = rawData.slice(0, 30);
+        const appeared = new Set();
+        recent30.forEach(r => r.slice(1, 8).forEach(n => appeared.add(n)));
+        analysisData.missing = Array.from({length: 45}, (_, i) => i + 1).filter(n => !appeared.has(n));
 
-            analysisData.missing = [];
-            for(let i=1; i<=45; i++) {
-                if(!appeared.has(i)) analysisData.missing.push(i);
-            }
+        // 2. 당첨 빈출 (Base12)
+        const counts = {};
+        rawData.slice(0, 35).forEach(r => r.slice(1, 7).forEach(n => counts[n] = (counts[n] || 0) + 1));
+        analysisData.base12 = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0, 12).map(v=>Number(v[0]));
 
-            // 2. 빈출수 (최근 35회 Base12)
-            const counts = {};
-            rawData.forEach(r => {
-                r.slice(1, 7).forEach(n => {
-                    counts[n] = (counts[n] || 0) + 1;
-                });
-            });
-            analysisData.base12 = Object.entries(counts)
-                .sort((a,b) => b[1] - a[1])
-                .slice(0, 12)
-                .map(v => Number(v[0]));
+        // 3. 보너스 점수제 (Eligible)
+        const bnCounts = {};
+        rawData.slice(0, 35).forEach(r => { if(r[7]) bnCounts[r[7]] = (bnCounts[r[7]] || 0) + 1; });
+        // 파이썬 로직: c*0.5 > 1.5 => c > 3 (4회 이상 출현한 보너스 번호)
+        let eligible = Object.entries(bnCounts).filter(([n,c])=>c > 3).sort((a,b)=>b[1]-a[1]).map(v=>Number(v[0]));
+        
+        analysisData.bn5 = eligible[0] || null;
+        analysisData.bn6 = eligible[1] || eligible[0] || null;
+        analysisData.bn7 = eligible[2] || eligible[0] || null;
 
-            // 3. 번호 풀 구성
-            analysisData.pool = Array.from(new Set([...analysisData.base12, ...analysisData.missing])).sort((a,b)=>a-b);
+        // 번호 풀 구성
+        analysisData.pool = Array.from(new Set([...analysisData.base12, ...eligible.slice(0, 3), ...analysisData.missing])).sort((a,b)=>a-b);
 
-            // 화면 업데이트
-            document.getElementById('header-info').innerText = `🎯 제 ${analysisData.nextRound}회차 분석 완료`;
-            document.getElementById('genBtn').disabled = false;
-            
-            let missingList = analysisData.missing.length > 0 ? analysisData.missing.join(', ') : "없음";
-
-            logs.innerHTML = `
-                <div class="log-entry" style="color:#00ff00">▶ 데이터 동기화 성공 (35회분 내장)</div>
-                <div class="log-entry" style="color:#ffd700">
-                    <strong>[최근 30회 미출수 리스트]</strong><br>
-                    <span style="color:#fff; background:#e74c3c; padding:2px 10px; border-radius:15px; display:inline-block; margin-top:5px;">
-                        ${missingList}
-                    </span>
-                </div>
-                <div class="log-entry">▶ 분석 풀: 총 ${analysisData.pool.length}개 번호 선별</div>
-            `;
-
-        } catch (err) {
-            logs.innerHTML = `<div class="log-entry" style="color:red">▶ 오류: ${err.message}</div>`;
-        }
+        document.getElementById('header-info').innerText = `🎯 제 ${analysisData.nextRound}회차 분석 완료`;
+        document.getElementById('genBtn').disabled = false;
+        logs.innerHTML = `<div class="log-entry" style="color:#00ff00">▶ 파이썬 보너스 분석 로직 이식 성공</div>
+                          <div class="log-entry">미출수: [${analysisData.missing.join(', ')}]</div>
+                          <div class="log-entry">보너스 타겟: [${eligible.slice(0, 3).join(', ')}]</div>`;
     }
 
     function getAC(comb) {
@@ -116,32 +93,59 @@
         return diffs.size - 5;
     }
 
-    function generateEngine(count) {
+    function checkConsecutive(comb) {
+        let maxCons = 1, cons = 1;
+        for(let i=0; i<5; i++) {
+            if(comb[i]+1 === comb[i+1]) { cons++; maxCons = Math.max(maxCons, cons); }
+            else cons = 1;
+        }
+        return maxCons < 3;
+    }
+
+    function generateEngine() {
         const logs = document.getElementById('logs');
-        logs.innerHTML += `<div class="log-entry" style="color:#00ff00">▶ 제 ${analysisData.nextRound}회차 조합 생성 시작...</div>`;
-        
+        const { pool, missing, base12, bn5, bn6, bn7 } = analysisData;
+        const core_nums = base12.slice(0, 5);
         let results = [];
         let attempts = 0;
-        
-        while(results.length < count && attempts < 10000) {
+
+        while(results.length < 10 && attempts < 50000) {
             attempts++;
-            let comb = [...analysisData.pool].sort(() => Math.random() - 0.5).slice(0, 6).sort((a,b)=>a-b);
-            let sum = comb.reduce((a,b)=>a+b, 0);
-            let ac = getAC(comb);
-            let missingCnt = comb.filter(n => analysisData.missing.includes(n)).length;
+            let comb = [...pool].sort(()=>Math.random()-0.5).slice(0, 6).sort((a,b)=>a-b);
+            
+            // 공통 필터: 합계 100~170, 홀짝 전멸 제외, 연속번호 제한
+            const sum = comb.reduce((a,b)=>a+b, 0);
+            if(sum < 100 || sum > 170) continue;
+            const odds = comb.filter(n=>n%2!==0).length;
+            if(odds === 0 || odds === 6) continue;
+            if(!checkConsecutive(comb)) continue;
 
-            // 필터링: 합계 100~180, AC 7 이상
-            if(sum < 100 || sum > 180 || ac < 7) continue;
+            const ac = getAC(comb);
+            const mCnt = comb.filter(n=>missing.includes(n)).length;
+            const cMatch = comb.filter(n=>core_nums.includes(n)).length;
+            const idx = results.length + 1;
+            let pass = false;
 
-            let idx = results.length + 1;
-            // 8, 9, 10번은 무조건 미출수 1개 이상 포함
-            let pass = (idx <= 7) ? true : (missingCnt >= 1);
+            // --- 파이썬 generate_fixed_combinations 로직 ---
+            if(idx <= 7) { // 1~7번 안정형
+                if(mCnt === 0 && ac >= 7 && ac <= 10) {
+                    if(idx === 5 && bn5) pass = comb.includes(bn5);
+                    else if(idx === 6 && bn6) pass = comb.includes(bn6);
+                    else if(idx === 7 && bn7) pass = comb.includes(bn7);
+                    else if(idx <= 2) pass = (cMatch >= 2);
+                    else pass = true;
+                }
+            } else { // 8~10번 전략형
+                if(idx === 8 && bn5 && comb.includes(bn5) && mCnt === 1 && ac >= 7) pass = true;
+                else if(idx === 9 && mCnt === 2 && ac >= 7) pass = true;
+                else if(idx === 10 && ac >= 8 && cMatch >= 3 && mCnt >= 1) pass = true;
+            }
 
             if(pass) {
                 results.push(comb);
-                let type = (idx <= 7) ? "안정형" : "전략형";
-                let balls = comb.map(n => `<span class="ball">${n}</span>`).join('');
-                logs.innerHTML += `<div class="log-entry"><span class="tag">${type}</span> #${idx}<br>${balls}<br><small>합계: ${sum} / AC: ${ac} / 미출수: ${missingCnt}</small></div>`;
+                const type = idx <= 7 ? "안정" : "전략";
+                const balls = comb.map(n => `<span class="ball">${n}</span>`).join('');
+                logs.innerHTML += `<div class="log-entry"><span class="tag">${type}</span> #${idx}<br>${balls}</div>`;
                 logs.scrollTop = logs.scrollHeight;
             }
         }
