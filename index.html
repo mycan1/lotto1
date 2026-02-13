@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>신의 손 v4.3 - 1211회 (AC 6-9)</title>
+    <title>신의 손 v4.4 - 1211회 (AC 6-9 최적화)</title>
     <style>
         body { background-color: #000; color: #fff; font-family: 'Malgun Gothic', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .outer-border { border: 4px solid #ffd700; border-radius: 40px; padding: 12px; width: 95%; max-width: 420px; box-shadow: 0 0 30px rgba(255, 215, 0, 0.6); }
@@ -15,6 +15,10 @@
         .log-entry { color: #ffd700; font-size: 14px; margin-bottom: 12px; line-height: 1.5; border-bottom: 1px solid #1a1a1a; padding-bottom: 8px; }
         .ball { display: inline-block; width: 30px; height: 30px; background: linear-gradient(135deg, #ffd700, #b8a000); color: #000; border-radius: 50%; text-align: center; line-height: 30px; font-weight: bold; margin-right: 4px; font-size: 14px; }
         .tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #444; color: #ffd700; margin-right: 5px; font-weight: bold; }
+        /* 스크롤바 스타일 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -51,6 +55,7 @@
         const logs = document.getElementById('logs');
         logs.innerHTML = '<div class="log-entry">▶ 1211회 분석 (AC 6~9 필터 적용) 중...</div>';
         
+        // 데이터 분석
         const recent35 = rawData.slice(0, 35);
         let counts = {};
         recent35.forEach(r => r.slice(1,7).forEach(n => counts[n] = (counts[n]||0) + 1));
@@ -64,64 +69,101 @@
         const bn6 = eligible[1] || bn5;
         const bn7 = eligible[2] || bn5;
 
+        // 미출수 분석 (최근 30회 기준)
         const recent30Nums = new Set();
         rawData.slice(0, 30).forEach(r => r.slice(1, 8).forEach(n => recent30Nums.add(n)));
         const missingSet = new Set(Array.from({length:45},(_,i)=>i+1).filter(n => !recent30Nums.has(n)));
 
+        // 번호 풀 생성
         const pool = Array.from(new Set([...base12, ...eligible.slice(0, 3), ...Array.from(missingSet)])).sort((a,b)=>a-b);
 
         let finalResults = new Array(11).fill(null);
         let attempts = 0;
-
+        
+        // 루프 제한 20만회
         while(!finalResults.slice(1).every(r => r !== null) && attempts < 200000) {
             attempts++;
             let comb = [];
             let tempPool = [...pool];
+            
+            // 번호 6개 추출
             for(let i=0; i<6; i++) {
+                if(tempPool.length === 0) break;
                 let rIdx = Math.floor(Math.random() * tempPool.length);
                 comb.push(tempPool.splice(rIdx, 1)[0]);
             }
+            if(comb.length < 6) continue;
             comb.sort((a, b) => a - b);
 
+            // 기본 필터
             if (!checkConsecutive(comb)) continue;
             const sum = comb.reduce((a, b) => a + b, 0);
             if (sum < 100 || sum > 170) continue;
             
-            // [수정] 지술(AC) 조건을 6~9로 변경
+            // AC 값 필터 (6~9)
             const ac = calculateAC(comb);
             if (ac < 6 || ac > 9) continue;
 
+            // 홀짝 필터
             const odds = comb.filter(n => n % 2 !== 0).length;
             if (odds === 0 || odds === 6) continue;
+            
             const mCount = comb.filter(n => missingSet.has(n)).length;
 
+            // 조합 할당 로직
             for (let i = 1; i <= 10; i++) {
-                if (finalResults[i] !== null) continue;
+                if (finalResults[i] !== null) continue; // 이미 채워진 슬롯 패스
+
+                // 1~7번: 안정형 (미출수 0개, 상위 번호 위주)
                 if (i <= 7) {
                     if (mCount !== 0) continue;
                     if (i === 5 && !comb.includes(bn5)) continue;
                     if (i === 6 && !comb.includes(bn6)) continue;
                     if (i === 7 && !comb.includes(bn7)) continue;
                     if (i <= 2 && comb.filter(n => coreNums.has(n)).length < 2) continue;
+                    
                     finalResults[i] = comb; break;
-                } else {
-                    if (i === 8 && comb.includes(bn5) && mCount === 1) { finalResults[i] = comb; break; }
-                    if (i === 9 && mCount === 2) { finalResults[i] = comb; break; }
-                    if (i === 10 && comb.filter(n => coreNums.has(n)).length >= 3 && mCount >= 1) { finalResults[i] = comb; break; }
+                } 
+                // 8~10번: 전략형 (조건 완화로 빈 슬롯 방지)
+                else {
+                    // 8번: 미출수 1개 이상 혹은 특정 보너스 번호 포함
+                    if (i === 8) {
+                        if (mCount >= 1 || comb.includes(bn5)) { finalResults[i] = comb; break; }
+                    }
+                    // 9번: 미출수 1개 이상이면 OK (기존 2개 필수에서 완화)
+                    if (i === 9) {
+                        if (mCount >= 1) { finalResults[i] = comb; break; }
+                    }
+                    // 10번: 핵심 번호가 3개 이상이거나 미출수가 1개 이상이면 채움
+                    if (i === 10) {
+                        if (comb.filter(n => coreNums.has(n)).length >= 3 || mCount >= 1) { finalResults[i] = comb; break; }
+                    }
                 }
             }
         }
 
+        // 결과 출력
         logs.innerHTML = '';
+        let fillCount = 0;
         for (let i = 1; i <= 10; i++) {
             if (finalResults[i]) {
+                fillCount++;
                 const balls = finalResults[i].map(n => `<span class="ball">${n}</span>`).join('');
                 logs.innerHTML += `<div class="log-entry"><span class="tag">${i<=7?'안정':'전략'}</span> #${i}<br>${balls}</div>`;
+            } else {
+                // 만약 여전히 비어있다면 (확률 낮음)
+                logs.innerHTML += `<div class="log-entry"><span class="tag">실패</span> #${i}<br>조건 만족 조합 없음</div>`;
             }
         }
-        document.getElementById('header-info').innerText = "✅ AC 6~9 적용 10조합 생성 완료";
+        
+        if(fillCount === 10) {
+            document.getElementById('header-info').innerText = "✅ 10조합 완전 생성 성공";
+        } else {
+            document.getElementById('header-info').innerText = "⚠️ 일부 조합 생성 실패 (재시도 권장)";
+        }
     }
-    window.onload = () => { document.getElementById('header-info').innerText = "🎯 지술 6~9 설정 (1211회 준비)"; };
+    
+    window.onload = () => { document.getElementById('header-info').innerText = "🎯 1211회 AC 6~9 시스템 준비"; };
 </script>
 </body>
 </html>
