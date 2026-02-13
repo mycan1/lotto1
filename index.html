@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>신의 손 v3.5 - 미출수 자동 정밀 분석기</title>
+    <title>신의 손 v3.5 - 미출수 정밀 분석</title>
     <style>
         body { background-color: #000; color: #fff; font-family: 'Malgun Gothic', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .outer-border { border: 4px solid #ffd700; border-radius: 40px; padding: 12px; width: 95%; max-width: 420px; box-shadow: 0 0 30px rgba(255, 215, 0, 0.6); }
@@ -14,13 +14,11 @@
         .btn-main:active { transform: scale(0.98); }
         .yellow-btn { background: linear-gradient(to bottom, #fdf24d, #b8a000); color: #000; }
         .grey-btn { background: #2c2c34; color: #fff; border: 1px solid #444; }
-        .log-window { background-color: #050505; border: 2px solid #333; border-radius: 25px; height: 380px; padding: 25px; text-align: left; overflow-y: auto; font-family: 'Consolas', monospace; box-shadow: inset 0 0 15px #000; scroll-behavior: smooth; }
+        .log-window { background-color: #050505; border: 2px solid #333; border-radius: 25px; height: 380px; padding: 25px; text-align: left; overflow-y: auto; font-family: 'Consolas', monospace; box-shadow: inset 0 0 15px #000; }
         .log-entry { color: #ffd700; font-size: 15px; margin-bottom: 15px; line-height: 1.6; border-bottom: 1px solid #1a1a1a; padding-bottom: 10px; }
-        .ball { display: inline-block; width: 32px; height: 32px; background: linear-gradient(135deg, #ffd700, #b8a000); color: #000; border-radius: 50%; text-align: center; line-height: 32px; font-weight: bold; margin-right: 5px; font-size: 15px; box-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+        .ball { display: inline-block; width: 32px; height: 32px; background: linear-gradient(135deg, #ffd700, #b8a000); color: #000; border-radius: 50%; text-align: center; line-height: 32px; font-weight: bold; margin-right: 5px; font-size: 15px; }
         .tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #444; color: #ffd700; margin-right: 5px; font-weight: bold; }
         #status { color: #00ff00; font-size: 12px; margin-top: 8px; font-weight: bold; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #ffd700; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -28,15 +26,15 @@
 <div class="outer-border">
     <div class="inner-container">
         <div class="title">신 의 손</div>
-        <div class="info-box" id="header-info">분석 대기 중...</div>
+        <div class="info-box" id="header-info">데이터 로딩...</div>
 
         <button class="btn-main yellow-btn" id="genBtn" onclick="generateEngine(10)" disabled>분석 엔진 10조합 가동</button>
         <button class="btn-main grey-btn" onclick="location.reload()">데이터 새로고침</button>
 
         <div class="log-window" id="logs">
-            <div class="log-entry">▶ lotto.txt 데이터를 불러오는 중...</div>
+            <div class="log-entry">▶ lotto.txt 동기화 중...</div>
         </div>
-        <div id="status">연결 시도 중</div>
+        <div id="status">연결 대기 중</div>
     </div>
 </div>
 
@@ -47,15 +45,13 @@
         const logs = document.getElementById('logs');
         try {
             const response = await fetch('./lotto.txt');
-            if (!response.ok) throw new Error('lotto.txt 파일을 찾을 수 없습니다.');
+            if (!response.ok) throw new Error('파일 로드 실패');
             const text = await response.text();
             
-            // [업데이트] 초강력 파싱: 쉼표, 마침표, 공백 모두 대응하여 숫자만 추출
+            // [핵심] 모든 구분자를 무시하고 숫자만 추출하여 2차원 배열로 변환
             const rows = text.trim().split('\n').map(row => {
                 return row.split(/[^0-9]/).filter(v => v !== "").map(Number);
-            }).filter(r => r.length >= 8); // 회차+당첨6+보너스1 = 최소 8개 확인
-
-            if (rows.length === 0) throw new Error('유효한 로또 데이터가 없습니다.');
+            }).filter(r => r.length >= 8); // 회차 + 당첨6 + 보너스1
 
             const lastRound = rows[0][0];
             analysisData.nextRound = lastRound + 1;
@@ -63,44 +59,39 @@
             const recent35 = rows.slice(0, 35);
             const recent30 = rows.slice(0, 30);
 
-            // 1. 최다 빈도 (Base12) 추출 (최근 35회 기준)
+            // 1. 최다 빈도 (Base12)
             const allNums = recent35.flatMap(r => r.slice(1, 7));
             const counts = {};
             allNums.forEach(n => { if(n >= 1 && n <= 45) counts[n] = (counts[n] || 0) + 1; });
             analysisData.base12 = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 12).map(v => Number(v[0]));
 
-            // 2. 미출수 (Missing) 추출 - 최근 30회 기준 (당첨번호 + 보너스번호 포함)
+            // 2. 미출수 (최근 30회 기준, 보너스 포함)
             const appeared30 = new Set();
             recent30.forEach(r => {
                 for(let i=1; i<=7; i++) if(r[i]) appeared30.add(r[i]);
             });
-
             analysisData.missing = [];
-            for(let i=1; i<=45; i++) {
-                if(!appeared30.has(i)) analysisData.missing.push(i);
-            }
+            for(let i=1; i<=45; i++) if(!appeared30.has(i)) analysisData.missing.push(i);
 
-            // 3. 보너스 번호 분석
+            // 3. 보너스 후보
             const bnCounts = {};
             recent35.forEach(r => { if(r[7]) bnCounts[r[7]] = (bnCounts[r[7]] || 0) + 1; });
             analysisData.eligibleBN = Object.entries(bnCounts).filter(v => v[1] > 1.5).sort((a,b) => b[1] - a[1]).map(v => Number(v[0]));
 
-            // 4. 최종 번호 풀(Pool) 생성
+            // 4. 번호 풀 구성
             analysisData.pool = Array.from(new Set([...analysisData.base12, ...analysisData.eligibleBN.slice(0,3), ...analysisData.missing])).sort((a,b)=>a-b);
 
-            // 화면 업데이트
+            // 업데이트
             document.getElementById('header-info').innerText = `🎯 제 ${analysisData.nextRound}회차 분석 완료`;
-            document.getElementById('status').innerText = `최신 데이터: ${lastRound}회차 동기화 성공`;
+            document.getElementById('status').innerText = `최신 데이터: ${lastRound}회차 로드 성공`;
             document.getElementById('genBtn').disabled = false;
             
-            // [중요] 미출수 정보를 로그 창 상단에 표시
             let missingInfo = analysisData.missing.length > 0 ? analysisData.missing.join(', ') : "없음";
             logs.innerHTML = `
-                <div class="log-entry" style="color:#00ff00">▶ 분석 엔진 v3.5 준비 완료</div>
+                <div class="log-entry" style="color:#00ff00">▶ 분석 엔진 v3.5 가동 완료</div>
                 <div class="log-entry" style="color:#ffd700">▶ 최근 30회 미출수(${analysisData.missing.length}개):<br><strong>${missingInfo}</strong></div>
-                <div class="log-entry">▶ 압축된 번호 풀: ${analysisData.pool.length}개 조합 가동 가능</div>
+                <div class="log-entry">▶ 분석 풀(Pool): ${analysisData.pool.length}개 번호 구성됨</div>
             `;
-
         } catch (err) {
             logs.innerHTML = `<div class="log-entry" style="color:red">▶ 오류: ${err.message}</div>`;
         }
@@ -119,12 +110,10 @@
 
     function generateEngine(count) {
         const logs = document.getElementById('logs');
-        logs.innerHTML += `<div class="log-entry" style="color:#00ff00">▶ 제 ${analysisData.nextRound}회차 10조합 분석 시작...</div>`;
+        logs.innerHTML += `<div class="log-entry" style="color:#00ff00">▶ 제 ${analysisData.nextRound}회차 조합 추출...</div>`;
         
         let results = [];
         let attempts = 0;
-        const core5 = new Set(analysisData.base12.slice(0, 5));
-        const bn5 = analysisData.eligibleBN[0] || analysisData.base12[0];
         
         while(results.length < count && attempts < 100000) {
             attempts++;
@@ -136,15 +125,10 @@
             let odd = comb.filter(n => n % 2 !== 0).length;
             let missingCnt = comb.filter(n => analysisData.missing.includes(n)).length;
 
-            // 정밀 필터링 (합계 100~175, AC 7이상, 홀짝 균형)
             if(sum < 100 || sum > 175 || ac < 7 || odd === 0 || odd === 6 || !isConsecOk(comb)) continue;
 
             let idx = results.length + 1;
-            let pass = false;
-
-            // 안정형(1~7번): 미출수 제외 / 전략형(8~10번): 미출수 1~2개 포함
-            if(idx <= 7) { if(missingCnt === 0) pass = true; }
-            else { if(missingCnt >= 1 && missingCnt <= 2) pass = true; }
+            let pass = (idx <= 7) ? (missingCnt === 0) : (missingCnt >= 1 && missingCnt <= 2);
 
             if(pass) {
                 results.push(comb);
@@ -155,7 +139,6 @@
             }
         }
     }
-
     window.onload = initEngine;
 </script>
 </body>
