@@ -25,7 +25,7 @@
         <div id="info" class="info-box">🎯 제 1211회차 엔진 가동 중</div>
         <button class="btn-main yellow-btn" onclick="mainEngine()">분석형 10조합 생성</button>
         <div class="log-window" id="logs">
-            <div class="log-entry">▶ 원본 파이썬 엔진 대기 완료.</div>
+            <div class="log-entry">▶ 원본 분석 엔진 로드 완료.</div>
         </div>
     </div>
 </div>
@@ -43,17 +43,15 @@
             const recent30 = lines.slice(-30);
             const recent20 = lines.slice(-20);
             
-            // 미출수 분석 (최근 30회)
             let all30 = new Set();
             recent30.forEach(row => row.slice(1, 8).forEach(n => all30.add(Number(n))));
             missingNums = Array.from({length: 45}, (_, i) => i + 1).filter(n => !all30.has(n));
 
-            // 빈출 12수 분석 (최근 20회)
             let counts = {};
             recent20.forEach(row => row.slice(1, 7).forEach(n => counts[n] = (counts[n]||0)+1));
             base12 = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]).slice(0, 12).map(Number).sort((a,b)=>a-b);
             
-            addLog(`✅ 로드 완료: 기반12수[${base12.slice(0,3)}...], 미출수[${missingNums.length}개]`);
+            addLog(`✅ lotto.txt 분석 완료: 기반 12수 및 미출수 세팅됨.`);
         } catch(e) { addLog("❌ lotto.txt 파일을 찾을 수 없습니다."); }
     }
 
@@ -98,6 +96,7 @@
             if(!isConsecOk(comb) || sum < 100 || sum > 170 || odds === 0 || odds === 6) continue;
 
             let ok = false;
+            // 사장님 원본 generate_fixed_combinations 로직 그대로 적용
             if (i <= 2) { if(ac >= 7 && ac <= 10 && coreMatch >= 2 && mCount === 0) ok = true; }
             else if (i <= 7) { if(ac >= 7 && ac <= 10 && mCount === 0) ok = true; }
             else if (i === 8) { if(ac >= 7 && ac <= 10 && mCount === 1) ok = true; }
@@ -107,7 +106,7 @@
             if(오케이) {
                 results.push(comb);
                 let balls = comb.map(n => `<span class="ball">${n}</span>`).join('');
-                addLog(`[${i}조합] ${balls}<br><small>AC:${ac} | 합:${sum} | 미출:${mCount}</small>`);
+                addLog(`[${i}조합] ${balls} (AC:${ac}/합:${sum}/미출:${mCount})`);
             }
         }
     }
