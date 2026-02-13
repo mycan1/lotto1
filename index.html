@@ -12,6 +12,7 @@
         .info-box { background-color: #1a1a1a; border: 1.5px solid #555; border-radius: 60px; padding: 16px; margin-bottom: 30px; color: #fff; font-size: 17px; font-weight: bold; }
         .btn-main { width: 100%; height: 85px; border-radius: 25px; border: none; font-size: 24px; font-weight: 900; margin-bottom: 18px; cursor: pointer; display: block; box-shadow: 0 6px 15px rgba(0,0,0,0.4); transition: 0.3s; }
         .btn-main:active { transform: scale(0.98); }
+        .btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
         .yellow-btn { background: linear-gradient(to bottom, #fdf24d, #b8a000); color: #000; }
         .grey-btn { background: #2c2c34; color: #fff; border: 1px solid #444; }
         .log-window { background-color: #050505; border: 2px solid #333; border-radius: 25px; height: 380px; padding: 25px; text-align: left; overflow-y: auto; font-family: 'Consolas', monospace; box-shadow: inset 0 0 15px #000; scroll-behavior: smooth; }
@@ -34,7 +35,7 @@
         <button class="btn-main grey-btn" onclick="location.reload()">데이터 새로고침</button>
 
         <div class="log-window" id="logs">
-            <div class="log-entry">▶ 서버 연결 및 lotto.txt 로드 중...</div>
+            <div class="log-entry">▶ lotto.txt 로드 및 엔진 초기화 중...</div>
         </div>
         <div id="status">연결 대기 중</div>
     </div>
@@ -43,7 +44,6 @@
 <script>
     let analysisData = { base12: [], missing: [], eligibleBN: [], pool: [], nextRound: 0 };
 
-    // 1. 데이터 로드 및 원본 분석 로직 실행
     async function initEngine() {
         const logs = document.getElementById('logs');
         try {
@@ -51,59 +51,54 @@
             if (!response.ok) throw new Error('lotto.txt 파일을 찾을 수 없습니다.');
             const text = await response.text();
             
-            // 데이터 파싱 (콤마, 마침표 대응)
             const rows = text.trim().split('\n').map(row => row.replace(/[r]/g, '').split(/[,\.]/).map(Number));
             const lastRound = rows[0][0];
             analysisData.nextRound = lastRound + 1;
 
-            // [원본 로직] 최근 35회 Base12 추출
             const recent35 = rows.slice(0, 35);
             const allNums = recent35.flatMap(r => r.slice(1, 7));
             const counts = {};
             allNums.forEach(n => counts[n] = (counts[n] || 0) + 1);
             analysisData.base12 = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 12).map(v => Number(v[0]));
 
-            // [원본 로직] 최근 30회 미출수 추출
             const recent30 = rows.slice(0, 30);
             const appeared30 = new Set(recent30.flatMap(r => [...r.slice(1, 8)]));
             analysisData.missing = [];
             for(let i=1; i<=45; i++) if(!appeared30.has(i)) analysisData.missing.push(i);
 
-            // [원본 로직] 보너스 번호 분석 (기준 1.5)
             const bnCounts = {};
             recent35.forEach(r => bnCounts[r[7]] = (bnCounts[r[7]] || 0) + 1);
             analysisData.eligibleBN = Object.entries(bnCounts).filter(v => v[1] > 1.5).sort((a,b) => b[1] - a[1]).map(v => Number(v[0]));
 
-            // [원본 로직] 분석 번호 풀(Pool) 생성
             analysisData.pool = Array.from(new Set([...analysisData.base12, ...analysisData.eligibleBN.slice(0,3), ...analysisData.missing])).sort((a,b)=>a-b);
 
             document.getElementById('header-info').innerText = `🎯 제 ${analysisData.nextRound}회차 분석 완료`;
             document.getElementById('status').innerText = `최신 데이터: ${lastRound}회차 동기화 성공`;
             document.getElementById('genBtn').disabled = false;
-            logs.innerHTML = `<div class="log-entry" style="color:#00ff00">▶ [분석 완료] 엔진 가동 준비가 되었습니다.<br>▶ 선별된 번호 풀: ${analysisData.pool.length}개</div>`;
+            logs.innerHTML = `<div class="log-entry" style="color:#00ff00">▶ [성공] 엔진 가동 준비 완료 (풀: ${analysisData.pool.length}개)</div>`;
 
         } catch (err) {
-            logs.innerHTML = `<div class="log-entry" style="color:red">▶ 오류 발생: ${err.message}</div>`;
+            logs.innerHTML = `<div class="log-entry" style="color:red">▶ 오류: ${err.message}</div>`;
         }
     }
 
-    // [원본 로직] AC 계산
     function getAC(comb) {
         let diffs = new Set();
         for(let i=0; i<6; i++) for(let j=i+1; j<6; j++) diffs.add(Math.abs(comb[i]-comb[j]));
         return diffs.size - 5;
     }
 
-    // [원본 로직] 3연번 금지
     function isConsecOk(s) {
         for(let i=0; i<s.length-2; i++) if(s[i]+1 === s[i+1] && s[i+1]+1 === s[i+2]) return false;
         return true;
     }
 
-    // 2. 조합 생성 엔진 (10조합 풀가동)
-    function generateEngine(count) {
+    // 10조합 생성 엔진 (최적화 버전)
+    async function generateEngine(count) {
         const logs = document.getElementById('logs');
-        logs.innerHTML = `<div class="log-entry" style="color:#00ff00">▶ 제 ${analysisData.nextRound}회차 정밀 필터링 가동 중...</div>`;
+        const genBtn = document.getElementById('genBtn');
+        genBtn.disabled = true;
+        logs.innerHTML = `<div class="log-entry" style="color:#00ff00">▶ 제 ${analysisData.nextRound}회차 정밀 필터링 가동...</div>`;
         
         let results = [];
         let attempts = 0;
@@ -112,9 +107,13 @@
         const bn6 = analysisData.eligibleBN[1] || bn5;
         const bn7 = analysisData.eligibleBN[2] || bn5;
 
-        // 까다로운 전략형을 위해 시도 횟수를 10만 번으로 증폭
-        while(results.length < count && attempts < 100000) {
+        // 브라우저 멈춤 방지를 위해 비동기 루프로 처리
+        while(results.length < count && attempts < 300000) {
             attempts++;
+            
+            // 일정 횟수마다 브라우저에 숨 쉴 틈을 줌 (UI 업데이트용)
+            if (attempts % 5000 === 0) await new Promise(resolve => setTimeout(resolve, 0));
+
             let shuffled = [...analysisData.pool].sort(() => Math.random() - 0.5);
             let comb = shuffled.slice(0, 6).sort((a,b)=>a-b);
 
@@ -124,28 +123,19 @@
             let missingCnt = comb.filter(n => analysisData.missing.includes(n)).length;
             let coreMatch = comb.filter(n => core5.has(n)).length;
 
-            // 기본 공통 필터링 (원본 수치 준수)
             if(sum < 100 || sum > 175 || ac < 7 || odd === 0 || odd === 6 || !isConsecOk(comb)) continue;
 
             let idx = results.length + 1;
             let pass = false;
 
-            // [원본 로직] 1~10번 각 조합별 개별 필터링
-            if(idx <= 4) { // 1~4번: 안정형 (미출수 0)
-                if(missingCnt === 0) pass = true;
-            } else if(idx === 5) { // 5번: 안정형 + 보너스1
-                if(missingCnt === 0 && comb.includes(bn5)) pass = true;
-            } else if(idx === 6) { // 6번: 안정형 + 보너스2
-                if(missingCnt === 0 && comb.includes(bn6)) pass = true;
-            } else if(idx === 7) { // 7번: 안정형 + 보너스3
-                if(missingCnt === 0 && comb.includes(bn7)) pass = true;
-            } else if(idx === 8) { // 8번: 전략형 (미출수 1 + 보너스1)
-                if(missingCnt === 1 && comb.includes(bn5)) pass = true;
-            } else if(idx === 9) { // 9번: 전략형 (미출수 2)
-                if(missingCnt === 2) pass = true;
-            } else if(idx === 10) { // 10번: 전략형 (핵심수 3개 이상)
-                if(missingCnt >= 1 && coreMatch >= 2) pass = true; 
-            }
+            // [사용자 원본 로직] 조건 검사
+            if(idx <= 4) { if(missingCnt === 0) pass = true; }
+            else if(idx === 5) { if(missingCnt === 0 && comb.includes(bn5)) pass = true; }
+            else if(idx === 6) { if(missingCnt === 0 && comb.includes(bn6)) pass = true; }
+            else if(idx === 7) { if(missingCnt === 0 && comb.includes(bn7)) pass = true; }
+            else if(idx === 8) { if(missingCnt === 1 && comb.includes(bn5)) pass = true; }
+            else if(idx === 9) { if(missingCnt === 2) pass = true; }
+            else if(idx === 10) { if(missingCnt >= 1 && coreMatch >= 2) pass = true; }
 
             if(pass) {
                 results.push(comb);
@@ -157,10 +147,11 @@
         }
 
         if(results.length < 10) {
-            logs.innerHTML += `<div class="log-entry" style="color:#ff4444">▶ 필터가 너무 까다로워 ${results.length}조합만 생성됨. 다시 시도해 주세요.</div>`;
+            logs.innerHTML += `<div class="log-entry" style="color:#ff4444">▶ 필터 조건이 매우 까다로워 ${results.length}조합까지만 생성되었습니다. 다시 시도해 주세요.</div>`;
         } else {
-            logs.innerHTML += `<div class="log-entry" style="color:#00ff00">▶ [성공] 10개 조합 추출이 완료되었습니다!</div>`;
+            logs.innerHTML += `<div class="log-entry" style="color:#00ff00">▶ [성공] 10개 조합 추출 완료!</div>`;
         }
+        genBtn.disabled = false;
     }
 
     window.onload = initEngine;
