@@ -3,19 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>신의 손 v3.0 - 파이썬 로직 완벽이식</title>
+    <title>신의 손 v3.1</title>
     <style>
-        body { background-color: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .outer-border { border: 3px solid #ffd700; border-radius: 35px; padding: 10px; width: 92%; max-width: 420px; box-shadow: 0 0 25px rgba(255, 215, 0, 0.5); }
-        .inner-container { border: 1px solid #ffd700; border-radius: 28px; padding: 30px 20px; text-align: center; background: #000; }
-        .title { color: #ffd700; font-size: 48px; font-weight: bold; margin-bottom: 20px; letter-spacing: 8px; }
-        .info-box { background-color: #1a1a1a; border: 1px solid #444; border-radius: 50px; padding: 14px; margin-bottom: 35px; color: #fff; font-size: 17px; }
-        .btn-main { width: 100%; height: 80px; border-radius: 25px; border: none; font-size: 22px; font-weight: bold; margin-bottom: 15px; cursor: pointer; display: block; }
-        .yellow-btn { background: linear-gradient(to bottom, #fdf24d, #b8a000); color: #000; }
+        /* 사진 속 배경과 레이아웃 */
+        body { background-color: #000; color: #fff; font-family: 'Malgun Gothic', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        
+        /* 사진에 있던 아주 굵은 황금색 이중 테두리 */
+        .outer-border { border: 4px solid #ffd700; border-radius: 40px; padding: 12px; width: 95%; max-width: 420px; box-shadow: 0 0 30px rgba(255, 215, 0, 0.6); }
+        .inner-container { border: 2px solid #ffd700; border-radius: 32px; padding: 40px 25px; text-align: center; background: #000; position: relative; }
+        
+        /* 제목: 신의 손 */
+        .title { color: #ffd700; font-size: 55px; font-weight: 900; margin-bottom: 25px; letter-spacing: 12px; text-shadow: 3px 3px 6px rgba(0,0,0,0.8); }
+        
+        /* 제 1211회차 엔진 가동 중 (검정 타원 박스) */
+        .info-box { background-color: #1a1a1a; border: 1.5px solid #555; border-radius: 60px; padding: 16px; margin-bottom: 40px; color: #fff; font-size: 19px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 12px; }
+        
+        /* 사장님 사진 속 둥글고 큼직한 버튼 스타일 */
+        .btn-main { width: 100%; height: 85px; border-radius: 25px; border: none; font-size: 24px; font-weight: 900; margin-bottom: 18px; cursor: pointer; display: block; box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
+        .yellow-btn { background: linear-gradient(to bottom, #fdf24d, #b8a000); color: #000; } /* 사진 속 쨍한 노란색 */
         .grey-btn { background: #2c2c34; color: #fff; border: 1px solid #444; }
-        .log-window { background-color: #050505; border: 1px solid #333; border-radius: 20px; height: 320px; padding: 20px; text-align: left; overflow-y: auto; font-family: monospace; }
-        .log-entry { color: #ffd700; font-size: 15px; margin-bottom: 12px; border-bottom: 1px solid #1a1a1a; padding-bottom: 8px; }
-        .ball { display: inline-block; width: 28px; height: 28px; background: #ffd700; color: #000; border-radius: 50%; text-align: center; line-height: 28px; font-weight: bold; margin-right: 5px; font-size: 14px; }
+        
+        /* 하단 분석 로그 창 */
+        .log-window { background-color: #050505; border: 2px solid #333; border-radius: 25px; height: 350px; padding: 25px; text-align: left; overflow-y: auto; font-family: 'Consolas', monospace; box-shadow: inset 0 0 15px #000; }
+        .log-entry { color: #ffd700; font-size: 16px; margin-bottom: 12px; line-height: 1.6; border-bottom: 1px solid #1a1a1a; padding-bottom: 10px; }
+        .ball { display: inline-block; width: 32px; height: 32px; background: #ffd700; color: #000; border-radius: 50%; text-align: center; line-height: 32px; font-weight: bold; margin-right: 6px; font-size: 15px; box-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
@@ -23,66 +34,61 @@
 <div class="outer-border">
     <div class="inner-container">
         <div class="title">신 의 손</div>
-        <div class="info-box">🎯 제 1211회차 전문가용 엔진 가동</div>
+        <div class="info-box">🎯 제 1211회차 엔진 가동 중</div>
 
-        <button class="btn-main yellow-btn" onclick="lottoEngine(5, 'stable')">5조합 생성 (AC 9-10)</button>
-        <button class="btn-main grey-btn" onclick="lottoEngine(10, 'strategy')">10조합 생성 (전략 분석)</button>
+        <button class="btn-main yellow-btn" onclick="runLotto(5, 9)">5조합 생성 (AC 9-10)</button>
+        <button class="btn-main grey-btn" onclick="runLotto(10, 7)">10조합 생성 (패턴 분석)</button>
 
         <div class="log-window" id="logs">
-            <div class="log-entry">▶ [알림] 파이썬 원본 필터링 엔진 준비 완료.</div>
-            <div class="log-entry">▶ 1211회차 분석 준비가 끝났습니다.</div>
+            <div class="log-entry">▶ [시스템] 사장님 원본 로직 탑재 완료.</div>
+            <div class="log-entry">▶ 1211회차 정밀 필터 가동 대기 중...</div>
         </div>
     </div>
 </div>
 
 <script>
-    /* [원본 파이썬 로직 핵심 함수들] */
+    /* 사장님 원본 파이썬 코드의 핵심 로직 100% 이식 */
     function getAC(c) {
         let d = new Set();
         for(let i=0; i<6; i++) for(let j=i+1; j<6; j++) d.add(Math.abs(c[i]-c[j]));
         return d.size - 5;
     }
 
-    function checkConsecutiveLimit(c) {
+    function isConsecOk(c) {
         let s = [...c].sort((a,b)=>a-b);
         for(let i=0; i<s.length-2; i++) if(s[i]+1 === s[i+1] && s[i+1]+1 === s[i+2]) return false;
         return true;
     }
 
-    function lottoEngine(count, type) {
+    function runLotto(count, minAC) {
         const logs = document.getElementById('logs');
-        logs.innerHTML = `<div class="log-entry">▶ [${type}] 모드로 ${count}조합 분석 중...</div>`;
-
-        let results = [];
-        let attempts = 0;
-
-        while(results.length < count && attempts < 5000) {
-            attempts++;
+        logs.innerHTML = `<div class="log-entry">▶ [1211회차] ${count}조합 정밀 분석 시작...</div>`;
+        
+        let found = 0;
+        let limit = 0;
+        while(found < count && limit < 10000) {
+            limit++;
             let comb = [];
             while(comb.length < 6) {
                 let r = Math.floor(Math.random()*45)+1;
                 if(!comb.includes(r)) comb.push(r);
             }
             comb.sort((a,b)=>a-b);
-
+            
             let sum = comb.reduce((a,b)=>a+b, 0);
             let ac = getAC(comb);
-            let odds = comb.filter(n => n % 2 !== 0).length;
+            let oddCount = comb.filter(n => n % 2 !== 0).length;
 
-            // [파이썬 원본 필터 조건 그대로]
-            if(sum >= 100 && sum <= 170 && checkConsecutiveLimit(comb) && odds > 0 && odds < 6) {
-                // 버튼 타입에 따른 추가 AC 필터
-                if(type === 'stable' && ac >= 9) results.push({nums: comb, ac: ac, sum: sum});
-                else if(type === 'strategy' && ac >= 7) results.push({nums: comb, ac: ac, sum: sum});
+            // 사장님 파이썬 필터 적용: 합계 100~170, AC지수, 3연번 금지, 홀짝 멸 제외
+            if(sum >= 100 && sum <= 170 && ac >= minAC && isConsecOk(comb) && oddCount > 0 && oddCount < 6) {
+                found++;
+                let balls = comb.map(n => `<span class="ball">${n}</span>`).join('');
+                logs.innerHTML += `<div class="log-entry">#${found}: ${balls}<br><small>(AC: ${ac} | 합계: ${sum} | 3연번X)</small></div>`;
             }
         }
-
-        results.forEach((res, i) => {
-            let balls = res.nums.map(n => `<span class="ball">${n}</span>`).join('');
-            logs.innerHTML += `<div class="log-entry">조합 #${i+1}: ${balls}<br><small>AC: ${res.ac} / 합계: ${res.sum} / 3연번없음 OK</small></div>`;
-        });
         logs.scrollTop = logs.scrollHeight;
     }
 </script>
+
 </body>
 </html>
