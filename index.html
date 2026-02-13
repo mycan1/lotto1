@@ -40,53 +40,44 @@
 <script>
     let analysisData = { base12: [], missing: [], eligibleBN: [], pool: [], nextRound: 0 };
 
-    // 1. lotto.txt 읽기 및 파이썬 로직 실행
     async function initEngine() {
         const logs = document.getElementById('logs');
         try {
-            // 깃허브에 올릴 경우 './lotto.txt' 경로로 읽어옴
             const response = await fetch('./lotto.txt');
             if (!response.ok) throw new Error('파일을 찾을 수 없습니다.');
             const text = await response.text();
             
-            // 데이터 파싱 (콤마, 마침표 모두 대응)
             const rows = text.trim().split('\n').map(row => row.replace(/[r]/g, '').split(/[,\.]/).map(Number));
             const lastRound = rows[0][0];
             analysisData.nextRound = lastRound + 1;
 
-            // 핵심 로직: 최근 35회 Base12 추출
             const recent35 = rows.slice(0, 35);
             const allNums = recent35.flatMap(r => r.slice(1, 7));
             const counts = {};
             allNums.forEach(n => counts[n] = (counts[n] || 0) + 1);
             analysisData.base12 = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 12).map(v => Number(v[0]));
 
-            // 핵심 로직: 최근 30회 미출수(Missing) 추출
             const recent30 = rows.slice(0, 30);
-            const appeared30 = new Set(recent30.flatMap(r => r.slice(1, 8)));
+            const appeared30 = new Set(recent30.flatMap(r => [...r.slice(1, 8)]));
             analysisData.missing = [];
             for(let i=1; i<=45; i++) if(!appeared30.has(i)) analysisData.missing.push(i);
 
-            // 보너스 번호 분석
             const bnCounts = {};
             recent35.forEach(r => bnCounts[r[7]] = (bnCounts[r[7]] || 0) + 1);
             analysisData.eligibleBN = Object.entries(bnCounts).filter(v => v[1] > 1.5).sort((a,b) => b[1] - a[1]).map(v => Number(v[0]));
 
-            // 최종 풀(Pool) 생성
             analysisData.pool = Array.from(new Set([...analysisData.base12, ...analysisData.eligibleBN.slice(0,3), ...analysisData.missing])).sort((a,b)=>a-b);
 
-            // 화면 업데이트
             document.getElementById('header-info').innerText = `🎯 제 ${analysisData.nextRound}회차 자동 분석 완료`;
             document.getElementById('status').innerText = `최신 데이터: ${lastRound}회차 동기화 완료`;
             document.getElementById('genBtn').disabled = false;
-            logs.innerHTML = `<div class="log-entry">▶ [성공] ${lastRound}회차 기반 분석 엔진 준비 완료.<br>▶ 풀(Pool) 규모: ${analysisData.pool.length}개 번호 선별됨.</div>`;
+            logs.innerHTML = `<div class="log-entry">▶ [성공] ${lastRound}회차 기반 분석 엔진 준비 완료.</div>`;
 
         } catch (err) {
-            logs.innerHTML = `<div class="log-entry" style="color:red">▶ 오류: ${err.message}<br>lotto.txt 파일이 같은 폴더에 있는지 확인하세요.</div>`;
+            logs.innerHTML = `<div class="log-entry" style="color:red">▶ 오류: ${err.message}</div>`;
         }
     }
 
-    // AC 계산 및 필터
     function getAC(comb) {
         let diffs = new Set();
         for(let i=0; i<6; i++) for(let j=i+1; j<6; j++) diffs.add(Math.abs(comb[i]-comb[j]));
@@ -98,7 +89,6 @@
         return true;
     }
 
-    // 10조합 생성 엔진
     function generateEngine(count) {
         const logs = document.getElementById('logs');
         logs.innerHTML = `<div class="log-entry" style="color:#00ff00">▶ 제 ${analysisData.nextRound}회차 정밀 필터링 시작...</div>`;
@@ -106,8 +96,11 @@
         let results = [];
         let attempts = 0;
         const core5 = new Set(analysisData.base12.slice(0, 5));
+        const bn5 = analysisData.eligibleBN[0];
+        const bn6 = analysisData.eligibleBN[1] || bn5;
+        const bn7 = analysisData.eligibleBN[2] || bn5;
 
-        while(results.length < count && attempts < 30000) {
+        while(results.length < count && attempts < 50000) {
             attempts++;
             let shuffled = [...analysisData.pool].sort(() => Math.random() - 0.5);
             let comb = shuffled.slice(0, 6).sort((a,b)=>a-b);
@@ -123,9 +116,14 @@
             let idx = results.length + 1;
             let type = (idx <= 7) ? "안정형" : "전략형";
             
-            // 안정형은 미출수 0개, 전략형은 미출수 1개 이상 (원본 로직 고수)
-            if(idx <= 7 && missingCnt !== 0) continue;
-            if(idx > 7 && missingCnt === 0) continue;
+            // 원본 로직 100% 적용
+            if(idx <= 4) { if(missingCnt !== 0) continue; }
+            else if(idx === 5) { if(missingCnt !== 0 || !comb.includes(bn5)) continue; }
+            else if(idx === 6) { if(missingCnt !== 0 || !comb.includes(bn6)) continue; }
+            else if(idx === 7) { if(missingCnt !== 0 || !comb.includes(bn7)) continue; }
+            else if(idx === 8) { if(missingCnt !== 1 || !comb.includes(bn5)) continue; }
+            else if(idx === 9) { if(missingCnt !== 2) continue; }
+            else if(idx === 10) { if(missingCnt < 1 || coreMatch < 3) continue; }
 
             results.push(comb);
             let balls = comb.map(n => `<span class="ball">${n}</span>`).join('');
@@ -134,9 +132,7 @@
         logs.scrollTop = logs.scrollHeight;
     }
 
-    // 시작
     window.onload = initEngine;
 </script>
-
 </body>
 </html>
