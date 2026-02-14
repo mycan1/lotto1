@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신의 손 v5.0 - 통합 저격 엔진</title>
+    <title>신의 손 v5.2 - 미출수 집중 저격</title>
     <style>
         body { background-color: #000; color: #ffd700; font-family: 'Malgun Gothic', sans-serif; text-align: center; padding: 20px; margin: 0; }
         .outer-border { border: 4px solid #ffd700; border-radius: 40px; padding: 10px; max-width: 420px; margin: 0 auto; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); }
@@ -14,20 +14,20 @@
         #console { background-color: #050505; border: 2px solid #333; border-radius: 20px; height: 450px; padding: 15px; text-align: left; overflow-y: auto; color: #ffd700; font-size: 14px; line-height: 1.8; }
         .ball { display: inline-block; width: 28px; height: 28px; background: #ffd700; color: #000; border-radius: 50%; text-align: center; line-height: 28px; font-weight: bold; margin-right: 4px; font-size: 13px; }
         .tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #333; color: #fff; margin-right: 5px; }
+        .tag-cold { background: #ff4500 !important; } /* 미출수 태그 색상 강조 */
     </style>
 </head>
 <body>
 <div class="outer-border">
     <div class="inner-container">
         <h1 onclick="location.reload()">신 의 손</h1>
-        <div class="target-box">🎯 1211회 통합 저격 모드<br>(v4.4 필터 + 13/43 저격)</div>
+        <div class="target-box">🎯 1211회 미출수 집중 모드<br>(8번:1개 / 9번:2개 / 10번:1개)</div>
         <button class="btn-main" onclick="process()">분석 엔진 10조합 가동</button>
-        <div id="console">▶ 시스템 준비 완료. (비밀 유지 0000)</div>
+        <div id="console">▶ 시스템 준비 완료.</div>
     </div>
 </div>
 
 <script>
-    // lotto.txt의 45회차 데이터를 한 땀 한 땀 모두 넣었습니다.
     const RAW_DATA = [
         [1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],
         [1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],
@@ -43,23 +43,31 @@
         [1166,14,23,25,27,29,42,16]
     ];
 
-    let top12 = [], bonusOnlyHot = [];
+    let top12 = [], bonusOnlyHot = [], coldNumbers = [];
 
     function init() {
         let r30 = RAW_DATA.slice(0, 30);
-        let stats = {}, bOnly = {};
-        for(let i=1; i<=45; i++) { stats[i] = 0; bOnly[i] = 0; }
+        let stats = {}, appearCount = {};
+        for(let i=1; i<=45; i++) { stats[i] = 0; appearCount[i] = 0; }
 
-        r30.forEach((d, idx) => { for(let i=1; i<=6; i++) stats[d[i]] += (30-idx); });
+        r30.forEach((d, idx) => { 
+            for(let i=1; i<=6; i++) {
+                stats[d[i]] += (30-idx); 
+                appearCount[d[i]]++;
+            }
+        });
+
         top12 = Object.keys(stats).map(Number).sort((a,b) => stats[b] - stats[a]).slice(0, 12);
+        
+        // 당첨번호 기준 30회 미출수 추출
+        coldNumbers = Object.keys(appearCount).filter(n => appearCount[n] === 0).map(Number);
 
+        let bOnly = {};
         r30.forEach((d, idx) => {
             let b = d[7];
-            let isMain = false;
-            r30.forEach(row => { if(row.slice(1,7).includes(b)) isMain = true; });
-            if(!isMain && b) bOnly[b] += (30-idx);
+            if(!top12.includes(b)) bOnly[b] = (bOnly[b] || 0) + (30-idx);
         });
-        bonusOnlyHot = Object.keys(bOnly).filter(n => bOnly[n] > 0).sort((a,b) => bOnly[b] - bOnly[a]);
+        bonusOnlyHot = Object.keys(bOnly).map(Number).sort((a,b) => bOnly[b] - bOnly[a]);
     }
 
     function getAC(arr) {
@@ -76,34 +84,57 @@
 
     function process() {
         const box = document.getElementById('console');
-        box.innerHTML = "▶ 1211회 통합 분석 엔진 가동...\n";
+        box.innerHTML = `▶ 분석 완료! 미출수 목록: ${coldNumbers.join(', ') || '없음'}\n`;
         let gen = 0, safety = 0;
 
         while(gen < 10 && safety < 100000) {
             safety++;
             let res = [], cur = gen + 1;
 
-            if(cur <= 3 && bonusOnlyHot.length >= cur) res.push(parseInt(bonusOnlyHot[cur-1]));
-            if(cur === 9) res.push(13); 
-            if(cur === 10) res.push(43); 
+            // 전략 배치 로직
+            if(cur <= 3 && bonusOnlyHot.length >= cur) {
+                res.push(bonusOnlyHot[cur-1]); // 1~3번: 보너스 승격수
+            } 
+            else if(cur === 8 && coldNumbers.length >= 1) {
+                // 8번 조합: 미출수 1개 고정
+                res.push(coldNumbers[Math.floor(Math.random() * coldNumbers.length)]);
+            }
+            else if(cur === 9 && coldNumbers.length >= 2) {
+                // 9번 조합: 미출수 2개 고정
+                let tempCold = [...coldNumbers];
+                res.push(tempCold.splice(Math.floor(Math.random()*tempCold.length), 1)[0]);
+                res.push(tempCold.splice(Math.floor(Math.random()*tempCold.length), 1)[0]);
+            }
+            else if(cur === 10 && coldNumbers.length >= 1) {
+                // 10번 조합: 미출수 1개 고정
+                res.push(coldNumbers[Math.floor(Math.random() * coldNumbers.length)]);
+            }
 
+            // 나머지 번호 채우기 (top12 중심)
             let p = [...top12];
             while(res.length < 6) {
-                let pick = p.splice(Math.floor(Math.random()*p.length), 1)[0] || Math.floor(Math.random()*45)+1;
+                let pick = p.length > 0 ? p.splice(Math.floor(Math.random()*p.length), 1)[0] : Math.floor(Math.random()*45)+1;
                 if(!res.includes(pick)) res.push(pick);
             }
             res.sort((a,b) => a-b);
 
-            const ac = getAC(res);
             const sum = res.reduce((a,b)=>a+b, 0);
+            const ac = getAC(res);
             const odds = res.filter(n => n%2 !== 0).length;
 
-            if(sum >= 100 && sum <= 180 && ac >= 6 && ac <= 9 && 
-               checkConsecutive(res) && odds > 0 && odds < 6) {
+            if(sum >= 100 && sum <= 180 && ac >= 6 && ac <= 9 && checkConsecutive(res) && odds > 0 && odds < 6) {
                 gen++;
                 const balls = res.map(n => `<span class="ball">${n}</span>`).join('');
-                let type = cur <= 3 ? "승격" : (cur >= 9 ? "저격" : "안정");
-                box.innerHTML += `<div><span class="tag">${type}</span> #${gen} ${balls}</div>`;
+                let typeText = "안정";
+                let typeClass = "";
+                
+                if(cur <= 3) typeText = "승격";
+                if(cur === 8 || cur === 9 || cur === 10) {
+                    typeText = "저격";
+                    typeClass = "tag-cold";
+                }
+                
+                box.innerHTML += `<div><span class="tag ${typeClass}">${typeText}</span> #${gen} ${balls}</div>`;
             }
         }
     }
