@@ -3,179 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신의 손 v5.2 - 미출수 집중 저격</title>
+    <title>신 의 손 v12.5 - 데이터 수동 업데이트형</title>
     <style>
-        body { background-color: #000; color: #ffd700; font-family: 'Malgun Gothic', sans-serif; text-align: center; padding: 20px; margin: 0; }
-        .outer-border { border: 4px solid #ffd700; border-radius: 40px; padding: 10px; max-width: 420px; margin: 0 auto; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); }
-        .inner-container { border: 2px solid #ffd700; border-radius: 32px; padding: 30px 20px; background: #0c0c0c; }
-        h1 { font-size: 45px; font-weight: 900; margin: 0; letter-spacing: 8px; cursor: pointer; }
-        .target-box { color: #ff4500; font-size: 19px; font-weight: 900; margin: 20px 0; background: #1a1a1a; padding: 10px; border-radius: 10px; border: 2px solid #ff4500; line-height: 1.4; }
-        .btn-main { width: 100%; height: 70px; background: linear-gradient(to bottom, #fdf24d, #b8a000); border: none; border-radius: 20px; font-size: 20px; font-weight: 900; cursor: pointer; margin-bottom: 20px; color: #000; }
-        #console { background-color: #050505; border: 2px solid #333; border-radius: 20px; height: 450px; padding: 15px; text-align: left; overflow-y: auto; color: #ffd700; font-size: 14px; line-height: 1.8; }
-        .ball { display: inline-block; width: 28px; height: 28px; background: #ffd700; color: #000; border-radius: 50%; text-align: center; line-height: 28px; font-weight: bold; margin-right: 4px; font-size: 13px; }
-        .tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #333; color: #fff; margin-right: 5px; }
-        .tag-cold { background: #ff4500 !important; } 
+        body { background-color: #000; color: #ffd700; font-family: 'Malgun Gothic', sans-serif; padding: 15px; margin: 0; }
+        .outer-border { border: 2px solid #ffd700; border-radius: 20px; padding: 5px; max-width: 450px; margin: 0 auto; }
+        .inner-container { padding: 20px 10px; background: #000; }
+        h1 { font-size: 26px; font-weight: 900; margin: 0; color: #ffd700; text-align: center; cursor: pointer; }
+        .input-section { margin: 15px 0; text-align: center; }
+        label { display: block; font-size: 12px; color: #888; margin-bottom: 5px; }
+        #userPool { width: 90%; background: #111; border: 1px solid #00ffcc; color: #00ffcc; padding: 12px; border-radius: 8px; font-size: 15px; text-align: center; font-weight: bold; outline: none; }
+        .target-box { color: #ffd700; font-size: 11px; margin: 10px 0; border: 1px solid #444; padding: 10px; border-radius: 10px; background: #111; line-height: 1.6; }
+        .btn-main { width: 100%; height: 60px; background: #ffd700; border: none; border-radius: 10px; font-size: 18px; font-weight: 900; cursor: pointer; color: #000; margin-bottom: 20px; transition: 0.2s; }
+        .btn-main:active { background: #ccae00; transform: scale(0.98); }
+        .row-line { border-bottom: 1px solid #222; padding: 12px 0; font-size: 20px; display: flex; align-items: center; justify-content: space-between; }
+        .num-container { display: flex; gap: 5px; flex-grow: 1; justify-content: center; }
+        .num-box { font-family: 'Consolas', monospace; font-weight: 900; width: 32px; text-align: center; }
+        .fixed { color: #00ffcc; text-shadow: 0 0 5px #00ffcc; } /* 분석 상위수 */
+        .missing { color: #ff4444; text-shadow: 0 0 5px #ff4444; } /* 미출수 */
+        .normal { color: #ffd700; }
+        .info { font-size: 11px; color: #666; min-width: 45px; text-align: right; }
     </style>
 </head>
 <body>
 <div class="outer-border">
     <div class="inner-container">
-        <h1 onclick="location.reload()">신 의 손</h1>
-        <div class="target-box">🎯 1211회 미출수 집중 모드<br>(8번:1개 / 9번:2개 / 10번:1개)</div>
-        <button class="btn-main" onclick="process()">분석 엔진 10조합 가동</button>
-        <div id="console">▶ 시스템 준비 완료.</div>
+        <h1 onclick="location.reload()">신 의 손 v12.5</h1>
+        <div class="input-section">
+            <label>분석할 숫자를 12~15개 입력하세요</label>
+            <input type="text" id="userPool" placeholder="1, 5, 12, 18, 24..." value="">
+        </div>
+        <div class="target-box">
+            ✅ <b>데이터 직접 관리 모드</b><br>
+            - 하단 RECENT_30_DRAWS에 당첨번호를 넣으세요.<br>
+            - 엔진이 미출수를 자동 계산하여 0~3개 포함합니다.
+        </div>
+        <button class="btn-main" onclick="processSmart()">엔진 가동 (미출수 전략)</button>
+        <div id="console"></div>
     </div>
 </div>
 
 <script>
-    // 1210회차까지의 데이터 (수정 없음)
-    const RAW_DATA = [
-        [1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],
-        [1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],
-        [1202,5,12,21,33,37,40,7],[1201,7,9,24,27,35,36,37],[1200,1,2,4,16,20,32,45],[1199,16,24,25,30,31,32,7],
-        [1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],[1195,3,15,27,33,34,36,37],
-        [1194,3,13,15,24,33,37,2],[1193,6,9,16,19,24,28,17],[1192,10,16,23,36,39,40,11],[1191,1,4,11,12,20,41,2],
-        [1190,7,9,19,23,26,45,33],[1189,9,19,29,35,37,38,31],[1188,3,4,12,19,22,27,9],[1187,5,13,26,29,37,40,42],
-        [1186,2,8,13,16,23,28,35],[1185,6,17,22,28,29,32,38],[1184,14,16,23,25,31,37,42],[1183,4,15,17,23,27,36,31],
-        [1182,1,13,21,25,28,31,22],[1181,8,10,14,20,33,41,28],[1180,6,12,18,37,40,41,3],[1179,3,16,18,24,40,44,21],
-        [1178,5,6,11,27,43,44,17],[1177,3,7,15,16,19,43,21],[1176,7,9,11,21,30,35,29],[1175,3,4,6,8,32,42,31],
-        [1174,8,11,14,17,36,39,22],[1173,1,5,18,20,30,35,3],[1172,7,9,24,40,42,44,45],[1171,3,6,7,11,12,17,19],
-        [1170,3,13,28,34,38,42,25],[1169,5,12,24,26,39,42,20],[1168,9,21,24,30,33,37,29],[1167,8,23,31,35,39,40,24],
-        [1166,14,23,25,27,29,42,16]
+    /* ==========================================================
+       [데이터 입력 구역] 매주 아래 배열에 최신 당첨번호를 추가하세요.
+       ========================================================== */
+    const RECENT_30_DRAWS = [
+        [1, 7, 9, 17, 27, 38], // 최신 회차 (예: 1110회)
+        [2, 17, 20, 35, 37, 39], // 1109회
+        [6, 27, 30, 36, 38, 42],
+        [10, 22, 24, 27, 38, 45],
+        [1, 3, 17, 26, 27, 42],
+        [1, 4, 16, 23, 31, 41],
+        [8, 16, 28, 30, 31, 44],
+        [3, 6, 18, 29, 35, 39],
+        [5, 12, 21, 33, 37, 40],
+        [7, 9, 24, 27, 35, 36],
+        [1, 2, 4, 16, 20, 32],
+        [16, 24, 25, 30, 31, 32],
+        [26, 30, 33, 38, 39, 41],
+        [1, 5, 7, 26, 28, 43],
+        [8, 12, 15, 29, 40, 45],
+        [3, 15, 27, 33, 34, 36],
+        [3, 13, 15, 24, 33, 37],
+        [6, 9, 16, 19, 24, 28],
+        [10, 16, 23, 36, 39, 40],
+        [1, 4, 11, 12, 20, 41],
+        [7, 9, 19, 23, 26, 45],
+        [9, 19, 29, 35, 37, 38],
+        [3, 4, 12, 19, 22, 27],
+        [5, 13, 26, 29, 37, 40],
+        [2, 8, 13, 16, 23, 28],
+        [6, 17, 22, 28, 29, 32],
+        [14, 16, 23, 25, 31, 37],
+        [4, 15, 17, 23, 27, 36],
+        [1, 13, 21, 25, 28, 31],
+        [8, 10, 14, 20, 33, 41]
     ];
 
-    let top12 = [], bonusOnlyHot = [], coldNumbers = [];
-
-    function init() {
-        // 최근 30회차 데이터 추출
-        let r30 = RAW_DATA.slice(0, 30);
-        let stats = {}, appearCount = {};
-        
-        // 초기화
-        for(let i=1; i<=45; i++) { 
-            stats[i] = 0; 
-            appearCount[i] = 0; 
-        }
-
-        // 통계 집계
-        r30.forEach((d, idx) => { 
-            for(let i=1; i<=6; i++) { // 보너스 제외, 정번호 6개만 체크
-                stats[d[i]] += (30-idx); 
-                appearCount[d[i]]++;
-            }
-        });
-
-        // 상위 12수 추출
-        top12 = Object.keys(stats).map(Number).sort((a,b) => stats[b] - stats[a]).slice(0, 12);
-        
-        // ★[수정됨] 30회차 미출수 추출 로직 (count가 0인 것)
-        coldNumbers = Object.keys(appearCount).filter(key => appearCount[key] === 0).map(Number);
-
-        // 보너스 승격수 계산 (정번호엔 안 나오고 보너스로만 나온 수)
-        let bOnly = {};
-        r30.forEach((d, idx) => {
-            let b = d[7];
-            // 상위 당첨번호에 포함되지 않았던 번호에 가중치
-            if(!top12.includes(b)) bOnly[b] = (bOnly[b] || 0) + (30-idx);
-        });
-        bonusOnlyHot = Object.keys(bOnly).map(Number).sort((a,b) => bOnly[b] - bOnly[a]);
+    // 미출수 자동 계산 로직
+    function getMissing() {
+        let appeared = new Set();
+        RECENT_30_DRAWS.forEach(draw => draw.forEach(n => appeared.add(n)));
+        let missing = [];
+        for(let i=1; i<=45; i++) { if(!appeared.has(i)) missing.push(i); }
+        return missing;
     }
 
-    function getAC(arr) {
-        let d = new Set();
-        for(let i=0; i<6; i++) { for(let j=i+1; j<6; j++) d.add(Math.abs(arr[i]-arr[j])); }
-        return d.size - 5;
-    }
-
-    function checkConsecutive(arr) {
-        let s = [...arr].sort((a,b) => a-b);
-        for(let i=0; i<4; i++) { if(s[i]+1 === s[i+1] && s[i+1]+1 === s[i+2]) return false; }
-        return true;
-    }
-
-    function process() {
+    function processSmart() {
+        const inputStr = document.getElementById('userPool').value;
         const box = document.getElementById('console');
-        box.innerHTML = `▶ 분석 완료!<br><b>미출수(Total ${coldNumbers.length}수):</b> ${coldNumbers.join(', ') || '없음'}<br>----------------------------<br>`;
-        
-        let gen = 0, safety = 0;
+        let myPool = inputStr.split(/[,.\s]+/).map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n >= 1 && n <= 45);
+        myPool = [...new Set(myPool)];
 
-        while(gen < 10 && safety < 500000) {
+        if (myPool.length < 12) { alert("숫자를 12개 이상 입력하세요."); return; }
+
+        const missingList = getMissing();
+        const myMissing = myPool.filter(n => missingList.includes(n));
+
+        // 가중치 분석
+        let freq = {};
+        myPool.forEach(n => freq[n] = 0);
+        RECENT_30_DRAWS.forEach(row => row.forEach(n => { if(freq.hasOwnProperty(n)) freq[n]++; }));
+        let sorted = [...myPool].sort((a,b) => (freq[b]||0) - (freq[a]||0));
+        const machineFixed = sorted.slice(0, 3);
+
+        box.innerHTML = "";
+        let count = 0, used = new Set(), safety = 0;
+
+        while(count < 10 && safety < 5000) {
             safety++;
-            let res = [], cur = gen + 1;
-            let tempCold = [...coldNumbers]; // 복사해서 사용
-
-            // 1. 전략적 고정수 배치
-            if(cur <= 3 && bonusOnlyHot.length >= cur) {
-                res.push(bonusOnlyHot[cur-1]); 
-            } 
-            else if(cur === 8) {
-                if(tempCold.length >= 1) res.push(tempCold[Math.floor(Math.random() * tempCold.length)]);
-            }
-            else if(cur === 9) {
-                if(tempCold.length >= 2) {
-                    // 서로 다른 2개 추출
-                    let c1 = tempCold.splice(Math.floor(Math.random()*tempCold.length), 1)[0];
-                    let c2 = tempCold.splice(Math.floor(Math.random()*tempCold.length), 1)[0];
-                    res.push(c1, c2);
-                } else if(tempCold.length === 1) {
-                    res.push(tempCold[0]);
-                }
-            }
-            else if(cur === 10) {
-                if(tempCold.length >= 1) res.push(tempCold[Math.floor(Math.random() * tempCold.length)]);
-            }
-
-            // 2. 나머지 번호 채우기
-            // [수정] top12만 고집하면 미출수와 합쳐졌을 때 조건 충족이 안될 수 있음.
-            // 따라서 top12를 우선하되, 랜덤 번호도 섞어서 유연하게 채움
-            let pool = [...top12]; 
+            let res = [machineFixed[count % 3]]; // 상위 3수 중 하나 고정
             
-            while(res.length < 6) {
-                let pick;
-                // 풀(당구)에 숫자가 있고, 확률적으로(70%) 상위수를 뽑음
-                if(pool.length > 0 && Math.random() < 0.7) {
-                    let idx = Math.floor(Math.random() * pool.length);
-                    pick = pool.splice(idx, 1)[0];
-                } else {
-                    // 풀이 비었거나 30% 확률로 완전 랜덤 (다양성 확보)
-                    pick = Math.floor(Math.random() * 45) + 1;
-                }
+            // 미출수 0~3개 무작위 포함
+            let mLimit = Math.floor(Math.random() * 4); 
+            let shufMissing = myMissing.sort(() => Math.random() - 0.5).slice(0, mLimit);
+            shufMissing.forEach(m => { if(!res.includes(m)) res.push(m); });
 
-                if(!res.includes(pick)) res.push(pick);
-            }
-            
-            res.sort((a,b) => a-b);
+            // 나머지 채우기
+            let temp = [...myPool].sort(() => Math.random() - 0.5);
+            for(let n of temp) { if(res.length < 6 && !res.includes(n)) res.push(n); }
 
-            // 3. 필터링 (합계, AC, 홀짝, 연번)
-            const sum = res.reduce((a,b)=>a+b, 0);
-            const ac = getAC(res);
-            const odds = res.filter(n => n%2 !== 0).length;
+            res.sort((a,b)=>a-b);
+            let key = res.join(',');
+            let sum = res.reduce((a,b)=>a+b, 0);
 
-            if(sum >= 100 && sum <= 180 && ac >= 6 && ac <= 10 && checkConsecutive(res) && odds > 0 && odds < 6) {
-                gen++;
-                
-                // 태그 생성 로직
-                let typeText = "안정";
-                let typeClass = "";
-                if(cur <= 3) typeText = "승격";
-                
-                // 미출수가 실제로 포함되었는지 확인하여 태그 표시
-                let hasCold = res.some(r => coldNumbers.includes(r));
-                if(cur >= 8 && hasCold) {
-                    typeText = "저격";
-                    typeClass = "tag-cold";
-                }
-
-                const balls = res.map(n => {
-                    // 미출수는 공 색상을 다르게 하거나(선택), 그냥 표시
-                    return `<span class="ball" ${coldNumbers.includes(n) ? 'style="border:2px solid #ff4500;"' : ''}>${n}</span>`
+            if(!used.has(key) && sum >= 90 && sum <= 210) {
+                used.add(key);
+                count++;
+                const html = res.map(n => {
+                    let cls = machineFixed.includes(n) ? "fixed" : (missingList.includes(n) ? "missing" : "normal");
+                    return `<span class="num-box ${cls}">${String(n).padStart(2,'0')}</span>`;
                 }).join('');
-                
-                box.innerHTML += `<div><span class="tag ${typeClass}">${typeText}</span> #${gen} ${balls}</div>`;
+                box.innerHTML += `<div class="row-line"><span class="info">#${count}</span><div class="num-container">${html}</div><span class="info">합:${sum}</span></div>`;
             }
         }
     }
-    window.onload = init;
 </script>
 </body>
 </html>
