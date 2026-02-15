@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신 의 손 v12.5 - 데이터 수동 업데이트형</title>
+    <title>신 의 손 v12.9 - 번호 내장형</title>
     <style>
         body { background-color: #000; color: #ffd700; font-family: 'Malgun Gothic', sans-serif; padding: 15px; margin: 0; }
         .outer-border { border: 2px solid #ffd700; border-radius: 20px; padding: 5px; max-width: 450px; margin: 0 auto; }
         .inner-container { padding: 20px 10px; background: #000; }
         h1 { font-size: 26px; font-weight: 900; margin: 0; color: #ffd700; text-align: center; cursor: pointer; }
-        .input-section { margin: 15px 0; text-align: center; }
-        label { display: block; font-size: 12px; color: #888; margin-bottom: 5px; }
-        #userPool { width: 90%; background: #111; border: 1px solid #00ffcc; color: #00ffcc; padding: 12px; border-radius: 8px; font-size: 15px; text-align: center; font-weight: bold; outline: none; }
-        .target-box { color: #ffd700; font-size: 11px; margin: 10px 0; border: 1px solid #444; padding: 10px; border-radius: 10px; background: #111; line-height: 1.6; }
+        .info-box { text-align: center; margin: 15px 0; padding: 10px; background: #111; border: 1px solid #444; border-radius: 10px; }
+        .pool-display { color: #00ffcc; font-weight: bold; font-size: 14px; word-break: break-all; }
         .btn-main { width: 100%; height: 60px; background: #ffd700; border: none; border-radius: 10px; font-size: 18px; font-weight: 900; cursor: pointer; color: #000; margin-bottom: 20px; transition: 0.2s; }
         .btn-main:active { background: #ccae00; transform: scale(0.98); }
         .row-line { border-bottom: 1px solid #222; padding: 12px 0; font-size: 20px; display: flex; align-items: center; justify-content: space-between; }
         .num-container { display: flex; gap: 5px; flex-grow: 1; justify-content: center; }
         .num-box { font-family: 'Consolas', monospace; font-weight: 900; width: 32px; text-align: center; }
-        .fixed { color: #00ffcc; text-shadow: 0 0 5px #00ffcc; } /* 분석 상위수 */
-        .missing { color: #ff4444; text-shadow: 0 0 5px #ff4444; } /* 미출수 */
+        .fixed { color: #00ffcc; text-shadow: 0 0 5px #00ffcc; } 
+        .missing { color: #ff4444; text-shadow: 0 0 5px #ff4444; } 
         .normal { color: #ffd700; }
         .info { font-size: 11px; color: #666; min-width: 45px; text-align: right; }
     </style>
@@ -27,59 +25,43 @@
 <body>
 <div class="outer-border">
     <div class="inner-container">
-        <h1 onclick="location.reload()">신 의 손 v12.5</h1>
-        <div class="input-section">
-            <label>분석할 숫자를 12~15개 입력하세요</label>
-            <input type="text" id="userPool" placeholder="1, 5, 12, 18, 24..." value="">
+        <h1 onclick="location.reload()">신 의 손 v12.9</h1>
+        
+        <div class="info-box">
+            <div style="font-size: 11px; color: #888; margin-bottom: 5px;">설정된 분석 번호</div>
+            <div id="displayPool" class="pool-display">데이터 로딩 중...</div>
         </div>
-        <div class="target-box">
-            ✅ <b>데이터 직접 관리 모드</b><br>
-            - 하단 RECENT_30_DRAWS에 당첨번호를 넣으세요.<br>
-            - 엔진이 미출수를 자동 계산하여 0~3개 포함합니다.
-        </div>
-        <button class="btn-main" onclick="processSmart()">엔진 가동 (미출수 전략)</button>
+
+        <button class="btn-main" onclick="processSmart()">엔진 가동 (내장 번호 분석)</button>
         <div id="console"></div>
     </div>
 </div>
 
 <script>
     /* ==========================================================
-       [데이터 입력 구역] 매주 아래 배열에 최신 당첨번호를 추가하세요.
+       [1] 분석할 번호 12~15개를 아래에 미리 입력하세요.
+       ========================================================== */
+    const MY_FIXED_POOL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 25, 40]; // 여기에 직접 입력
+
+    /* ==========================================================
+       [2] 최근 당첨 데이터 (매주 업데이트)
        ========================================================== */
     const RECENT_30_DRAWS = [
-        [1, 7, 9, 17, 27, 38], // 최신 회차 (예: 1110회)
-        [2, 17, 20, 35, 37, 39], // 1109회
-        [6, 27, 30, 36, 38, 42],
-        [10, 22, 24, 27, 38, 45],
-        [1, 3, 17, 26, 27, 42],
-        [1, 4, 16, 23, 31, 41],
-        [8, 16, 28, 30, 31, 44],
-        [3, 6, 18, 29, 35, 39],
-        [5, 12, 21, 33, 37, 40],
-        [7, 9, 24, 27, 35, 36],
-        [1, 2, 4, 16, 20, 32],
-        [16, 24, 25, 30, 31, 32],
-        [26, 30, 33, 38, 39, 41],
-        [1, 5, 7, 26, 28, 43],
-        [8, 12, 15, 29, 40, 45],
-        [3, 15, 27, 33, 34, 36],
-        [3, 13, 15, 24, 33, 37],
-        [6, 9, 16, 19, 24, 28],
-        [10, 16, 23, 36, 39, 40],
-        [1, 4, 11, 12, 20, 41],
-        [7, 9, 19, 23, 26, 45],
-        [9, 19, 29, 35, 37, 38],
-        [3, 4, 12, 19, 22, 27],
-        [5, 13, 26, 29, 37, 40],
-        [2, 8, 13, 16, 23, 28],
-        [6, 17, 22, 28, 29, 32],
-        [14, 16, 23, 25, 31, 37],
-        [4, 15, 17, 23, 27, 36],
-        [1, 13, 21, 25, 28, 31],
-        [8, 10, 14, 20, 33, 41]
+        [1, 7, 9, 17, 27, 38], [2, 17, 20, 35, 37, 39], [6, 27, 30, 36, 38, 42],
+        [10, 22, 24, 27, 38, 45], [1, 3, 17, 26, 27, 42], [1, 4, 16, 23, 31, 41],
+        [8, 16, 28, 30, 31, 44], [3, 6, 18, 29, 35, 39], [5, 12, 21, 33, 37, 40],
+        [7, 9, 24, 27, 35, 36], [1, 2, 4, 16, 20, 32], [16, 24, 25, 30, 31, 32],
+        [26, 30, 33, 38, 39, 41], [1, 5, 7, 26, 28, 43], [8, 12, 15, 29, 40, 45],
+        [3, 15, 27, 33, 34, 36], [3, 13, 15, 24, 33, 37], [6, 9, 16, 19, 24, 28],
+        [10, 16, 23, 36, 39, 40], [1, 4, 11, 12, 20, 41], [7, 9, 19, 23, 26, 45],
+        [9, 19, 29, 35, 37, 38], [3, 4, 12, 19, 22, 27], [5, 13, 26, 29, 37, 40],
+        [2, 8, 13, 16, 23, 28], [6, 17, 22, 28, 29, 32], [14, 16, 23, 25, 31, 37],
+        [4, 15, 17, 23, 27, 36], [1, 13, 21, 25, 28, 31], [8, 10, 14, 20, 33, 41]
     ];
 
-    // 미출수 자동 계산 로직
+    // 화면에 내장된 번호 표시
+    document.getElementById('displayPool').innerText = MY_FIXED_POOL.join(', ');
+
     function getMissing() {
         let appeared = new Set();
         RECENT_30_DRAWS.forEach(draw => draw.forEach(n => appeared.add(n)));
@@ -89,17 +71,14 @@
     }
 
     function processSmart() {
-        const inputStr = document.getElementById('userPool').value;
         const box = document.getElementById('console');
-        let myPool = inputStr.split(/[,.\s]+/).map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n >= 1 && n <= 45);
-        myPool = [...new Set(myPool)];
+        let myPool = [...new Set(MY_FIXED_POOL)].filter(n => n >= 1 && n <= 45);
 
-        if (myPool.length < 12) { alert("숫자를 12개 이상 입력하세요."); return; }
+        if (myPool.length < 12) { alert("코드 안의 MY_FIXED_POOL에 숫자를 12개 이상 넣어주세요."); return; }
 
         const missingList = getMissing();
         const myMissing = myPool.filter(n => missingList.includes(n));
 
-        // 가중치 분석
         let freq = {};
         myPool.forEach(n => freq[n] = 0);
         RECENT_30_DRAWS.forEach(row => row.forEach(n => { if(freq.hasOwnProperty(n)) freq[n]++; }));
@@ -109,31 +88,35 @@
         box.innerHTML = "";
         let count = 0, used = new Set(), safety = 0;
 
-        while(count < 10 && safety < 5000) {
+        while(count < 10 && safety < 8000) {
             safety++;
-            let res = [machineFixed[count % 3]]; // 상위 3수 중 하나 고정
+            let res = [machineFixed[count % 3]]; 
             
-            // 미출수 0~3개 무작위 포함
+            // 미출수 0~3개 포함
             let mLimit = Math.floor(Math.random() * 4); 
             let shufMissing = myMissing.sort(() => Math.random() - 0.5).slice(0, mLimit);
             shufMissing.forEach(m => { if(!res.includes(m)) res.push(m); });
 
-            // 나머지 채우기
+            // 나머지 무작위 채우기
             let temp = [...myPool].sort(() => Math.random() - 0.5);
             for(let n of temp) { if(res.length < 6 && !res.includes(n)) res.push(n); }
 
-            res.sort((a,b)=>a-b);
-            let key = res.join(',');
-            let sum = res.reduce((a,b)=>a+b, 0);
+            if(res.length === 6) {
+                res.sort((a,b)=>a-b);
+                let key = res.join(',');
+                let sum = res.reduce((a,b)=>a+b, 0);
 
-            if(!used.has(key) && sum >= 90 && sum <= 210) {
-                used.add(key);
-                count++;
-                const html = res.map(n => {
-                    let cls = machineFixed.includes(n) ? "fixed" : (missingList.includes(n) ? "missing" : "normal");
-                    return `<span class="num-box ${cls}">${String(n).padStart(2,'0')}</span>`;
-                }).join('');
-                box.innerHTML += `<div class="row-line"><span class="info">#${count}</span><div class="num-container">${html}</div><span class="info">합:${sum}</span></div>`;
+                // 최근 트렌드(높은 합계)를 고려해 최소 합계를 80으로 유지하되, 
+                // 1~13 같은 낮은 번호도 나올 수 있게 합계 제한을 50까지 풀었습니다.
+                if(!used.has(key) && sum >= 50 && sum <= 240) {
+                    used.add(key);
+                    count++;
+                    const html = res.map(n => {
+                        let cls = machineFixed.includes(n) ? "fixed" : (missingList.includes(n) ? "missing" : "normal");
+                        return `<span class="num-box ${cls}">${String(n).padStart(2,'0')}</span>`;
+                    }).join('');
+                    box.innerHTML += `<div class="row-line"><span class="info">#${count}</span><div class="num-container">${html}</div><span class="info">합:${sum}</span></div>`;
+                }
             }
         }
     }
