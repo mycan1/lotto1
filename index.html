@@ -3,175 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신 의 손 v18.0 - 자동 저장 에디션</title>
+    <title>신 의 손 v19.0 - 번호 커스텀</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; }
-        body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; user-select: none; }
-        .outer-border { border: 2px solid var(--gold); border-radius: 20px; padding: 15px; max-width: 480px; margin: 0 auto; box-shadow: 0 0 20px rgba(255,215,0,0.3); }
+        body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
+        .outer-border { border: 2px solid var(--gold); border-radius: 20px; padding: 15px; max-width: 480px; margin: 0 auto; }
         .header-box { text-align: center; margin-bottom: 15px; }
         .next-episode { font-size: 32px; font-weight: 900; color: #fff; text-shadow: 0 0 10px var(--gold); }
+        
+        /* 번호 선택 판넬 */
+        .selector-panel { background: #222; border-radius: 15px; padding: 10px; margin-bottom: 15px; border: 1px solid #444; }
+        .selector-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; }
+        .sel-box { aspect-ratio: 1; line-height: 10vw; max-line-height: 40px; text-align: center; font-size: 14px; border-radius: 5px; background: #333; color: #888; cursor: pointer; border: 1px solid #444; }
+        .sel-box.active { background: var(--accent); color: #000; font-weight: bold; border-color: #fff; }
+        .sel-count { font-size: 12px; color: var(--accent); text-align: right; margin-bottom: 5px; }
+
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        button { border-radius: 12px; font-weight: bold; cursor: pointer; border: none; transition: 0.1s; }
-        .btn-main { height: 55px; font-size: 17px; background: linear-gradient(to bottom, #ffd700, #b8860b); color: #000; }
-        .btn-sub { height: 45px; font-size: 14px; background: #222; color: #fff; border: 1px solid var(--gold); }
+        button { border-radius: 12px; font-weight: bold; cursor: pointer; border: none; }
+        .btn-main { height: 50px; background: linear-gradient(to bottom, #ffd700, #b8860b); color: #000; }
+        .btn-sub { height: 45px; background: #222; color: #fff; border: 1px solid var(--gold); }
         .btn-reset { height: 45px; background: #331111; color: #ff6666; border: 1px solid #ff4444; }
-        .section-title { font-size: 13px; color: var(--accent); margin: 15px 0 8px 5px; display: flex; justify-content: space-between; align-items: center; }
+        
         .row-line { background: var(--card); border-radius: 12px; padding: 10px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; }
         .num-container { display: flex; gap: 4px; flex-grow: 1; justify-content: center; }
-        .num-box { width: 34px; height: 34px; line-height: 34px; text-align: center; font-size: 15px; font-weight: 900; border-radius: 50%; color: #fff; text-shadow: 1px 1px 2px #000; }
-        .fixed { background: radial-gradient(circle, #00ffcc, #008877); box-shadow: 0 0 5px var(--accent); } 
-        .missing { background: radial-gradient(circle, #ff5555, #aa0000); box-shadow: 0 0 5px #ff4444; } 
-        .normal { background: radial-gradient(circle, #555, #222); border: 1px solid var(--gold); }
-        .save-btn { font-size: 11px; background: var(--save); color: white; padding: 5px 8px; border-radius: 6px; cursor: pointer; margin-left: 5px; }
-        .analysis-info { font-size: 10px; color: #888; text-align: center; margin-bottom: 10px; }
+        .num-box { width: 32px; height: 32px; line-height: 32px; text-align: center; font-size: 14px; font-weight: 900; border-radius: 50%; color: #fff; }
+        .fixed { background: #00ffcc; color: #000; } 
+        .missing { background: #ff4444; } 
+        .normal { background: #444; border: 1px solid var(--gold); }
+        .save-btn { font-size: 11px; background: var(--save); color: white; padding: 4px 6px; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
-<body onload="loadInitialData()">
+<body onload="initApp()">
 <div class="outer-border">
     <div class="header-box">
-        <span class="next-episode">1212회 신의 손</span>
-        <div class="analysis-info">최근 22회차 분석 및 자동 저장 시스템 가동 중</div>
+        <span class="next-episode">1212회 분석기</span>
+    </div>
+
+    <div class="selector-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:13px; font-weight:bold;">● 분석 제외/포함 번호 선택 (15수 권장)</span>
+            <span id="selCount" class="sel-count">0/15</span>
+        </div>
+        <div id="selectorGrid" class="selector-grid"></div>
+        <button class="btn-sub" onclick="saveMyPool()" style="width:100%; margin-top:10px; height:35px; font-size:12px; background:var(--accent); color:#000;">선택 번호 저장하기</button>
     </div>
 
     <div class="btn-group">
         <button class="btn-main" onclick="processSmart(5)">5조합 추천</button>
         <button class="btn-main" onclick="processSmart(10)">10조합 추천</button>
-        <button class="btn-sub" onclick="toggleStorage()">보관함 확인</button>
-        <button class="btn-reset" onclick="resetConsole()">화면 비우기</button>
+        <button class="btn-sub" onclick="toggleStorage()">보관함</button>
+        <button class="btn-reset" onclick="resetAll()">지우기</button>
     </div>
 
-    <div class="section-title"><span>● 현재 분석 결과</span></div>
     <div id="console"></div>
 
-    <div id="storage-section" style="display:none; margin-top:20px; border-top: 1px dashed #444;">
-        <div class="section-title" style="color:var(--save);">
-            <span>● 나의 보관함</span>
-            <button onclick="clearStorage()" style="background:none; color:#ff4444; font-size:11px; border:1px solid #ff4444; padding:2px 5px; border-radius:4px;">전체삭제</button>
-        </div>
+    <div id="storage-section" style="display:none; margin-top:15px; border-top:1px dashed #444; padding-top:10px;">
         <div id="storage"></div>
     </div>
 </div>
 
 <script>
-    const MY_FIXED_POOL = [1, 3, 7, 15, 16, 17, 23, 24, 26, 27, 31, 33, 38, 39, 42]; 
-    const ALL_DRAWS = [
-        [23, 26, 27, 35, 38, 40], [1, 7, 9, 17, 27, 38], [2, 17, 20, 35, 37, 39],
-        [6, 27, 30, 36, 38, 42], [10, 22, 24, 27, 38, 45], [1, 3, 17, 26, 27, 42],
-        [1, 4, 16, 23, 31, 41], [8, 16, 28, 30, 31, 44], [3, 6, 18, 29, 35, 39],
-        [5, 12, 21, 33, 37, 40], [7, 9, 24, 27, 35, 36], [1, 2, 4, 16, 20, 32],
-        [16, 24, 25, 30, 31, 32], [26, 30, 33, 38, 39, 41], [1, 5, 7, 26, 28, 43],
-        [8, 12, 15, 29, 40, 45], [3, 15, 27, 33, 34, 36], [3, 13, 15, 24, 33, 37],
-        [6, 9, 16, 19, 24, 28], [10, 16, 23, 36, 39, 40], [1, 4, 11, 12, 20, 41],
-        [7, 9, 19, 23, 26, 45]
-    ];
+    // 데이터
+    const ALL_DRAWS = [[23,26,27,35,38,40],[1,7,9,17,27,38],[2,17,20,35,37,39],[6,27,30,36,38,42],[10,22,24,27,38,45],[1,3,17,26,27,42],[1,4,16,23,31,41],[8,16,28,30,31,44],[3,6,18,29,35,39],[5,12,21,33,37,40],[7,9,24,27,35,36],[1,2,4,16,20,32],[16,24,25,30,31,32],[26,30,33,38,39,41],[1,5,7,26,28,43],[8,12,15,29,40,45],[3,15,27,33,34,36],[3,13,15,24,33,37],[6,9,16,19,24,28],[10,16,23,36,39,40],[1,4,11,12,20,41],[7,9,19,23,26,45]];
+    
+    let myPool = JSON.parse(localStorage.getItem('myPoolV19')) || [1,3,7,15,16,17,23,24,26,27,31,33,38,39,42];
+    let savedNumbers = JSON.parse(localStorage.getItem('lottoSaveV19')) || [];
 
-    let savedNumbers = JSON.parse(localStorage.getItem('lottoSaveV18')) || [];
-    let currentDisplay = localStorage.getItem('lastConsoleHTML') || "";
+    function initApp() {
+        renderSelector();
+        document.getElementById('console').innerHTML = localStorage.getItem('lastConsoleV19') || "";
+    }
 
-    // 앱 시작 시 데이터 로드
-    function loadInitialData() {
-        if(currentDisplay) {
-            document.getElementById('console').innerHTML = currentDisplay;
+    // 번호판 그리기
+    function renderSelector() {
+        const grid = document.getElementById('selectorGrid');
+        grid.innerHTML = "";
+        for(let i=1; i<=45; i++) {
+            const div = document.createElement('div');
+            div.className = `sel-box ${myPool.includes(i) ? 'active' : ''}`;
+            div.innerText = i;
+            div.onclick = () => togglePoolNum(i, div);
+            grid.appendChild(div);
         }
+        updateCount();
     }
 
-    function getMissing() {
-        let appeared = new Set();
-        ALL_DRAWS.forEach(draw => draw.forEach(n => appeared.add(n)));
-        let missing = [];
-        for(let i=1; i<=45; i++) { if(!appeared.has(i)) missing.push(i); }
-        return missing;
-    }
-
-    function resetConsole() { 
-        if(confirm("화면의 번호들을 지우시겠습니까? (보관함은 유지됩니다)")) {
-            document.getElementById('console').innerHTML = ""; 
-            localStorage.removeItem('lastConsoleHTML');
+    function togglePoolNum(n, el) {
+        if(myPool.includes(n)) {
+            myPool = myPool.filter(num => num !== n);
+            el.classList.remove('active');
+        } else {
+            if(myPool.length >= 20) return alert("최대 20개까지만 선택 가능합니다.");
+            myPool.push(n);
+            el.classList.add('active');
         }
+        updateCount();
     }
 
-    function saveToBox(numStr) {
-        if(savedNumbers.includes(numStr)) return alert("이미 저장되었습니다.");
-        savedNumbers.push(numStr);
-        localStorage.setItem('lottoSaveV18', JSON.stringify(savedNumbers));
-        updateStorageUI();
-        alert("보관함에 저장되었습니다.");
+    function updateCount() {
+        document.getElementById('selCount').innerText = `${myPool.length}/15~20`;
     }
 
-    function clearStorage() {
-        if(confirm("보관함을 모두 비울까요?")) {
-            savedNumbers = [];
-            localStorage.removeItem('lottoSaveV18');
-            updateStorageUI();
+    function saveMyPool() {
+        localStorage.setItem('myPoolV19', JSON.stringify(myPool));
+        alert("번호군이 저장되었습니다. 이제 이 번호들로 분석합니다!");
+    }
+
+    function resetAll() {
+        document.getElementById('console').innerHTML = "";
+        localStorage.removeItem('lastConsoleV19');
+    }
+
+    function processSmart(limit) {
+        if(myPool.length < 6) return alert("분석할 번호를 최소 6개 이상 선택해주세요.");
+        const box = document.getElementById('console');
+        box.innerHTML = "";
+        
+        const appeared = new Set();
+        ALL_DRAWS.forEach(d => d.forEach(n => appeared.add(n)));
+        const missingList = [];
+        for(let i=1; i<=45; i++) if(!appeared.has(i)) missingList.push(i);
+
+        let count = 0;
+        while(count < limit) {
+            let res = [];
+            let tempPool = [...myPool].sort(() => Math.random() - 0.5);
+            res = tempPool.slice(0, 6);
+            res.sort((a,b)=>a-b);
+            
+            let sum = res.reduce((a,b)=>a+b, 0);
+            if(sum >= 80 && sum <= 195) {
+                count++;
+                const html = res.map(n => {
+                    let cls = missingList.includes(n) ? "missing" : (myPool.slice(0,3).includes(n) ? "fixed" : "normal");
+                    return `<span class="num-box ${cls}">${n}</span>`;
+                }).join('');
+                box.innerHTML += `<div class="row-line"><div class="num-container">${html}</div><div class="save-btn" onclick="saveToBox('${res.join(',')}')">저장</div></div>`;
+            }
         }
+        localStorage.setItem('lastConsoleV19', box.innerHTML);
+    }
+
+    function saveToBox(s) {
+        if(savedNumbers.includes(s)) return;
+        savedNumbers.push(s);
+        localStorage.setItem('lottoSaveV19', JSON.stringify(savedNumbers));
+        alert("보관함에 저장됨");
     }
 
     function toggleStorage() {
         const s = document.getElementById('storage-section');
         s.style.display = s.style.display === 'none' ? 'block' : 'none';
-        updateStorageUI();
-    }
-
-    function updateStorageUI() {
-        const container = document.getElementById('storage');
-        container.innerHTML = savedNumbers.length === 0 ? "<div style='color:#666; padding:20px; text-align:center; font-size:12px;'>저장된 번호가 없습니다.</div>" : "";
-        savedNumbers.forEach((nums, idx) => {
-            container.innerHTML += `<div class="row-line" style="border-left: 3px solid var(--save)">
-                <div class="num-container">${nums.split(',').map(n => `<span class="num-box normal" style="width:30px; height:30px; line-height:30px; font-size:13px;">${n}</span>`).join('')}</div>
-                <button onclick="deleteSave(${idx})" style="background:none; border:none; color:#666; font-size:18px; margin-left:10px;">×</button>
-            </div>`;
-        });
-    }
-
-    function deleteSave(idx) {
-        savedNumbers.splice(idx, 1);
-        localStorage.setItem('lottoSaveV18', JSON.stringify(savedNumbers));
-        updateStorageUI();
-    }
-
-    function processSmart(limit) {
-        const box = document.getElementById('console');
-        box.innerHTML = "";
-        
-        const missingList = getMissing();
-        const myPool = [...new Set(MY_FIXED_POOL)];
-        const myMissing = myPool.filter(n => missingList.includes(n));
-        
-        let freq = {};
-        myPool.forEach(n => freq[n] = 0);
-        ALL_DRAWS.forEach(row => row.forEach(n => { if(freq.hasOwnProperty(n)) freq[n]++; }));
-        let sorted = [...myPool].sort((a,b) => freq[b] - freq[a]);
-        const machineFixed = sorted.slice(0, 3);
-
-        let count = 0;
-        while(count < limit) {
-            let res = [machineFixed[Math.floor(Math.random()*3)]];
-            let shufMissing = myMissing.sort(() => Math.random() - 0.5).slice(0, Math.floor(Math.random()*2)+1);
-            shufMissing.forEach(m => { if(res.length < 6) res.push(m); });
-            let temp = [...myPool].sort(() => Math.random() - 0.5);
-            for(let n of temp) { if(res.length < 6 && !res.includes(n)) res.push(n); }
-
-            if(res.length === 6) {
-                res.sort((a,b)=>a-b);
-                let sum = res.reduce((a,b)=>a+b, 0);
-                let odds = res.filter(n => n % 2 !== 0).length;
-                if(sum >= 80 && sum <= 190 && odds >= 2 && odds <= 4) {
-                    count++;
-                    const numStr = res.join(',');
-                    const html = res.map(n => {
-                        let cls = machineFixed.includes(n) ? "fixed" : (missingList.includes(n) ? "missing" : "normal");
-                        return `<span class="num-box ${cls}">${String(n).padStart(2,'0')}</span>`;
-                    }).join('');
-                    
-                    box.innerHTML += `<div class="row-line">
-                        <div class="num-container">${html}</div>
-                        <div class="save-btn" onclick="saveToBox('${numStr}')">저장</div>
-                    </div>`;
-                }
-            }
-        }
-        // 화면에 생성된 HTML 결과를 로컬 저장소에 저장 (재접속 대비)
-        localStorage.setItem('lastConsoleHTML', box.innerHTML);
+        const st = document.getElementById('storage');
+        st.innerHTML = savedNumbers.map(n => `<div class="row-line"><div class="num-container">${n.split(',').map(v=>`<span class="num-box normal">${v}</span>`).join('')}</div></div>`).join('');
     }
 </script>
 </body>
