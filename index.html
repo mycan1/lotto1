@@ -12,6 +12,16 @@
         .header-box { text-align: center; margin-bottom: 10px; }
         .next-episode { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
         
+        /* 예상회차 크게 표시 */
+        .round-big {
+            font-size: 48px;
+            font-weight: 900;
+            color: #ffd700;
+            text-shadow: 0 0 20px #ffd700;
+            line-height: 1.2;
+            margin: 5px 0;
+        }
+        
         .status-info { 
             font-size: 11px; 
             color: var(--accent); 
@@ -116,7 +126,6 @@
             cursor: pointer;
         }
         
-        /* 팝업 스타일 */
         .popup-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -165,6 +174,7 @@
 <div class="outer-border">
     <div class="header-box">
         <span class="next-episode">SHIN-UI-SON 통합</span>
+        <div id="roundDisplay" class="round-big">1212회</div>
     </div>
     
     <div id="userDisplay" class="user-info"></div>
@@ -191,7 +201,6 @@
     <div class="small-note">※ 9,10번 조합에 미출수 포함 (최대 4개) | 고정 최대 6개</div>
 </div>
 
-<!-- 팝업 HTML -->
 <div id="popup" class="popup-overlay" style="display:none;">
     <div class="popup-content">
         <span class="popup-close" onclick="closePopup()">&times;</span>
@@ -211,7 +220,7 @@
     let userName = "";
     let savedNumbers = [];
     let fixedNumbers = JSON.parse(localStorage.getItem('fixedNumbersV24')) || [];  // 고정 번호 (최대 6개)
-    let myPool = JSON.parse(localStorage.getItem('myPoolV20')) || [1,3,7,15,16,17,23,24,26,27,31,33,38,39,42];  // 선택한 번호
+    let myPool = [];  // 빈 배열로 시작 (analyze에서 채움)
     
     // ===== UI 함수 =====
     function togglePanel() {
@@ -238,10 +247,10 @@
                 if(myPool.includes(i)) {
                     myPool = myPool.filter(n => n !== i);
                 } else {
-                    if(myPool.length < 25) {
+                    if(myPool.length < 45) {
                         myPool.push(i);
                     } else {
-                        alert("최대 25개까지 선택 가능합니다.");
+                        alert("최대 45개까지 선택 가능합니다.");
                     }
                 }
                 localStorage.setItem('myPoolV20', JSON.stringify(myPool));
@@ -349,12 +358,16 @@
         basket = scored.slice(0, 16);
         machineFixed = [scored[0], scored[1], scored[2]];
 
+        // ===== AI 추천 16수를 번호 선택기에 자동 반영 (매번 초기화) =====
+        myPool = [...basket];  // 항상 AI 추천 16수로 설정
+        localStorage.setItem('myPoolV20', JSON.stringify(myPool));
+
         const monthNames = ['','1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
         const currentRound = FULL_DATA[0][0] + 1;  // 1212회
         
+        document.getElementById('roundDisplay').innerHTML = `${currentRound}회`;
         document.getElementById('status').innerHTML = `
             <div><span class="highlight-gold">★ 통합 엔진 [${monthNames[currentMonth]}]</span></div>
-            <div><span class="highlight-gold">🎯 ${currentRound}회 예상</span></div>
             <div><span class="highlight-red">🎯 미출수(22회):</span> ${zeroFreqNums.length > 0 ? zeroFreqNums.join(', ') : '없음'}</div>
             <div>AI 추천 16수: ${basket.sort((a,b)=>a-b).join(', ')}</div>
             <div><span class="highlight-blue">📊 기대 합계:</span> ${dynamicAvgSum} (${dynamicAvgSum-28}~${dynamicAvgSum+28})</div>
@@ -365,11 +378,7 @@
     
     // ===== 조합 생성 =====
     function process(limit) {
-        analyze();
-        
-        if(myPool.length === 0) {
-            myPool = [1,3,7,15,16,17,23,24,26,27,31,33,38,39,42];
-        }
+        analyze();  // 여기서 myPool이 AI 16수로 초기화됨
         
         let availableNumbers = [...new Set([...basket, ...fixedNumbers, ...myPool])].sort((a,b)=>a-b);
         
