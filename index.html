@@ -170,6 +170,7 @@
     let userName = "";
     let savedNumbers = [];
     let fixedNumbers = JSON.parse(localStorage.getItem('fixedNumbersV24')) || [];  // 고정 번호 (최대 6개)
+    let myPool = JSON.parse(localStorage.getItem('myPoolV20')) || [1,3,7,15,16,17,23,24,26,27,31,33,38,39,42];  // 선택한 번호
     
     // ===== UI 함수 =====
     function togglePanel() {
@@ -189,24 +190,39 @@
             const wrapper = document.createElement('div');
             wrapper.className = 'number-wrapper';
             
-            // 번호 박스
+            // 번호 박스 (클릭하면 myPool 선택/해제)
             const numDiv = document.createElement('div');
-            numDiv.className = `sel-box ${basket.includes(i) ? 'active' : ''}`;
+            numDiv.className = `sel-box ${myPool.includes(i) ? 'active' : ''}`;
             numDiv.innerText = i;
             
-            // 고정 버튼
+            // 번호 클릭 이벤트 (선택/해제)
+            numDiv.onclick = () => {
+                if(myPool.includes(i)) {
+                    myPool = myPool.filter(n => n !== i);  // 선택 해제
+                } else {
+                    if(myPool.length < 25) {
+                        myPool.push(i);  // 새로 선택
+                    } else {
+                        alert("최대 25개까지 선택 가능합니다.");
+                    }
+                }
+                localStorage.setItem('myPoolV20', JSON.stringify(myPool));
+                renderSelector();  // 다시 그리기
+            };
+            
+            // 고정 버튼 (별도)
             const fixBtn = document.createElement('button');
             fixBtn.className = `fix-btn ${fixedNumbers.includes(i) ? 'fixed' : ''}`;
             fixBtn.innerText = fixedNumbers.includes(i) ? '🔒' : '고정';
             
             fixBtn.onclick = (e) => {
-                e.stopPropagation();
+                e.stopPropagation();  // 번호 클릭 이벤트와 분리
                 
                 if(fixedNumbers.includes(i)) {
-                    fixedNumbers = fixedNumbers.filter(n => n !== i);
+                    fixedNumbers = fixedNumbers.filter(n => n !== i);  // 고정 해제
                 } else {
                     if(fixedNumbers.length < 6) {
-                        fixedNumbers.push(i);
+                        fixedNumbers.push(i);  // 고정 추가
                     } else {
                         alert("고정 번호는 최대 6개까지 가능합니다.");
                         return;
@@ -215,7 +231,7 @@
                 
                 localStorage.setItem('fixedNumbersV24', JSON.stringify(fixedNumbers));
                 document.getElementById('fixedCount').innerHTML = `🔒 고정: ${fixedNumbers.length}/6`;
-                renderSelector();
+                renderSelector();  // 다시 그리기
             };
             
             wrapper.appendChild(numDiv);
@@ -293,8 +309,13 @@
     function process(limit) {
         analyze();
         
-        // AI 16수 + 고정 번호 통합
-        let availableNumbers = [...new Set([...basket, ...fixedNumbers])].sort((a,b)=>a-b);
+        // myPool이 비어있으면 기본값 사용
+        if(myPool.length === 0) {
+            myPool = [1,3,7,15,16,17,23,24,26,27,31,33,38,39,42];
+        }
+        
+        // AI 16수 + 고정 번호 + myPool 통합
+        let availableNumbers = [...new Set([...basket, ...fixedNumbers, ...myPool])].sort((a,b)=>a-b);
         
         const box = document.getElementById('console');
         box.innerHTML = "";
@@ -327,7 +348,7 @@
                 }
             }
 
-            // AI 번호로 채우기
+            // myPool에서 번호 채우기 (고정 번호 제외)
             let shuffleAvailable = [...availableNumbers].filter(n => !fixedNumbers.includes(n)).sort(() => Math.random() - 0.5);
             for(let n of shuffleAvailable) {
                 if(res.size >= 6) break;
