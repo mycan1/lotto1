@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신의손 v24.1 - 1번코드 적용</title>
+    <title>신의손 v24.1 - 1번코드 (17수 확정)</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
@@ -209,54 +209,28 @@
 </div>
 
 <script>
-    // ===== 1~1211회차 전체 데이터 (RAW) =====
-    const RAW_DATA = `회차	추첨일	첫번째	두번째	세번째	네번째	다섯번째	여섯번째	보너스		구분	1~10	11~20	21~30	31~40	41~45	합계		표준편차	당첨번호 합계	직전 회차 당첨번호 재출현 개수	2연번	3연번	4연번
-1	2002-12-07	10	23	29	33	37	40	16		1회차	1	0	2	3	0	6		 10.93 	172	0	0	0	0
-2	2002-12-14	9	13	21	25	32	42	2		2회차	1	1	2	1	1	6		 12.19 	142	0	0	0	0
-... (중간 생략, 실제로는 전체 데이터 포함) ...
-1211	2026-02-14	23	26	27	35	38	40	10		1211회차	0	0	3	3	0	6		 7.06 	189	2	1	0	0`;
-
-    // ===== 파싱 함수 =====
-    function parseLottoData(raw) {
-        const lines = raw.trim().split('\n');
-        const data = [];
-        for (let i = 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (line === '') continue;
-            const parts = line.split('\t');
-            if (parts.length < 9) continue;
-            const round = parseInt(parts[0], 10);
-            const nums = [];
-            for (let j = 2; j <= 7; j++) nums.push(parseInt(parts[j], 10));
-            const bonus = parseInt(parts[8], 10);
-            data.push([round, ...nums, bonus]);
-        }
-        data.sort((a, b) => b[0] - a[0]); // 최신순
-        return data;
-    }
-
-    const FULL_DATA = parseLottoData(RAW_DATA);
+    // ===== 1번코드에 필요한 6개 회차 데이터 (1211 + 52주 전 5개) =====
+    const FULL_DATA = [
+        [1211, 23,26,27,35,38,40,10],
+        [1160, 7,13,18,36,39,45,19],
+        [1108, 7,19,26,37,39,44,27],
+        [1056, 13,20,24,32,36,45,29],
+        [1004, 7,15,30,37,39,44,18],
+        [952,  4,12,22,24,33,41,38]
+    ];
 
     // ===== 1번코드 알고리즘 (17수 생성) =====
     function lottoSystem00001212Final(allData, lastWinning) {
         let dataMap = {};
         allData.forEach(row => dataMap[row[0]] = row);
 
-        const targetRounds = [1160, 1108, 1056, 1004, 952]; // 1212 기준 52주 전 5개
+        const targetRounds = [1160, 1108, 1056, 1004, 952];
 
         let mainPool = [], bonusPool = [];
         targetRounds.forEach(r => {
             if (dataMap[r]) {
                 mainPool.push(...dataMap[r].slice(1, 7));
                 bonusPool.push(dataMap[r][7]);
-            } else {
-                // 데이터가 없으면 가장 가까운 회차로 대체 (만일의 경우)
-                let available = Object.keys(dataMap).map(Number).sort((a,b) => a - b);
-                let closest = available.reduce((prev, curr) => 
-                    Math.abs(curr - r) < Math.abs(prev - r) ? curr : prev
-                );
-                mainPool.push(...dataMap[closest].slice(1, 7));
-                bonusPool.push(dataMap[closest][7]);
             }
         });
 
@@ -309,8 +283,8 @@
     // ===== 사용자 설정 =====
     let userName = "";
     let savedNumbers = [];
-    let fixedNumbers = JSON.parse(localStorage.getItem('fixedNumbersV24')) || [];  // 고정 번호 (최대 6개)
-    let myPool = [];  // 선택기용 풀 (analyze에서 basket으로 초기화)
+    let fixedNumbers = JSON.parse(localStorage.getItem('fixedNumbersV24')) || [];
+    let myPool = [];
     
     // ===== UI 함수 =====
     function togglePanel() {
@@ -318,7 +292,6 @@
         panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
     }
     
-    // ===== 번호 선택기 렌더링 =====
     function renderSelector() {
         const grid = document.getElementById('selectorGrid');
         if(!grid) return;
@@ -380,47 +353,41 @@
     
     // ===== 분석 함수 (1번코드 기반) =====
     function analyze() {
-        // 미출수 분석 (최근 22회)
-        const zeroRange = 22;
-        const data22 = FULL_DATA.slice(0, zeroRange);
+        // 미출수 분석 (최근 22회) - FULL_DATA가 6개뿐이므로 모든 데이터 사용
         let freq22 = {};
         for(let i=1; i<=45; i++) freq22[i] = 0;
-        data22.forEach(row => { for(let j=1; j<=7; j++) { if(row[j]) freq22[row[j]]++; } });
+        FULL_DATA.forEach(row => {
+            for(let j=1; j<=7; j++) {
+                if(row[j]) freq22[row[j]]++;
+            }
+        });
         zeroFreqNums = Object.keys(freq22).filter(n => freq22[n] === 0).map(Number).sort((a,b)=>a-b);
 
-        // 기대 합계 (최근 30회 평균)
-        let nextSums = [];
-        const targetRange = 30;
-        for(let i=1; i < targetRange; i++) {
-            if (i+1 < FULL_DATA.length) {
-                let sum = FULL_DATA[i+1].slice(1, 7).reduce((a,b)=>a+b, 0);
-                nextSums.push(sum);
-            }
-        }
-        if (nextSums.length > 0) dynamicAvgSum = Math.round(nextSums.reduce((a,b)=>a+b, 0) / nextSums.length);
+        // 기대 합계 (간소화: 1211회 합계)
+        const lastSum = FULL_DATA[0].slice(1,7).reduce((a,b)=>a+b,0);
+        dynamicAvgSum = lastSum;
 
-        // 1번코드 실행: 마지막 당첨번호(1211회) = FULL_DATA[0]의 1~6번째
-        const lastWinning = FULL_DATA[0].slice(1, 7); // [23,26,27,35,38,40]
+        // 1번코드 실행
+        const lastWinning = FULL_DATA[0].slice(1, 7);
         basket = lottoSystem00001212Final(FULL_DATA, lastWinning);
 
-        // AI 추천 17수를 번호 선택기에 반영
+        // AI 추천 17수를 선택기에 반영
         myPool = [...basket];
         localStorage.setItem('myPoolV20', JSON.stringify(myPool));
 
-        // 고정번호(machineFixed)는 첫 3수 (선택적 사용, 현재는 미사용)
         machineFixed = basket.slice(0, 3);
 
         const today = new Date();
         const currentMonth = today.getMonth() + 1;
         const monthNames = ['','1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-        const currentRound = FULL_DATA[0][0] + 1;  // 1212회
+        const currentRound = 1212;
         
         document.getElementById('roundDisplay').innerHTML = `${currentRound}회`;
         document.getElementById('status').innerHTML = `
             <div><span class="highlight-gold">★ 1번코드 통합 엔진 [${monthNames[currentMonth]}]</span></div>
-            <div><span class="highlight-red">🎯 미출수(22회):</span> ${zeroFreqNums.length > 0 ? zeroFreqNums.join(', ') : '없음'}</div>
+            <div><span class="highlight-red">🎯 미출수(전체):</span> ${zeroFreqNums.length > 0 ? zeroFreqNums.join(', ') : '없음'}</div>
             <div>AI 추천 17수: ${basket.join(', ')}</div>
-            <div><span class="highlight-blue">📊 기대 합계:</span> ${dynamicAvgSum} (${dynamicAvgSum-28}~${dynamicAvgSum+28})</div>
+            <div><span class="highlight-blue">📊 기준 합계:</span> ${dynamicAvgSum} (${dynamicAvgSum-28}~${dynamicAvgSum+28})</div>
         `;
         
         renderSelector();
@@ -428,7 +395,7 @@
     
     // ===== 조합 생성 =====
     function process(limit) {
-        analyze();  // 최신 basket, myPool 갱신
+        analyze();
         
         let availableNumbers = [...new Set([...basket, ...fixedNumbers, ...myPool])].sort((a,b)=>a-b);
         
@@ -444,10 +411,8 @@
             let currentIdx = count + 1;
             let zeroCount = 0;
 
-            // 사용자 고정번호 우선 포함
             fixedNumbers.forEach(n => res.add(n));
 
-            // 9,10번 조합 미출수 포함
             if (limit === 10 && (currentIdx === 9 || currentIdx === 10) && zeroFreqNums.length > 0) {
                 let availableZeros = [...zeroFreqNums].filter(n => !fixedNumbers.includes(n));
                 let maxPossible = Math.min(4, availableZeros.length);
@@ -463,14 +428,12 @@
                 }
             }
 
-            // AI 추천 풀에서 랜덤 추가
             let shuffleAvailable = [...availableNumbers].filter(n => !fixedNumbers.includes(n)).sort(() => Math.random() - 0.5);
             for(let n of shuffleAvailable) {
                 if(res.size >= 6) break;
                 res.add(n);
             }
 
-            // 부족분 랜덤 채움
             while(res.size < 6) {
                 let rand = Math.floor(Math.random()*45)+1;
                 res.add(rand);
@@ -544,7 +507,6 @@
         }
     }
     
-    // ===== 팝업 함수 =====
     function openPopup() {
         document.getElementById('popup').style.display = 'flex';
         renderStorage();
