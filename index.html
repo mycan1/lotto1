@@ -3,188 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신의손 v24.1 - 1번코드 (17수 확정)</title>
+    <title>신의손 - 1213회 (최소데이터)</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
         .outer-border { border: 2px solid var(--gold); border-radius: 20px; padding: 15px; max-width: 480px; margin: 0 auto; }
-        
         .header-box { text-align: center; margin-bottom: 10px; }
         .next-episode { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
-        
-        .round-big {
-            font-size: 48px;
-            font-weight: 900;
-            color: #ffd700;
-            text-shadow: 0 0 20px #ffd700;
-            line-height: 1.2;
-            margin: 5px 0;
-        }
-        
-        .status-info { 
-            font-size: 11px; 
-            color: var(--accent); 
-            line-height: 1.5; 
-            min-height: 80px;
-            width: 100%; 
-            background: rgba(255,255,255,0.05); 
-            border-radius: 12px; 
-            padding: 10px; 
-            box-sizing: border-box; 
-            margin: 10px 0; 
-            text-align: left; 
-            border: 1px solid #333; 
-        }
-        
+        .round-big { font-size: 48px; font-weight: 900; color: #ffd700; text-shadow: 0 0 20px #ffd700; margin: 5px 0; }
+        .status-info { font-size: 11px; color: var(--accent); background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px; margin: 10px 0; border: 1px solid #333; }
         .highlight-gold { color: var(--gold); font-weight: bold; }
-        .highlight-red { color: #ff4444; font-weight: bold; }
         .highlight-blue { color: #00ccff; font-weight: bold; }
         
+        /* 선택기 영역 (동일) */
         .selector-container { margin-bottom: 15px; }
-        .selector-toggle { width: 100%; height: 40px; background: #222; border: 1px solid var(--gold); border-radius: 10px; color: var(--gold); font-weight: bold; cursor: pointer; margin-bottom: 5px; }
-        
+        .selector-toggle { width: 100%; height: 40px; background: #222; border: 1px solid var(--gold); border-radius: 10px; color: var(--gold); font-weight: bold; cursor: pointer; }
         #selectorPanel { display: none; background: #1a1a1a; border-radius: 10px; padding: 10px; border: 1px solid #333; }
         .selector-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 8px; }
-        
-        .number-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-        }
-        
-        .sel-box {
-            aspect-ratio: 1;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            border-radius: 4px;
-            background: #333;
-            color: #888;
-            cursor: pointer;
-            border: 1px solid transparent;
-        }
-        
-        .sel-box.active {
-            background: var(--accent);
-            color: #000;
-            font-weight: bold;
-        }
-        
-        .fix-btn {
-            width: 100%;
-            font-size: 10px;
-            padding: 4px 0;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            background: #333;
-            color: #aaa;
-            transition: 0.2s;
-        }
-        
-        .fix-btn.fixed {
-            background: #ff00ff;
-            color: white;
-            font-weight: bold;
-        }
+        .number-wrapper { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .sel-box { aspect-ratio: 1; width: 100%; display: flex; align-items: center; justify-content: center; background: #333; color: #888; cursor: pointer; border-radius: 4px; }
+        .sel-box.active { background: var(--accent); color: #000; font-weight: bold; }
+        .fix-btn { width: 100%; font-size: 10px; padding: 4px 0; border: none; border-radius: 3px; background: #333; color: #aaa; cursor: pointer; }
+        .fix-btn.fixed { background: #ff00ff; color: white; font-weight: bold; }
         
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 15px 0; }
         button { border-radius: 10px; font-weight: bold; cursor: pointer; border: none; height: 45px; }
-        .btn-main { background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; font-size: 16px; }
+        .btn-main { background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; }
         .btn-sub { background: #222; color: #fff; border: 1px solid #444; }
-        .btn-reset { grid-column: span 2; background: #333; color: #aaa; height: 40px; }
+        .btn-reset { grid-column: span 2; background: #333; color: #aaa; }
         
-        .row-line { background: var(--card); border-radius: 12px; padding: 10px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; }
+        .row-line { background: var(--card); border-radius: 12px; padding: 10px; margin-bottom: 8px; display: flex; align-items: center; border: 1px solid #333; }
         .num-container { display: flex; gap: 4px; flex-grow: 1; justify-content: center; flex-wrap: wrap; }
-        .num-box { width: 32px; height: 32px; line-height: 32px; text-align: center; font-size: 14px; font-weight: 900; border-radius: 50%; color: #fff; }
+        .num-box { width: 32px; height: 32px; line-height: 32px; text-align: center; border-radius: 50%; font-weight: 900; color: #fff; }
         .fixed { background: linear-gradient(135deg, #00ffcc, #00a884); color: #000; } 
-        .zero { background: linear-gradient(135deg, #ff4444, #b30000); } 
         .normal { background: #444; border: 1px solid var(--gold); }
         .save-btn { font-size: 11px; background: var(--save); color: white; padding: 4px 8px; border-radius: 5px; cursor: pointer; }
         
-        .user-info {
-            background: #333;
-            color: var(--accent);
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        .change-name-btn {
-            background: #00ccff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 3px 8px;
-            font-size: 10px;
-            margin-left: 5px;
-            cursor: pointer;
-        }
+        .user-info { background: #333; color: var(--accent); padding: 5px; border-radius: 20px; font-size: 12px; margin-bottom: 10px; text-align: center; }
+        .change-name-btn { background: #00ccff; color: white; border: none; border-radius: 5px; padding: 3px 8px; font-size: 10px; margin-left: 5px; cursor: pointer; }
         
-        .popup-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .popup-content {
-            background: var(--card);
-            border: 2px solid var(--gold);
-            border-radius: 20px;
-            padding: 20px;
-            max-width: 400px;
-            width: 90%;
-            max-height: 70vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        .popup-close {
-            position: absolute;
-            top: 10px; right: 15px;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--gold);
-        }
-        .popup-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            text-align: center;
-            color: var(--gold);
-        }
-        
-        .fixed-count {
-            font-size: 12px;
-            color: var(--accent);
-            margin: 5px 0;
-            text-align: center;
-        }
-        .small-note { margin-top: 3px; color: #888; font-size: 9px; text-align: center; }
+        .popup-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index:1000; }
+        .popup-content { background: var(--card); border: 2px solid var(--gold); border-radius: 20px; padding: 20px; max-width:400px; width:90%; max-height:70vh; overflow-y: auto; position: relative; }
+        .popup-close { position: absolute; top:10px; right:15px; font-size:24px; cursor: pointer; color: var(--gold); }
+        .popup-title { font-size:18px; font-weight: bold; margin-bottom:15px; text-align: center; color: var(--gold); }
+        .fixed-count { font-size:12px; color: var(--accent); margin:5px 0; text-align: center; }
+        .small-note { margin-top:3px; color:#888; font-size:9px; text-align: center; }
+        *:focus, *:active { outline: none; -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
 <body>
 <div class="outer-border">
     <div class="header-box">
-        <span class="next-episode">SHIN-UI-SON + 1번코드</span>
-        <div id="roundDisplay" class="round-big">1212회</div>
+        <span class="next-episode">SHIN-UI-SON (1213회)</span>
+        <div id="roundDisplay" class="round-big">1213회</div>
     </div>
-    
     <div id="userDisplay" class="user-info"></div>
     <div id="status" class="status-info">분석 초기화 중...</div>
 
     <div class="selector-container">
-        <button id="toggleBtn" class="selector-toggle" onclick="togglePanel()">⚙️ 번호 선택기</button>
+        <button class="selector-toggle" onclick="togglePanel()">⚙️ 번호 선택기</button>
         <div id="selectorPanel">
             <div class="fixed-count" id="fixedCount">🔒 고정: 0/6</div>
             <div class="selector-grid" id="selectorGrid"></div>
-            <button onclick="togglePanel()" style="width:100%; margin-top:10px; height:35px; background:var(--accent); color:#000; border-radius:5px; font-weight:bold;">닫기</button>
+            <button onclick="togglePanel()" style="width:100%; margin-top:10px; height:35px; background:var(--accent); color:#000; border-radius:5px;">닫기</button>
         </div>
     </div>
 
@@ -209,22 +90,21 @@
 </div>
 
 <script>
-    // ===== 1번코드에 필요한 6개 회차 데이터 (1211 + 52주 전 5개) =====
+    // ===== 최소 데이터: 1212회 + 1213 기준 52주 전 5개 회차 =====
     const FULL_DATA = [
-        [1211, 23,26,27,35,38,40,10],
-        [1160, 7,13,18,36,39,45,19],
-        [1108, 7,19,26,37,39,44,27],
-        [1056, 13,20,24,32,36,45,29],
-        [1004, 7,15,30,37,39,44,18],
-        [952,  4,12,22,24,33,41,38]
+        [1212, 5,8,25,31,41,44,45],   // 이월수 계산용
+        [1161, 2,12,20,24,34,42,37],
+        [1109, 10,12,13,19,33,40,2],
+        [1057, 8,13,19,27,40,45,12],
+        [1005, 8,13,18,24,27,29,17],
+        [953,  7,9,22,27,37,42,34]
     ];
 
-    // ===== 1번코드 알고리즘 (17수 생성) =====
+    // ===== 1번코드 알고리즘 (1213회 기준) =====
     function lottoSystem00001212Final(allData, lastWinning) {
+        const targetRounds = [1161, 1109, 1057, 1005, 953];
         let dataMap = {};
         allData.forEach(row => dataMap[row[0]] = row);
-
-        const targetRounds = [1160, 1108, 1056, 1004, 952];
 
         let mainPool = [], bonusPool = [];
         targetRounds.forEach(r => {
@@ -234,342 +114,211 @@
             }
         });
 
-        let survivors = Array.from(new Set([...mainPool, ...bonusPool]));
+        let survivors = [...new Set([...mainPool, ...bonusPool])];
 
         let mainFreq = {}, bonusFreq = {};
-        mainPool.forEach(n => mainFreq[n] = (mainFreq[n] || 0) + 1);
-        bonusPool.forEach(n => bonusFreq[n] = (bonusFreq[n] || 0) + 1);
+        mainPool.forEach(n => mainFreq[n] = (mainFreq[n]||0)+1);
+        bonusPool.forEach(n => bonusFreq[n] = (bonusFreq[n]||0)+1);
 
-        let rankedAll = survivors.sort((a, b) => {
-            let aInLast = lastWinning.includes(a);
-            let bInLast = lastWinning.includes(b);
-            if (aInLast && !bInLast) return -1;
-            if (!aInLast && bInLast) return 1;
-            let aFreq = mainFreq[a] || 0, bFreq = mainFreq[b] || 0;
-            if (aFreq > bFreq) return -1;
-            if (aFreq < bFreq) return 1;
+        let ranked = survivors.sort((a,b) => {
+            let aLast = lastWinning.includes(a), bLast = lastWinning.includes(b);
+            if(aLast && !bLast) return -1;
+            if(!aLast && bLast) return 1;
+            let aFreq = mainFreq[a]||0, bFreq = mainFreq[b]||0;
+            if(aFreq > bFreq) return -1;
+            if(aFreq < bFreq) return 1;
             return a - b;
         });
 
-        let final17 = rankedAll.slice(0, 13);
-        let remaining = rankedAll.slice(13);
-        let rebels = remaining.sort((a, b) => {
-            let aFreq = bonusFreq[a] || 0, bFreq = bonusFreq[b] || 0;
-            if (aFreq > bFreq) return -1;
-            if (aFreq < bFreq) return 1;
-            return a - b;
-        }).slice(0, 4);
+        let final17 = ranked.slice(0,13);
+        let rebels = ranked.slice(13).sort((a,b) => (bonusFreq[b]||0)-(bonusFreq[a]||0) || a-b).slice(0,4);
         final17.push(...rebels);
 
-        let sections = [[1,10], [11,20], [21,30], [31,40], [41,45]];
-        sections.forEach(([start, end]) => {
-            if (!final17.some(n => n >= start && n <= end)) {
-                let candidates = survivors.filter(n => n >= start && n <= end && !final17.includes(n));
-                if (candidates.length) {
-                    candidates.sort((a, b) => (bonusFreq[b]||0) - (bonusFreq[a]||0) || a - b);
+        // 구간 메우기
+        let sections = [[1,10],[11,20],[21,30],[31,40],[41,45]];
+        sections.forEach(([s,e]) => {
+            if(!final17.some(n => n>=s && n<=e)) {
+                let cand = survivors.filter(n => n>=s && n<=e && !final17.includes(n));
+                if(cand.length) {
+                    cand.sort((a,b) => (bonusFreq[b]||0)-(bonusFreq[a]||0) || a-b);
                     final17.pop();
-                    final17.push(candidates[0]);
+                    final17.push(cand[0]);
                 }
             }
         });
-
-        return Array.from(new Set(final17)).sort((a, b) => a - b);
+        return [...new Set(final17)].sort((a,b)=>a-b);
     }
 
     // ===== 전역 변수 =====
-    let basket = [], zeroFreqNums = [], machineFixed = [];
+    let basket = [], machineFixed = [];
     let dynamicAvgSum = 145;
-    
-    // ===== 사용자 설정 =====
-    let userName = "";
-    let savedNumbers = [];
+    let userName = "", savedNumbers = [];
     let fixedNumbers = JSON.parse(localStorage.getItem('fixedNumbersV24')) || [];
     let myPool = [];
-    
-    // ===== UI 함수 =====
-    function togglePanel() {
-        const panel = document.getElementById('selectorPanel');
-        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+
+    // ===== 분석 =====
+    function analyze() {
+        // 기준 합계: 5개 회차 평균
+        const targetRounds = [1161,1109,1057,1005,953];
+        let sums = [];
+        targetRounds.forEach(r => {
+            let row = FULL_DATA.find(x => x[0]===r);
+            if(row) sums.push(row.slice(1,7).reduce((a,b)=>a+b,0));
+        });
+        dynamicAvgSum = sums.length ? Math.round(sums.reduce((a,b)=>a+b,0)/sums.length) : 145;
+
+        const lastWinning = FULL_DATA[0].slice(1,7); // 1212회
+        basket = lottoSystem00001212Final(FULL_DATA, lastWinning);
+        machineFixed = basket.slice(0,3);
+        myPool = [...basket];
+        localStorage.setItem('myPoolV20', JSON.stringify(myPool));
+
+        document.getElementById('roundDisplay').innerHTML = `1213회`;
+        document.getElementById('status').innerHTML = `
+            <div><span class="highlight-gold">★ 1번코드 (1213회 기준)</span></div>
+            <div>AI 추천 17수: ${basket.join(', ')}</div>
+            <div><span class="highlight-blue">📊 기준 합계 (5회차 평균):</span> ${dynamicAvgSum} (${dynamicAvgSum-25}~${dynamicAvgSum+25})</div>
+        `;
+        renderSelector();
     }
-    
+
+    // ===== 선택기 렌더링 (생략없이 포함) =====
     function renderSelector() {
         const grid = document.getElementById('selectorGrid');
         if(!grid) return;
-        
         grid.innerHTML = "";
-        
         for(let i=1; i<=45; i++) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'number-wrapper';
-            
-            const numDiv = document.createElement('div');
-            numDiv.className = `sel-box ${myPool.includes(i) ? 'active' : ''}`;
-            numDiv.innerText = i;
-            
-            numDiv.onclick = () => {
-                if(myPool.includes(i)) {
-                    myPool = myPool.filter(n => n !== i);
-                } else {
-                    if(myPool.length < 45) {
-                        myPool.push(i);
-                    } else {
-                        alert("최대 45개까지 선택 가능합니다.");
-                    }
-                }
+            const w = document.createElement('div'); w.className = 'number-wrapper';
+            const n = document.createElement('div');
+            n.className = `sel-box ${myPool.includes(i)?'active':''}`;
+            n.innerText = i;
+            n.onclick = () => {
+                if(myPool.includes(i)) myPool = myPool.filter(v=>v!==i);
+                else if(myPool.length<45) myPool.push(i);
                 localStorage.setItem('myPoolV20', JSON.stringify(myPool));
                 renderSelector();
             };
-            
-            const fixBtn = document.createElement('button');
-            fixBtn.className = `fix-btn ${fixedNumbers.includes(i) ? 'fixed' : ''}`;
-            fixBtn.innerText = fixedNumbers.includes(i) ? '🔒' : '고정';
-            
-            fixBtn.onclick = (e) => {
+            const f = document.createElement('button');
+            f.className = `fix-btn ${fixedNumbers.includes(i)?'fixed':''}`;
+            f.innerText = fixedNumbers.includes(i)?'🔒':'고정';
+            f.onclick = (e) => {
                 e.stopPropagation();
-                
-                if(fixedNumbers.includes(i)) {
-                    fixedNumbers = fixedNumbers.filter(n => n !== i);
-                } else {
-                    if(fixedNumbers.length < 6) {
-                        fixedNumbers.push(i);
-                    } else {
-                        alert("고정 번호는 최대 6개까지 가능합니다.");
-                        return;
-                    }
-                }
-                
+                if(fixedNumbers.includes(i)) fixedNumbers = fixedNumbers.filter(v=>v!==i);
+                else if(fixedNumbers.length<6) fixedNumbers.push(i);
+                else { alert("고정 번호는 최대 6개"); return; }
                 localStorage.setItem('fixedNumbersV24', JSON.stringify(fixedNumbers));
                 document.getElementById('fixedCount').innerHTML = `🔒 고정: ${fixedNumbers.length}/6`;
                 renderSelector();
             };
-            
-            wrapper.appendChild(numDiv);
-            wrapper.appendChild(fixBtn);
-            grid.appendChild(wrapper);
+            w.appendChild(n); w.appendChild(f); grid.appendChild(w);
         }
-        
         document.getElementById('fixedCount').innerHTML = `🔒 고정: ${fixedNumbers.length}/6`;
     }
-    
-    // ===== 분석 함수 (1번코드 기반) =====
-    function analyze() {
-        // 미출수 분석 (최근 22회) - FULL_DATA가 6개뿐이므로 모든 데이터 사용
-        let freq22 = {};
-        for(let i=1; i<=45; i++) freq22[i] = 0;
-        FULL_DATA.forEach(row => {
-            for(let j=1; j<=7; j++) {
-                if(row[j]) freq22[row[j]]++;
-            }
-        });
-        zeroFreqNums = Object.keys(freq22).filter(n => freq22[n] === 0).map(Number).sort((a,b)=>a-b);
 
-        // 기대 합계 (간소화: 1211회 합계)
-        const lastSum = FULL_DATA[0].slice(1,7).reduce((a,b)=>a+b,0);
-        dynamicAvgSum = lastSum;
-
-        // 1번코드 실행
-        const lastWinning = FULL_DATA[0].slice(1, 7);
-        basket = lottoSystem00001212Final(FULL_DATA, lastWinning);
-
-        // AI 추천 17수를 선택기에 반영
-        myPool = [...basket];
-        localStorage.setItem('myPoolV20', JSON.stringify(myPool));
-
-        machineFixed = basket.slice(0, 3);
-
-        const today = new Date();
-        const currentMonth = today.getMonth() + 1;
-        const monthNames = ['','1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-        const currentRound = 1212;
-        
-        document.getElementById('roundDisplay').innerHTML = `${currentRound}회`;
-        document.getElementById('status').innerHTML = `
-            <div><span class="highlight-gold">★ 1번코드 통합 엔진 [${monthNames[currentMonth]}]</span></div>
-            <div><span class="highlight-red">🎯 미출수(전체):</span> ${zeroFreqNums.length > 0 ? zeroFreqNums.join(', ') : '없음'}</div>
-            <div>AI 추천 17수: ${basket.join(', ')}</div>
-            <div><span class="highlight-blue">📊 기준 합계:</span> ${dynamicAvgSum} (${dynamicAvgSum-28}~${dynamicAvgSum+28})</div>
-        `;
-        
-        renderSelector();
+    function togglePanel() {
+        const p = document.getElementById('selectorPanel');
+        p.style.display = p.style.display==='block'?'none':'block';
     }
-    
+
     // ===== 조합 생성 =====
     function process(limit) {
         analyze();
-        
-        let availableNumbers = [...new Set([...basket, ...fixedNumbers, ...myPool])].sort((a,b)=>a-b);
-        
         const box = document.getElementById('console');
         box.innerHTML = "";
-        let count = 0, used = new Set(), safety = 0;
-        let minSum = dynamicAvgSum - 28;
-        let maxSum = dynamicAvgSum + 28;
+        let cnt = 0, used = new Set(), safety = 0;
+        let minS = dynamicAvgSum - 25, maxS = dynamicAvgSum + 25;
 
-        while(count < limit && safety < 10000) {
-            safety++;
-            let res = new Set();
-            let currentIdx = count + 1;
-            let zeroCount = 0;
-
-            fixedNumbers.forEach(n => res.add(n));
-
-            if (limit === 10 && (currentIdx === 9 || currentIdx === 10) && zeroFreqNums.length > 0) {
-                let availableZeros = [...zeroFreqNums].filter(n => !fixedNumbers.includes(n));
-                let maxPossible = Math.min(4, availableZeros.length);
-                if(maxPossible > 0) {
-                    let selectCount = Math.floor(Math.random() * maxPossible) + 1;
-                    for(let i = 0; i < selectCount; i++) {
-                        if(availableZeros.length === 0) break;
-                        let randomIndex = Math.floor(Math.random() * availableZeros.length);
-                        res.add(availableZeros[randomIndex]);
-                        zeroCount++;
-                        availableZeros.splice(randomIndex, 1);
-                    }
-                }
-            }
-
-            let shuffleAvailable = [...availableNumbers].filter(n => !fixedNumbers.includes(n)).sort(() => Math.random() - 0.5);
-            for(let n of shuffleAvailable) {
-                if(res.size >= 6) break;
-                res.add(n);
-            }
-
-            while(res.size < 6) {
-                let rand = Math.floor(Math.random()*45)+1;
-                res.add(rand);
-            }
-
-            let finalArr = Array.from(res).sort((a,b)=>a-b);
-            let sum = finalArr.reduce((a,b)=>a+b, 0);
-            let key = finalArr.join(',');
-
-            if(!used.has(key) && sum >= minSum && sum <= maxSum) {
-                used.add(key);
-                count++;
-                let specialMark = (limit === 10 && (count === 9 || count === 10)) ? '🔥' : '';
-                renderRow(finalArr, box, key, specialMark);
+        while(cnt < limit && safety++ < 10000) {
+            let res = new Set(fixedNumbers);
+            let shuffle = [...new Set([...basket,...fixedNumbers,...myPool])].filter(n=>!fixedNumbers.includes(n));
+            shuffle.sort(()=>Math.random()-0.5);
+            for(let n of shuffle) { if(res.size>=6) break; res.add(n); }
+            while(res.size<6) res.add(Math.floor(Math.random()*45)+1);
+            let arr = [...res].sort((a,b)=>a-b);
+            let sum = arr.reduce((a,b)=>a+b,0);
+            let key = arr.join(',');
+            if(!used.has(key) && sum>=minS && sum<=maxS) {
+                used.add(key); cnt++;
+                let mark = (limit===10 && (cnt===9||cnt===10))?'🔥':'';
+                renderRow(arr, box, key, mark);
             }
         }
     }
-    
-    function renderRow(arr, target, key, specialMark = '') {
-        const html = arr.map(n => {
+
+    function renderRow(arr, target, key, mark) {
+        let html = arr.map(n => {
             if(fixedNumbers.includes(n)) return `<span class="num-box fixed">${n}</span>`;
-            if(zeroFreqNums.includes(n)) return `<span class="num-box zero">${n}</span>`;
             return `<span class="num-box normal">${n}</span>`;
         }).join('');
-        let specialHtml = specialMark ? `<span class="badge" style="margin-right:5px;">🔥</span>` : '';
-        target.innerHTML += `<div class="row-line"><div class="num-container">${html}</div><div style="display:flex; align-items:center;">${specialHtml}<div class="save-btn" onclick="saveToBox('${key}')">저장</div></div></div>`;
+        target.innerHTML += `<div class="row-line"><div class="num-container">${html}</div><div style="display:flex;">${mark?`<span class="badge" style="margin-right:5px;">🔥</span>`:''}<div class="save-btn" onclick="saveToBox('${key}')">저장</div></div></div>`;
     }
-    
-    // ===== 사용자 관리 =====
+
+    // ===== 사용자/보관함 함수 (생략없이 포함) =====
     function updateUserDisplay() {
-        const userDisplay = document.getElementById('userDisplay');
-        userDisplay.innerHTML = `👤 ${userName} 
-            <button class="change-name-btn" onclick="changeName()">변경</button>
-            <button class="change-name-btn" style="background:#ff4444;" onclick="deleteUser()">삭제</button>`;
+        document.getElementById('userDisplay').innerHTML = `👤 ${userName} <button class="change-name-btn" onclick="changeName()">변경</button><button class="change-name-btn" style="background:#ff4444;" onclick="deleteUser()">삭제</button>`;
     }
-    
     function changeName() {
-        const newName = prompt("새 이름:", userName);
-        if(newName) {
-            userName = newName;
-            localStorage.setItem('lottoUserName', userName);
-            const storageKey = `lottoSave_${userName}`;
-            savedNumbers = JSON.parse(localStorage.getItem(storageKey)) || [];
+        let n = prompt("새 이름:", userName);
+        if(n) { userName = n; localStorage.setItem('lottoUserName', n);
+            savedNumbers = JSON.parse(localStorage.getItem(`lottoSave_${n}`))||[];
             updateUserDisplay();
         }
     }
-    
     function deleteUser() {
-        if(confirm(`정말 ${userName}님의 기록을 삭제?`)) {
+        if(confirm("삭제?")) {
             localStorage.removeItem(`lottoSave_${userName}`);
-            userName = "guest_" + Math.random().toString(36).substring(2,6);
+            userName = "guest_"+Math.random().toString(36).substring(2,6);
             localStorage.setItem('lottoUserName', userName);
             savedNumbers = [];
             updateUserDisplay();
         }
     }
-    
     function initUser() {
-        userName = localStorage.getItem('lottoUserName') || "guest_" + Math.random().toString(36).substring(2,6);
+        userName = localStorage.getItem('lottoUserName') || "guest_"+Math.random().toString(36).substring(2,6);
         if(!localStorage.getItem('lottoUserName')) localStorage.setItem('lottoUserName', userName);
-        const storageKey = `lottoSave_${userName}`;
-        savedNumbers = JSON.parse(localStorage.getItem(storageKey)) || [];
+        savedNumbers = JSON.parse(localStorage.getItem(`lottoSave_${userName}`))||[];
         updateUserDisplay();
     }
-    
     function saveToBox(s) {
         if(!savedNumbers.includes(s)) {
             savedNumbers.push(s);
             localStorage.setItem(`lottoSave_${userName}`, JSON.stringify(savedNumbers));
-            alert(`📦 보관함 저장 완료 (${savedNumbers.length}개)`);
+            alert(`저장됨 (${savedNumbers.length}개)`);
         }
     }
-    
     function openPopup() {
         document.getElementById('popup').style.display = 'flex';
         renderStorage();
     }
-
     function closePopup() {
         document.getElementById('popup').style.display = 'none';
     }
-
     function renderStorage() {
-        const st = document.getElementById('storage');
-        if(savedNumbers.length === 0) { 
-            st.innerHTML = "<div style='text-align:center; padding:20px; opacity:0.5;'>저장된 조합이 없습니다.</div>"; 
-            return; 
-        }
-        
-        st.innerHTML = savedNumbers.map((n, index) => {
-            const numbers = n.split(',');
-            return `
-                <div class="row-line" style="margin-bottom:10px; background:#2a2a2a;">
-                    <div class="num-container">
-                        ${numbers.map(v=>`<span class="num-box normal" style="background:#444; font-size:12px;">${v}</span>`).join('')}
-                    </div>
-                    <div style="display:flex; gap:5px;">
-                        <button onclick="loadFromStorage('${n}')" 
-                                style="background:#00ccff; color:white; border:none; border-radius:5px; padding:5px 8px; font-size:11px; cursor:pointer;">불러오기</button>
-                        <button onclick="deleteSingleItem(${index})" 
-                                style="background:#ff4444; color:white; border:none; border-radius:5px; padding:5px 8px; font-size:11px; cursor:pointer;">삭제</button>
-                    </div>
-                </div>
-            `;
+        let st = document.getElementById('storage');
+        if(!savedNumbers.length) { st.innerHTML = "<div style='text-align:center; padding:20px; opacity:0.5;'>없음</div>"; return; }
+        st.innerHTML = savedNumbers.map((n,i)=> {
+            let nums = n.split(',');
+            return `<div class="row-line"><div class="num-container">${nums.map(v=>`<span class="num-box normal" style="background:#444;">${v}</span>`).join('')}</div><div><button onclick="loadFromStorage('${n}')" style="background:#00ccff;">불러오기</button><button onclick="deleteSingleItem(${i})" style="background:#ff4444;">삭제</button></div></div>`;
         }).join('');
-        
         document.querySelector('.popup-title').innerHTML = `📦 ${userName}의 보관함 (${savedNumbers.length}개)`;
     }
-
     function loadFromStorage(nums) {
-        alert(`선택된 번호: ${nums.split(',').join(', ')}`);
-        closePopup();
+        alert(nums.split(',').join(', ')); closePopup();
+    }
+    function deleteSingleItem(i) {
+        if(confirm("삭제?")) { savedNumbers.splice(i,1);
+            localStorage.setItem(`lottoSave_${userName}`, JSON.stringify(savedNumbers));
+            renderStorage();
+        }
+    }
+    function clearStorage() {
+        if(confirm("초기화?")) { savedNumbers = [];
+            localStorage.removeItem(`lottoSave_${userName}`);
+            renderStorage();
+        }
     }
 
-    function deleteSingleItem(index) {
-        if(confirm("이 조합을 삭제할까요?")) {
-            savedNumbers.splice(index, 1);
-            const storageKey = `lottoSave_${userName}`;
-            localStorage.setItem(storageKey, JSON.stringify(savedNumbers));
-            renderStorage();
-        }
-    }
-    
-    function clearStorage() {
-        if(confirm("보관함을 초기화할까요?")) {
-            savedNumbers = [];
-            const storageKey = `lottoSave_${userName}`;
-            localStorage.removeItem(storageKey);
-            renderStorage();
-        }
-    }
-    
-    window.onload = function() {
-        initUser();
-        analyze();
-    };
+    window.onload = function() { initUser(); analyze(); };
 </script>
 </body>
 </html>
