@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON · 간격 조정 가능</title>
+    <title>SHIN-UI-SON · 로또 분석기 V7.2</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
@@ -164,7 +164,7 @@
             border-radius:50%;
             width: 2em;
             height: 2em;
-            font-size: 12px;
+            font-size: 10px;
             font-weight:bold;
             color:#fff;
             border:1px solid #666;
@@ -177,7 +177,11 @@
         .number-group span.clickable:hover { transform: scale(1.05); border-color: #ffd700; }
         .number-group span.winning-num { background: #2e7d32 !important; border: 2px solid #2e7d32 !important; color: #fff !important; }
         .number-group span.bonus-num { background: #bf360c !important; border: 2px solid #bf360c !important; color: #fff !important; }
-        .survivor-row .number-group span { width: 1.6em; height: 1.6em; font-size: 9px !important; }
+        .survivor-row .number-group span {
+            width: 1.6em;
+            height: 1.6em;
+            font-size: 9px !important;
+        }
         .row-2, .row-3 {
             display: flex;
             align-items: center;
@@ -249,31 +253,8 @@
             color:#fff;
             border:1px solid #666;
         }
-        .btn-recommend { background: #2e7d32 !important; color: #fff !important; border-color: #4caf50 !important; }
         .btn-zone { background: #2e7d32 !important; color: #fff !important; border-color: #4caf50 !important; }
         .btn-mix { background: #ffd700 !important; color: #000 !important; border-color: #ffd700 !important; }
-        .mode-selector {
-            display: flex;
-            gap: 6px;
-            margin: 4px 0;
-            background: #2a2a2a;
-            border-radius: 30px;
-            padding: 4px;
-            border: 1px solid #aaa;
-            flex-shrink: 0;
-        }
-        .mode-btn {
-            flex: 1;
-            background: #3a3a3a;
-            border: none;
-            border-radius: 30px;
-            padding: 6px 4px;
-            font-size: 9px;
-            font-weight: bold;
-            color: #ccc;
-            cursor: pointer;
-        }
-        .mode-btn.active { background: #2e7d32; color: #fff; }
         .fixed-numbers {
             display:flex;
             align-items:center;
@@ -307,7 +288,7 @@
         .combo-ball.winning { background: #2e7d32 !important; border: 2px solid #2e7d32 !important; }
         .combo-ball.bonus { background: #bf360c !important; border: 2px solid #bf360c !important; }
         .combo-ball.fixed-winning { background: #ffd700 !important; color: #000 !important; border: 2px solid #ffd700 !important; }
-        .fixed-only-yellow { background: #ffd700 !important; color: #000 !important; border: 2px solid #ffd700 !important; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; width: 2em; height: 2em; font-size: 12px; }
+        .fixed-only-yellow { background: #ffd700 !important; color: #000 !important; border: 2px solid #ffd700 !important; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; width: 2em; height: 2em; font-size: 10px; }
         .reset-fixed-btn { background: #bf360c; color: #fff; border: none; border-radius: 30px; padding: 2px 8px; font-size: 10px; font-weight: bold; cursor: pointer; margin-left: 8px; }
         .review-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
         .review-combo-card { background: #2a2a2a; border-radius: 20px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; border: 1px solid #555; }
@@ -322,28 +303,64 @@
         .trash-stats { display: flex; justify-content: space-around; margin: 10px 0; padding: 8px; background: #2a2a2a; border-radius: 30px; border: 1px solid #aaa; }
         .trash-numbers-area { max-height: 300px; overflow-y: auto; padding: 10px; background: #1a1a1a; border-radius: 16px; margin: 10px 0; }
         .winning-header { background: #2a2a2a; border-radius: 30px; padding: 8px; margin-bottom: 12px; text-align: center; border: 1px solid #ffd700; }
+        .compress-row-2 { display: flex; align-items: center; gap: 6px; width: 100%; margin-top: 3px; }
+        .compress-row-2 .compress-icon { font-size: 11px; color: #ddd; min-width: 20px; text-align: center; }
+        .compress-row-2 .slider-wrap { flex: 1; min-width: 0; }
+        .compress-row-2 .slider-wrap input { width: 100%; height: 4px; accent-color: #ff6b6b; }
+        .compress-row-2 .compress-value { background: #1a1a1a; border: 1px solid #aaa; border-radius: 30px; padding: 2px 0; min-width: 32px; text-align: center; font-size: 11px; color: #fff; }
+        .compress-row-2 .apply-btn { background: #666; border: none; border-radius: 30px; padding: 4px 8px; font-size: 10px; font-weight: bold; color: #fff; cursor: pointer; white-space: nowrap; }
+        .badge { background: #ffd700; color: #000; font-size: 7px; padding: 1px 6px; border-radius: 30px; margin-left: 4px; font-weight: 800; }
+        .badge2 { background: #ff6b6b; color: #fff; font-size: 7px; padding: 1px 6px; border-radius: 30px; margin-left: 4px; font-weight: 800; }
+        .hit-badge { background: #4caf50; color: #fff; font-size: 8px; padding: 0px 6px; border-radius: 30px; margin-left: 4px; font-weight: 700; }
     </style>
 </head>
 <body>
 <div class="outer-border">
     <div class="header-line">
         <div class="prev-info"><span id="prevWinLabel">📌 분석기준</span><span id="baseRoundInfo"></span></div>
-        <span class="title-main">SHIN-UI-SON (간격 조정 가능)</span>
+        <span class="title-main">SHIN-UI-SON</span>
         <span id="trashIcon" class="trash-icon" onclick="openTrashPopup()">🗑️ 0</span>
         <span id="userDisplay" class="user-info"></span>
     </div>
     <div id="status" class="status-info" onclick="openStatusZoomPopup()">분석 중...</div>
-    <div class="row-2"><div class="compress-row"><span class="compress-icon">⭐ 추천수 압축</span><div class="slider-wrap"><input type="range" id="compressSlider" min="1" max="30" value="26" step="1" oninput="updateCompressValue(this.value)"></div><span class="compress-value" id="compressValue">26</span><button class="apply-btn" onclick="applyCompress()">적용</button></div></div>
-    <div class="custom-survivor-row"><input type="text" id="customSurvivorInput" class="custom-survivor-input" placeholder="예: 1,5,10,15,20,25,30,35,40,45" value=""><button class="custom-btn" onclick="applyCustomSurvivors()">붙여넣기</button><button class="custom-btn clear" onclick="clearCustomSurvivors()">초기화</button></div>
+    <div class="row-2">
+        <div class="compress-row">
+            <span class="compress-icon">⭐ 압축1</span>
+            <div class="slider-wrap"><input type="range" id="compressSlider1" min="2" max="40" value="10" step="1" oninput="updateCompressValue1(this.value)"></div>
+            <span class="compress-value" id="compressValue1">10</span>
+            <button class="apply-btn" onclick="applyCompress1()">적용</button>
+        </div>
+        <div class="compress-row-2">
+            <span class="compress-icon">🔽 압축2</span>
+            <div class="slider-wrap"><input type="range" id="compressSlider2" min="2" max="40" value="10" step="1" oninput="updateCompressValue2(this.value)"></div>
+            <span class="compress-value" id="compressValue2">10</span>
+            <button class="apply-btn" onclick="applyCompress2()">적용</button>
+        </div>
+    </div>
+    <div class="custom-survivor-row">
+        <input type="text" id="customSurvivorInput" class="custom-survivor-input" placeholder="예: 1,5,10,15,20,25,30,35,40,45" value="">
+        <button class="custom-btn" onclick="applyCustomSurvivors()">📥 붙여넣기</button>
+        <button class="custom-btn clear" onclick="clearCustomSurvivors()">초기화</button>
+    </div>
     <div class="row-3">
-        <div class="interval-box"><span class="interval-label">🎯</span><button onclick="changeIntervalExclude(-1)">−</button><span id="intervalExcludeValue">3</span><button onclick="changeIntervalExclude(1)">+</button></div>
-        <div class="interval-box"><span class="interval-label">🤖</span><button onclick="changeIntervalAi(-1)">−</button><span id="intervalAiValue">3</span><button onclick="changeIntervalAi(1)">+</button></div>
-        <div class="round-box"><button onclick="decreaseRound()">−</button><input type="number" id="roundInput" value="1230" min="901" max="1230" onchange="setRoundFromInput()"><button onclick="increaseRound()">+</button></div>
+        <div class="interval-box">
+            <span class="interval-label">🎯</span>
+            <button onclick="changeIntervalExclude(-1)">−</button>
+            <span id="intervalExcludeValue">4</span>
+            <button onclick="changeIntervalExclude(1)">+</button>
+        </div>
+        <div class="interval-box">
+            <span class="interval-label">🤖</span>
+            <button onclick="changeIntervalAi(-1)">−</button>
+            <span id="intervalAiValue">10</span>
+            <button onclick="changeIntervalAi(1)">+</button>
+        </div>
+        <div class="round-box"><button onclick="decreaseRound()">−</button><input type="number" id="roundInput" value="1232" min="901" max="1232" onchange="setRoundFromInput()"><button onclick="increaseRound()">+</button></div>
         <div class="fixed-btn" onclick="openFixedPopup()">🔒고정</div>
     </div>
     <div class="btn-group">
-        <button class="btn-zone" onclick="generateZoneCombo(10)">📐구간10</button>
-        <button class="btn-mix" onclick="generateMixRandomCombo(10)">🎲혼합랜덤10</button>
+        <button class="btn-zone" onclick="generateZoneCombo(5)">📐구간5</button>
+        <button class="btn-mix" onclick="generateMixRandomCombo(5)">🎲혼합랜덤5</button>
         <button onclick="openBasket()">📦 보관함</button>
         <button onclick="clearStorage()">초기화</button>
         <button onclick="location.reload()">새로고침</button>
@@ -352,57 +369,281 @@
         <button onclick="openHelp()">❓ 도움말</button>
     </div>
     <div class="fixed-numbers"><div class="fixed-left"><span id="fixedExtra"></span></div><div class="fixed-right"><button onclick="window.open('https://www.naver.com', '_blank')">🌐 네이버</button><button onclick="clearFixed()">초기화</button><button onclick="openFixedPopup()">⏳ 추가</button></div></div>
-    <div class="small-note">🎯 예상회차: <span id="targetRound">1230</span> | 분석기준: <span id="analyzeRoundDisplay">1229</span>회까지 데이터<br>※ 1230회 당첨: 3,7,12,24,26,40 + 35 | 간격 조정 가능</div>
+    <div class="small-note">🎯 예상회차: <span id="targetRound">1232</span> | 분석기준: <span id="analyzeRoundDisplay">1231</span>회까지 데이터<br>※ 압축1=순위50%+궁합50%, 압축2=동반/궁합50%+순위50% (차별화)</div>
 </div>
 <div class="toast" id="toast"><span>✅ 저장됨</span></div>
 <div id="fixedPopup" class="popup-overlay"><div class="popup-content"><h3>🔒 고정 번호 선택</h3><p style="text-align:center;">최대 6개까지 선택 가능</p><div class="number-grid" id="fixedNumberGrid"></div><div style="text-align:center;"><button onclick="saveFixedPopup()">저장</button><button class="close-btn" onclick="closeFixedPopup()">닫기</button></div></div></div>
 <div id="comboPopup" class="popup-overlay"><div class="popup-content"><h3>📋 생성된 조합</h3><div id="comboList"></div><div style="text-align:center;"><button onclick="saveAllCombos()">보관함 저장</button><button class="close-btn" onclick="closeComboPopup()">닫기</button></div></div></div>
 <div id="basketPopup" class="popup-overlay"><div class="popup-content"><h3>📦 보관함</h3><div id="basketList"></div><div style="text-align:center;"><button onclick="loadFromBasket()">불러오기</button><button class="close-btn" onclick="closeBasketPopup()">닫기</button></div></div></div>
-<div id="reviewPopup" class="popup-overlay"><div class="popup-content"><h3>📊 당첨 확인</h3><div style="margin:15px 0; display:flex; flex-direction:column; gap:8px;"><p>회차: <input type="number" id="reviewRound" value="1230" min="900" max="1230" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>당첨번호: <input type="text" id="reviewWinning" placeholder="예: 1,2,3,4,5,6" style="width:100%; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>보너스: <input type="number" id="reviewBonus" min="1" max="45" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p></div><div id="reviewResult" style="background:#2a2a2a; border-radius:20px; padding:10px;"></div><div style="text-align:center;"><button onclick="compareNumbers()">비교</button><button onclick="saveWinningNumbers()">저장</button><button class="close-btn" onclick="closeReviewPopup()">닫기</button></div></div></div>
+<div id="reviewPopup" class="popup-overlay"><div class="popup-content"><h3>📊 당첨 확인</h3><div style="margin:15px 0; display:flex; flex-direction:column; gap:8px;"><p>회차: <input type="number" id="reviewRound" value="1232" min="900" max="1232" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>당첨번호: <input type="text" id="reviewWinning" placeholder="예: 1,2,3,4,5,6" style="width:100%; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>보너스: <input type="number" id="reviewBonus" min="1" max="45" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p></div><div id="reviewResult" style="background:#2a2a2a; border-radius:20px; padding:10px;"></div><div style="text-align:center;"><button onclick="compareNumbers()">비교</button><button onclick="saveWinningNumbers()">저장</button><button class="close-btn" onclick="closeReviewPopup()">닫기</button></div></div></div>
 <div id="statusZoomPopup" class="popup-overlay"><div class="popup-content"><h3>🔍 상세 분석</h3><div id="statusZoomContent"></div><div style="text-align:center;"><button class="close-btn" onclick="closeStatusZoomPopup()">닫기</button></div></div></div>
-<div id="helpPopup" class="popup-overlay"><div class="popup-content"><h3>❓ 도움말</h3><div style="margin:10px 0;"><h4>🎯 간격 조정 가능</h4>
-<p>🎯 특수 간격: 1~10 (버튼으로 조정)</p>
-<p>🤖 AI 간격: 1~10 (버튼으로 조정)</p>
-<p>✅ 1230회 당첨번호 업데이트됨 (3,7,12,24,26,40 보너스35)</p></div><div style="text-align:center;"><button class="close-btn" onclick="closeHelpPopup()">닫기</button></div></div></div>
+<div id="helpPopup" class="popup-overlay"><div class="popup-content"><h3>❓ 도움말</h3><div style="margin:10px 0;">
+<h4>🎯 V7.2 (압축1/2 차별화)</h4>
+<p>⭐ 특수생존 간격: 4, AI생존 간격: 10</p>
+<p>⭐ 압축1/2 = 10개</p>
+<p>✅ <b>압축1 (순위 중심)</b>: 순위 점수 50% + 궁합수 50%</p>
+<p>✅ <b>압축2 (동반/궁합 중심)</b>: 동반/궁합 점수 50% + 순위 점수 50%</p>
+<p>✅ 구간조합 = 압축1, 혼합랜덤 = 압축2</p>
+</div><div style="text-align:center;"><button class="close-btn" onclick="closeHelpPopup()">닫기</button></div></div></div>
 <div id="trashPopup" class="popup-overlay"><div class="popup-content"><h3>🗑️ 휴지통 (압축 제외 번호)</h3><div id="trashStats" class="trash-stats"></div><div style="text-align:center; margin:10px 0;"><button onclick="generateTrashCombo(1)">🎲 휴지통 1조합</button><button onclick="generateTrashCombo(5)">🎲 휴지통 5조합</button><button onclick="generateTrashCombo(10)">🎲 휴지통 10조합</button></div><div id="trashContent" class="trash-numbers-area"></div><div style="text-align:center; margin-top:15px;"><button onclick="copyTrashToCustom()">📋 휴지통→커스텀</button><button onclick="clearTrash()">휴지통 비우기</button><button class="close-btn" onclick="closeTrashPopup()">닫기</button></div></div></div>
 
 <script>
 // ===================== 데이터 =====================
-const MAX_ROUND = 1230;
+const MAX_ROUND = 1232;
 const MIN_ROUND = 901;
 
 const FULL_DATA = [
-    [1230, 3, 7, 12, 24, 26, 40, 35],
-    [1229, 6, 12, 14, 18, 30, 31, 16],
-    [1228, 5, 10, 15, 19, 23, 34, 9],
-    [1227, 4, 11, 17, 22, 27, 41, 29],
-    [1226, 2, 8, 13, 18, 25, 38, 21],
-    [1225, 7, 14, 16, 20, 29, 35, 11],
-    [1224, 1, 9, 15, 21, 28, 33, 37],
-    [1223, 3, 6, 10, 17, 24, 39, 12],
+    [1231, 4, 13, 14, 18, 31, 38, 15],
+    [1230, 3, 8, 9, 22, 28, 42, 45],
+    [1229, 12, 13, 29, 34, 37, 42, 16],
+    [1228, 24, 29, 30, 31, 35, 44, 1],
+    [1227, 1, 14, 16, 34, 41, 44, 13],
+    [1226, 4, 6, 13, 17, 26, 28, 41],
+    [1225, 8, 9, 19, 25, 41, 42, 33],
+    [1224, 9, 18, 21, 27, 44, 45, 28],
+    [1223, 16, 18, 20, 32, 33, 39, 26],
     [1222, 4, 11, 17, 22, 32, 41, 34],
-    [1221,6,13,18,28,30,36,9],
-    [1220,2,22,25,28,34,43,16],
-    [1219,1,2,15,28,39,45,31],[1218,3,28,31,32,42,45,25],[1217,8,10,15,20,29,31,41],[1216,3,10,14,15,23,24,25],[1215,13,15,19,21,44,45,39],[1214,10,15,19,27,30,33,14],[1213,5,11,25,27,36,38,2],[1212,23,26,27,35,38,40,10],[1211,1,7,9,17,27,38,31],[1210,2,17,20,35,37,39,24],[1209,6,27,30,36,38,42,25],[1208,10,22,24,27,38,45,11],[1207,1,3,17,26,27,42,23],[1206,1,4,16,23,31,41,2],[1205,8,16,28,30,31,44,27],[1204,3,6,18,29,35,39,24],[1203,5,12,21,33,37,40,7],[1202,7,9,24,27,35,36,37],[1201,1,2,4,16,20,32,45],[1200,16,24,25,30,31,32,7],[1199,26,30,33,38,39,41,21],[1198,1,5,7,26,28,43,30],[1197,8,12,15,29,40,45,14],[1196,3,15,27,33,34,36,37],[1195,3,13,15,24,33,37,2],[1194,6,9,16,19,24,28,17],[1193,10,16,23,36,39,40,11],[1192,1,4,11,12,20,41,2],[1191,7,9,19,23,26,45,33],[1190,9,19,29,35,37,38,31],[1189,3,4,12,19,22,27,9],[1188,5,13,26,29,37,40,42],[1187,2,8,13,16,23,28,35],[1186,6,17,22,28,29,32,38],[1185,14,16,23,25,31,37,42],[1184,4,15,17,23,27,36,31],[1183,1,13,21,25,28,31,22],[1182,8,10,14,20,33,41,28],[1181,6,12,18,37,40,41,3],[1180,3,16,18,24,40,44,21],[1179,5,6,11,27,43,44,17],[1178,3,7,15,16,19,43,21],[1177,7,9,11,21,30,35,29],[1176,3,4,6,8,32,42,31],[1175,8,11,14,17,36,39,22],[1174,1,5,18,20,30,35,3],[1173,7,9,24,40,42,44,45],[1172,3,6,7,11,12,17,19],[1171,3,13,28,34,38,42,25],[1170,5,12,24,26,39,42,20],[1169,9,21,24,30,33,37,29],[1168,8,23,31,35,39,40,24],[1167,14,23,25,27,29,42,16],[1166,6,7,27,29,38,45,17],[1165,17,18,23,25,38,39,22],[1164,2,13,15,16,33,43,4],[1163,20,21,22,25,28,29,6],[1162,2,12,20,24,34,42,37],[1161,7,13,18,36,39,45,19],[1160,3,9,27,28,38,39,7],[1159,21,25,27,32,37,38,20],[1158,5,7,12,20,25,26,28],[1157,30,31,34,39,41,45,7],[1156,10,16,19,27,37,38,13],[1155,4,8,22,26,32,38,27],[1154,1,9,10,13,35,44,5],[1153,30,31,32,35,36,37,5],[1152,2,3,9,15,27,29,8],[1151,8,9,18,35,39,45,25],[1150,8,15,19,21,32,36,38],[1149,3,6,13,15,16,22,32],[1148,7,11,24,26,27,37,32],[1147,6,11,17,19,40,43,28],[1146,2,11,31,33,37,44,32],[1145,3,4,12,15,26,34,6],[1144,10,16,17,27,28,36,6],[1143,2,8,28,30,37,41,22],[1142,7,11,12,21,26,35,20],[1141,7,10,22,29,31,38,15],[1140,5,12,15,30,37,40,18],[1139,14,16,19,20,29,34,35],[1138,4,9,12,15,33,45,26],[1137,21,33,35,38,42,44,1],[1136,1,6,13,19,21,33,4],[1135,3,7,9,13,19,24,23],[1134,13,14,20,28,29,34,23],[1133,6,7,19,28,34,41,5],[1132,1,2,6,14,27,38,33],[1131,15,19,21,25,27,28,40],[1130,5,10,11,17,28,34,22],[1129,1,5,8,16,28,33,45],[1128,10,15,24,30,31,37,32],[1127,4,5,9,11,37,40,7],[1126,6,14,25,33,40,44,30],[1125,3,8,17,30,33,34,28],[1124,13,19,21,24,34,35,26],[1123,3,6,21,30,34,35,22],[1122,6,24,31,32,38,44,8],[1121,2,19,26,31,38,41,34],[1120,1,9,12,13,20,45,3],[1119,11,13,14,15,16,45,3],[1118,3,4,9,30,33,36,7],[1117,15,16,17,25,30,31,32],[1116,7,12,23,32,34,36,8],[1115,10,16,19,32,33,38,3],[1114,11,13,20,21,32,44,8],[1113,16,20,26,36,42,44,24],[1112,3,13,30,33,43,45,4],[1111,3,7,11,20,22,41,24],[1110,10,12,13,19,33,40,2],[1109,7,19,26,37,39,44,27],[1108,6,14,30,31,40,41,29],[1107,1,3,4,29,42,45,36],[1106,6,16,34,37,39,40,11],[1105,1,7,21,30,35,38,2],[1104,10,12,29,31,40,44,2],[1103,13,14,22,26,37,38,20],[1102,6,7,13,28,36,42,41],[1101,17,26,29,30,31,43,12],[1100,3,20,28,38,40,43,4],[1099,12,16,21,24,41,43,15],[1098,14,33,34,35,37,40,4],[1097,1,12,16,19,23,43,34],[1096,8,14,28,29,34,40,12],[1095,6,7,15,22,26,40,41],[1094,10,17,22,30,35,43,44],[1093,7,18,19,26,33,45,37],[1092,6,20,23,24,28,30,44],[1091,12,19,21,29,40,45,1],[1090,4,18,31,37,42,43,40],[1089,11,21,22,30,39,44,31],[1088,13,14,18,21,34,44,16],[1087,11,16,25,27,35,36,37],[1086,4,7,17,18,38,44,36],[1085,8,12,13,29,33,42,5],[1084,3,7,14,15,22,38,17],[1083,21,26,27,32,34,42,31],[1082,1,9,16,23,24,38,17],[1081,13,16,23,31,36,44,38],[1080,4,8,18,24,37,45,6],[1079,6,10,11,14,36,38,43],[1078,4,8,17,30,40,43,34],[1077,3,7,9,33,36,37,10],[1076,1,23,24,35,44,45,10],[1075,1,6,20,27,28,41,15],[1074,6,18,28,30,32,38,15],[1073,16,18,20,23,32,43,27],[1072,1,2,11,21,30,35,39],[1071,3,6,14,22,30,41,36],[1070,1,10,18,22,28,31,44],[1069,4,7,19,26,33,35,3],[1068,7,10,19,23,28,33,18],[1067,6,11,16,19,21,32,45],[1066,3,18,19,23,32,45,24],[1065,3,6,9,18,22,35,14],[1064,3,6,22,23,24,38,30],[1063,20,31,32,40,41,45,12],[1062,4,24,27,35,37,45,15],[1061,3,10,24,33,38,45,36],[1060,7,10,22,25,34,40,27],[1059,11,23,25,30,32,40,42],[1058,8,13,19,27,40,45,12],[1057,13,20,24,32,36,45,29],[1056,4,7,12,14,22,33,31],[1055,14,19,27,28,30,45,33],[1054,22,26,29,30,34,45,15],[1053,5,17,26,27,35,38,1],[1052,21,26,30,32,33,35,44],[1051,6,12,31,35,38,43,17],[1050,3,5,13,20,21,37,17],[1049,6,12,17,21,32,39,30],[1048,2,20,33,40,42,44,32],[1047,7,16,25,29,35,36,28],[1046,6,14,15,19,21,41,37],[1045,12,17,20,26,28,36,4],[1044,3,5,12,22,26,31,19],[1043,5,14,15,23,34,43,4],[1042,6,7,9,11,17,18,45],[1041,8,16,26,29,31,36,11],[1040,2,3,6,19,36,39,26],[1039,7,16,24,27,37,44,2],[1038,2,14,15,22,27,33,31],[1037,2,5,22,32,34,45,39],[1036,9,14,34,35,41,42,2],[1035,26,31,32,33,38,40,11],[1034,3,11,15,20,35,44,10],[1033,1,6,12,19,36,42,28],[1032,6,7,22,32,35,36,19],[1031,2,5,11,17,24,29,9],[1030,12,30,32,37,39,41,24],[1029,5,7,12,13,18,35,23],[1028,14,16,27,35,39,45,5],[1027,5,12,13,31,32,41,34],[1026,8,9,20,25,29,33,7],[1025,9,18,20,22,38,44,10],[1024,10,14,16,18,29,35,25],[1023,5,6,11,29,42,45,28],[1022,12,15,17,24,29,45,16],[1021,12,27,29,38,41,45,6],[1020,1,4,13,17,34,39,6],[1019,3,19,21,25,37,45,35],[1018,12,18,22,23,30,34,32],[1017,15,26,28,34,41,42,44],[1016,14,23,31,33,37,40,44],[1015,3,11,14,18,26,27,21],[1014,21,22,26,34,36,41,32],[1013,5,11,18,20,35,45,3],[1012,1,9,12,26,35,38,42],[1011,9,12,15,25,34,36,3],[1010,15,23,29,34,40,44,20],[1009,9,11,30,31,41,44,33],[1008,8,11,16,19,21,25,40],[1007,8,11,15,16,17,37,36],[1006,8,13,18,24,27,29,17],[1005,7,15,30,37,39,44,18],[1004,1,4,29,39,43,45,31],[1003,17,25,33,35,38,45,15],[1002,6,10,12,14,20,42,15],[1001,2,8,19,22,32,42,39],[1000,1,3,9,14,18,28,34]
+    [1221, 6, 13, 18, 28, 30, 36, 9],
+    [1220, 2, 22, 25, 28, 34, 43, 16],
+    [1219, 1, 2, 15, 28, 39, 45, 31],
+    [1218, 3, 28, 31, 32, 42, 45, 25],
+    [1217, 8, 10, 15, 20, 29, 31, 41],
+    [1216, 3, 10, 14, 15, 23, 24, 25],
+    [1215, 13, 15, 19, 21, 44, 45, 39],
+    [1214, 10, 15, 19, 27, 30, 33, 14],
+    [1213, 5, 11, 25, 27, 36, 38, 2],
+    [1212, 5, 8, 25, 31, 41, 44, 45],
+    [1211, 23, 26, 27, 35, 38, 40, 10],
+    [1210, 1, 7, 9, 17, 27, 38, 31],
+    [1209, 2, 17, 20, 35, 37, 39, 24],
+    [1208, 6, 27, 30, 36, 38, 42, 25],
+    [1207, 10, 22, 24, 27, 38, 45, 11],
+    [1206, 1, 3, 17, 26, 27, 42, 23],
+    [1205, 1, 4, 16, 23, 31, 41, 2],
+    [1204, 8, 16, 28, 30, 31, 44, 27],
+    [1203, 3, 6, 18, 29, 35, 39, 24],
+    [1202, 5, 12, 21, 33, 37, 40, 7],
+    [1201, 7, 9, 24, 27, 35, 36, 37],
+    [1200, 1, 2, 4, 16, 20, 32, 45],
+    [1199, 16, 24, 25, 30, 31, 32, 7],
+    [1198, 26, 30, 33, 38, 39, 41, 21],
+    [1197, 1, 5, 7, 26, 28, 43, 30],
+    [1196, 8, 12, 15, 29, 40, 45, 14],
+    [1195, 3, 15, 27, 33, 34, 36, 37],
+    [1194, 3, 13, 15, 24, 33, 37, 2],
+    [1193, 6, 9, 16, 19, 24, 28, 17],
+    [1192, 10, 16, 23, 36, 39, 40, 11],
+    [1191, 1, 4, 11, 12, 20, 41, 2],
+    [1190, 7, 9, 19, 23, 26, 45, 33],
+    [1189, 9, 19, 29, 35, 37, 38, 31],
+    [1188, 3, 4, 12, 19, 22, 27, 9],
+    [1187, 5, 13, 26, 29, 37, 40, 42],
+    [1186, 2, 8, 13, 16, 23, 28, 35],
+    [1185, 6, 17, 22, 28, 29, 32, 38],
+    [1184, 14, 16, 23, 25, 31, 37, 42],
+    [1183, 4, 15, 17, 23, 27, 36, 31],
+    [1182, 1, 13, 21, 25, 28, 31, 22],
+    [1181, 8, 10, 14, 20, 33, 41, 28],
+    [1180, 6, 12, 18, 37, 40, 41, 3],
+    [1179, 3, 16, 18, 24, 40, 44, 21],
+    [1178, 5, 6, 11, 27, 43, 44, 17],
+    [1177, 3, 7, 15, 16, 19, 43, 21],
+    [1176, 7, 9, 11, 21, 30, 35, 29],
+    [1175, 3, 4, 6, 8, 32, 42, 31],
+    [1174, 8, 11, 14, 17, 36, 39, 22],
+    [1173, 1, 5, 18, 20, 30, 35, 3],
+    [1172, 7, 9, 24, 40, 42, 44, 45],
+    [1171, 3, 13, 28, 34, 38, 42, 25],
+    [1170, 5, 12, 24, 26, 39, 42, 20],
+    [1169, 9, 21, 24, 30, 33, 37, 29],
+    [1168, 8, 23, 31, 35, 39, 40, 24],
+    [1167, 14, 23, 25, 27, 29, 42, 16],
+    [1166, 6, 7, 27, 29, 38, 45, 17],
+    [1165, 17, 18, 23, 25, 38, 39, 22],
+    [1164, 2, 13, 15, 16, 33, 43, 4],
+    [1163, 20, 21, 22, 25, 28, 29, 6],
+    [1162, 2, 12, 20, 24, 34, 42, 37],
+    [1161, 7, 13, 18, 36, 39, 45, 19],
+    [1160, 3, 9, 27, 28, 38, 39, 7],
+    [1159, 21, 25, 27, 32, 37, 38, 20],
+    [1158, 5, 7, 12, 20, 25, 26, 28],
+    [1157, 30, 31, 34, 39, 41, 45, 7],
+    [1156, 10, 16, 19, 27, 37, 38, 13],
+    [1155, 4, 8, 22, 26, 32, 38, 27],
+    [1154, 1, 9, 10, 13, 35, 44, 5],
+    [1153, 30, 31, 32, 35, 36, 37, 5],
+    [1152, 2, 3, 9, 15, 27, 29, 8],
+    [1151, 8, 9, 18, 35, 39, 45, 25],
+    [1150, 8, 15, 19, 21, 32, 36, 38],
+    [1149, 3, 6, 13, 15, 16, 22, 32],
+    [1148, 7, 11, 24, 26, 27, 37, 32],
+    [1147, 6, 11, 17, 19, 40, 43, 28],
+    [1146, 2, 11, 31, 33, 37, 44, 32],
+    [1145, 3, 4, 12, 15, 26, 34, 6],
+    [1144, 10, 16, 17, 27, 28, 36, 6],
+    [1143, 2, 8, 28, 30, 37, 41, 22],
+    [1142, 7, 11, 12, 21, 26, 35, 20],
+    [1141, 7, 10, 22, 29, 31, 38, 15],
+    [1140, 5, 12, 15, 30, 37, 40, 18],
+    [1139, 14, 16, 19, 20, 29, 34, 35],
+    [1138, 4, 9, 12, 15, 33, 45, 26],
+    [1137, 21, 33, 35, 38, 42, 44, 1],
+    [1136, 1, 6, 13, 19, 21, 33, 4],
+    [1135, 3, 7, 9, 13, 19, 24, 23],
+    [1134, 13, 14, 20, 28, 29, 34, 23],
+    [1133, 6, 7, 19, 28, 34, 41, 5],
+    [1132, 1, 2, 6, 14, 27, 38, 33],
+    [1131, 15, 19, 21, 25, 27, 28, 40],
+    [1130, 5, 10, 11, 17, 28, 34, 22],
+    [1129, 1, 5, 8, 16, 28, 33, 45],
+    [1128, 10, 15, 24, 30, 31, 37, 32],
+    [1127, 4, 5, 9, 11, 37, 40, 7],
+    [1126, 6, 14, 25, 33, 40, 44, 30],
+    [1125, 3, 8, 17, 30, 33, 34, 28],
+    [1124, 13, 19, 21, 24, 34, 35, 26],
+    [1123, 3, 6, 21, 30, 34, 35, 22],
+    [1122, 6, 24, 31, 32, 38, 44, 8],
+    [1121, 2, 19, 26, 31, 38, 41, 34],
+    [1120, 1, 9, 12, 13, 20, 45, 3],
+    [1119, 11, 13, 14, 15, 16, 45, 3],
+    [1118, 3, 4, 9, 30, 33, 36, 7],
+    [1117, 15, 16, 17, 25, 30, 31, 32],
+    [1116, 7, 12, 23, 32, 34, 36, 8],
+    [1115, 10, 16, 19, 32, 33, 38, 3],
+    [1114, 11, 13, 20, 21, 32, 44, 8],
+    [1113, 16, 20, 26, 36, 42, 44, 24],
+    [1112, 3, 13, 30, 33, 43, 45, 4],
+    [1111, 3, 7, 11, 20, 22, 41, 24],
+    [1110, 10, 12, 13, 19, 33, 40, 2],
+    [1109, 7, 19, 26, 37, 39, 44, 27],
+    [1108, 6, 14, 30, 31, 40, 41, 29],
+    [1107, 1, 3, 4, 29, 42, 45, 36],
+    [1106, 6, 16, 34, 37, 39, 40, 11],
+    [1105, 1, 7, 21, 30, 35, 38, 2],
+    [1104, 10, 12, 29, 31, 40, 44, 2],
+    [1103, 13, 14, 22, 26, 37, 38, 20],
+    [1102, 6, 7, 13, 28, 36, 42, 41],
+    [1101, 17, 26, 29, 30, 31, 43, 12],
+    [1100, 3, 20, 28, 38, 40, 43, 4],
+    [1099, 12, 16, 21, 24, 41, 43, 15],
+    [1098, 14, 33, 34, 35, 37, 40, 4],
+    [1097, 1, 12, 16, 19, 23, 43, 34],
+    [1096, 8, 14, 28, 29, 34, 40, 12],
+    [1095, 6, 7, 15, 22, 26, 40, 41],
+    [1094, 10, 17, 22, 30, 35, 43, 44],
+    [1093, 7, 18, 19, 26, 33, 45, 37],
+    [1092, 6, 20, 23, 24, 28, 30, 44],
+    [1091, 12, 19, 21, 29, 40, 45, 1],
+    [1090, 4, 18, 31, 37, 42, 43, 40],
+    [1089, 11, 21, 22, 30, 39, 44, 31],
+    [1088, 13, 14, 18, 21, 34, 44, 16],
+    [1087, 11, 16, 25, 27, 35, 36, 37],
+    [1086, 4, 7, 17, 18, 38, 44, 36],
+    [1085, 8, 12, 13, 29, 33, 42, 5],
+    [1084, 3, 7, 14, 15, 22, 38, 17],
+    [1083, 21, 26, 27, 32, 34, 42, 31],
+    [1082, 1, 9, 16, 23, 24, 38, 17],
+    [1081, 13, 16, 23, 31, 36, 44, 38],
+    [1080, 4, 8, 18, 24, 37, 45, 6],
+    [1079, 6, 10, 11, 14, 36, 38, 43],
+    [1078, 4, 8, 17, 30, 40, 43, 34],
+    [1077, 3, 7, 9, 33, 36, 37, 10],
+    [1076, 1, 23, 24, 35, 44, 45, 10],
+    [1075, 1, 6, 20, 27, 28, 41, 15],
+    [1074, 6, 18, 28, 30, 32, 38, 15],
+    [1073, 16, 18, 20, 23, 32, 43, 27],
+    [1072, 1, 2, 11, 21, 30, 35, 39],
+    [1071, 3, 6, 14, 22, 30, 41, 36],
+    [1070, 1, 10, 18, 22, 28, 31, 44],
+    [1069, 4, 7, 19, 26, 33, 35, 3],
+    [1068, 7, 10, 19, 23, 28, 33, 18],
+    [1067, 6, 11, 16, 19, 21, 32, 45],
+    [1066, 3, 18, 19, 23, 32, 45, 24],
+    [1065, 3, 6, 9, 18, 22, 35, 14],
+    [1064, 3, 6, 22, 23, 24, 38, 30],
+    [1063, 20, 31, 32, 40, 41, 45, 12],
+    [1062, 4, 24, 27, 35, 37, 45, 15],
+    [1061, 3, 10, 24, 33, 38, 45, 36],
+    [1060, 7, 10, 22, 25, 34, 40, 27],
+    [1059, 11, 23, 25, 30, 32, 40, 42],
+    [1058, 8, 13, 19, 27, 40, 45, 12],
+    [1057, 13, 20, 24, 32, 36, 45, 29],
+    [1056, 4, 7, 12, 14, 22, 33, 31],
+    [1055, 14, 19, 27, 28, 30, 45, 33],
+    [1054, 22, 26, 29, 30, 34, 45, 15],
+    [1053, 5, 17, 26, 27, 35, 38, 1],
+    [1052, 21, 26, 30, 32, 33, 35, 44],
+    [1051, 6, 12, 31, 35, 38, 43, 17],
+    [1050, 3, 5, 13, 20, 21, 37, 17],
+    [1049, 6, 12, 17, 21, 32, 39, 30],
+    [1048, 2, 20, 33, 40, 42, 44, 32],
+    [1047, 7, 16, 25, 29, 35, 36, 28],
+    [1046, 6, 14, 15, 19, 21, 41, 37],
+    [1045, 12, 17, 20, 26, 28, 36, 4],
+    [1044, 3, 5, 12, 22, 26, 31, 19],
+    [1043, 5, 14, 15, 23, 34, 43, 4],
+    [1042, 6, 7, 9, 11, 17, 18, 45],
+    [1041, 8, 16, 26, 29, 31, 36, 11],
+    [1040, 2, 3, 6, 19, 36, 39, 26],
+    [1039, 7, 16, 24, 27, 37, 44, 2],
+    [1038, 2, 14, 15, 22, 27, 33, 31],
+    [1037, 2, 5, 22, 32, 34, 45, 39],
+    [1036, 9, 14, 34, 35, 41, 42, 2],
+    [1035, 26, 31, 32, 33, 38, 40, 11],
+    [1034, 3, 11, 15, 20, 35, 44, 10],
+    [1033, 1, 6, 12, 19, 36, 42, 28],
+    [1032, 6, 7, 22, 32, 35, 36, 19],
+    [1031, 2, 5, 11, 17, 24, 29, 9],
+    [1030, 12, 30, 32, 37, 39, 41, 24],
+    [1029, 5, 7, 12, 13, 18, 35, 23],
+    [1028, 14, 16, 27, 35, 39, 45, 5],
+    [1027, 5, 12, 13, 31, 32, 41, 34],
+    [1026, 8, 9, 20, 25, 29, 33, 7],
+    [1025, 9, 18, 20, 22, 38, 44, 10],
+    [1024, 10, 14, 16, 18, 29, 35, 25],
+    [1023, 5, 6, 11, 29, 42, 45, 28],
+    [1022, 12, 15, 17, 24, 29, 45, 16],
+    [1021, 12, 27, 29, 38, 41, 45, 6],
+    [1020, 1, 4, 13, 17, 34, 39, 6],
+    [1019, 3, 19, 21, 25, 37, 45, 35],
+    [1018, 12, 18, 22, 23, 30, 34, 32],
+    [1017, 15, 26, 28, 34, 41, 42, 44],
+    [1016, 14, 23, 31, 33, 37, 40, 44],
+    [1015, 3, 11, 14, 18, 26, 27, 21],
+    [1014, 21, 22, 26, 34, 36, 41, 32],
+    [1013, 5, 11, 18, 20, 35, 45, 3],
+    [1012, 1, 9, 12, 26, 35, 38, 42],
+    [1011, 9, 12, 15, 25, 34, 36, 3],
+    [1010, 15, 23, 29, 34, 40, 44, 20],
+    [1009, 9, 11, 30, 31, 41, 44, 33],
+    [1008, 8, 11, 16, 19, 21, 25, 40],
+    [1007, 8, 11, 15, 16, 17, 37, 36],
+    [1006, 8, 13, 18, 24, 27, 29, 17],
+    [1005, 7, 15, 30, 37, 39, 44, 18],
+    [1004, 1, 4, 29, 39, 43, 45, 31],
+    [1003, 17, 25, 33, 35, 38, 45, 15],
+    [1002, 6, 10, 12, 14, 20, 42, 15],
+    [1001, 2, 8, 19, 22, 32, 42, 39],
+    [1000, 1, 3, 9, 14, 18, 28, 34]
 ];
 
 // ===================== 전역 변수 =====================
-const REFERENCE_COUNT = 10;
 const STORAGE_FIXED = 'lottoFixedNumbers';
 const STORAGE_TRASH = 'lottoTrash';
 const STORAGE_USER_NAME = 'lottoUserName';
 const STORAGE_CUSTOM_SURVIVORS = 'lottoCustomSurvivors';
 
-let currentCompress = 26;
-let intervalExclude = 3;
-let intervalAi = 3;
+let currentCompress1 = 10;
+let currentCompress2 = 10;
+let intervalExclude = 4;
+let intervalAi = 10;
 let fixedNumbers = [];
 let myFixedPool = [];
 let userName = "";
 let savedNumbers = [];
 let generatedCombos = [];
-let currentBaseRound = 1230;
-let analyzeRound = 1229;
+let currentBaseRound = 1232;
+let analyzeRound = 1231;
 let specialSurvivors = [];
 let aiSurvivors = [];
 let recommendPool = [];
@@ -410,7 +651,6 @@ let trashNumbers = [];
 let customSurvivors = null;
 let isAnalyzing = false;
 let aiRealScores = Array(46).fill(0);
-let genMode = 'random';
 
 // ===================== 유틸 =====================
 function shuffleArray(arr) {
@@ -692,7 +932,7 @@ function clearCustomSurvivors() {
     showToast('커스텀 초기화');
 }
 
-// ===================== 특수생존 (간격 3 고정) =====================
+// ===================== 특수생존 =====================
 function calculateSpecialSurvivors() {
     if (customSurvivors && customSurvivors.length > 0) return [...customSurvivors];
     let pastData = FULL_DATA.filter(r => r[0] <= analyzeRound && r[0] > 0);
@@ -704,7 +944,7 @@ function calculateSpecialSurvivors() {
         let targetRound = analyzeRound - intervalExclude * i;
         let found = pastData.find(r => r[0] === targetRound);
         if (found) {
-            let weight = Math.pow(0.88, i) * 100;
+            let weight = Math.pow(0.85, i) * 100;
             found.slice(1, 7).forEach(num => scores[num] += weight * 7);
             if (found[7]) scores[found[7]] += weight * 3.5;
         }
@@ -719,13 +959,13 @@ function calculateSpecialSurvivors() {
         if (bonus) allNums.push(bonus);
         for (let n = 1; n <= 45; n++) {
             for (let wn of allNums) {
-                if (wn % 10 === n % 10 && wn !== n) patternScores[n] += 20;
-                if (Math.abs(n - wn) === 1) patternScores[n] += 25;
-                if (Math.abs(n - wn) === 2) patternScores[n] += 15;
-                if (Math.abs(n - wn) === 3) patternScores[n] += 10;
+                if (wn % 10 === n % 10 && wn !== n) patternScores[n] += 15;
+                if (Math.abs(n - wn) === 1) patternScores[n] += 20;
+                if (Math.abs(n - wn) === 2) patternScores[n] += 12;
+                if (Math.abs(n - wn) === 3) patternScores[n] += 8;
                 let wnGroup = Math.ceil(wn / 10);
                 let nGroup = Math.ceil(n / 10);
-                if (wnGroup === nGroup && wn !== n) patternScores[n] += 12;
+                if (wnGroup === nGroup && wn !== n) patternScores[n] += 10;
             }
         }
     }
@@ -736,23 +976,10 @@ function calculateSpecialSurvivors() {
     let missBonus = Array(46).fill(0);
     for (let n = 1; n <= 45; n++) {
         let freq = freqMap[n] || 0;
-        if (freq === 0) missBonus[n] = 25;
-        else if (freq === 1) missBonus[n] = 16;
-        else if (freq === 2) missBonus[n] = 10;
-        else if (freq === 3) missBonus[n] = 5;
-    }
-    
-    let last3Rounds = pastData.slice(-3);
-    let consecutiveMap = {};
-    for (let n = 1; n <= 45; n++) {
-        let count = 0;
-        for (let round of last3Rounds) {
-            if (round.slice(1, 7).includes(n)) count++;
-        }
-        if (count >= 2) consecutiveMap[n] = count;
-    }
-    for (let n in consecutiveMap) {
-        scores[parseInt(n)] -= consecutiveMap[n] * 10;
+        if (freq === 0) missBonus[n] = 20;
+        else if (freq === 1) missBonus[n] = 12;
+        else if (freq === 2) missBonus[n] = 6;
+        else if (freq === 3) missBonus[n] = 3;
     }
     
     let finalScores = Array(46).fill(0);
@@ -760,65 +987,10 @@ function calculateSpecialSurvivors() {
         finalScores[n] = scores[n] + patternScores[n] + missBonus[n];
     }
     
-    let zones = [
-        [1,2,3,4,5,6,7,8,9],
-        [10,11,12,13,14,15,16,17,18],
-        [19,20,21,22,23,24,25,26,27],
-        [28,29,30,31,32,33,34,35,36],
-        [37,38,39,40,41,42,43,44,45]
-    ];
-    
-    let zoneSelected = [];
-    for (let zone of zones) {
-        let zoneCandidates = [];
-        for (let n of zone) {
-            zoneCandidates.push({ num: n, score: finalScores[n] });
-        }
-        zoneCandidates.sort((a, b) => b.score - a.score);
-        let selected = zoneCandidates.slice(0, 3).map(x => x.num);
-        zoneSelected.push(...selected);
-    }
-    
-    let odds = zoneSelected.filter(n => n % 2 === 1);
-    let evens = zoneSelected.filter(n => n % 2 === 0);
-    
-    while (odds.length > 8) {
-        let lowest = odds.reduce((a, b) => finalScores[a] < finalScores[b] ? a : b);
-        odds = odds.filter(n => n !== lowest);
-    }
-    while (evens.length > 8) {
-        let lowest = evens.reduce((a, b) => finalScores[a] < finalScores[b] ? a : b);
-        evens = evens.filter(n => n !== lowest);
-    }
-    while (odds.length < 7) {
-        let candidates = [];
-        for (let n = 1; n <= 45; n += 2) {
-            if (!zoneSelected.includes(n) && !odds.includes(n) && !evens.includes(n)) {
-                candidates.push({ num: n, score: finalScores[n] });
-            }
-        }
-        candidates.sort((a, b) => b.score - a.score);
-        if (candidates.length > 0) {
-            odds.push(candidates[0].num);
-            zoneSelected.push(candidates[0].num);
-        } else break;
-    }
-    while (evens.length < 7) {
-        let candidates = [];
-        for (let n = 2; n <= 44; n += 2) {
-            if (!zoneSelected.includes(n) && !odds.includes(n) && !evens.includes(n)) {
-                candidates.push({ num: n, score: finalScores[n] });
-            }
-        }
-        candidates.sort((a, b) => b.score - a.score);
-        if (candidates.length > 0) {
-            evens.push(candidates[0].num);
-            zoneSelected.push(candidates[0].num);
-        } else break;
-    }
-    
-    let result = [...odds, ...evens];
-    return result.sort((a, b) => a - b);
+    let candidates = [];
+    for (let n = 1; n <= 45; n++) candidates.push({ num: n, score: finalScores[n] });
+    candidates.sort((a, b) => b.score - a.score);
+    return candidates.slice(0, 20).map(x => x.num);
 }
 
 // ===================== AI 생존수 =====================
@@ -829,7 +1001,7 @@ function calculateAiSurvivors() {
     pastData.forEach(round => {
         round.slice(1, 7).forEach(num => totalCount[num]++);
     });
-    let recentLimit = Math.max(5, Math.floor(25 / intervalAi));
+    let recentLimit = Math.max(5, Math.floor(30 / intervalAi));
     let recentSet = new Set();
     for (let i = 0; i < recentLimit; i++) {
         let targetRound = analyzeRound - intervalAi * i;
@@ -850,7 +1022,7 @@ function calculateAiSurvivors() {
     let gapScore = Array(46).fill(0);
     for (let n = 1; n <= 45; n++) gapScore[n] = Math.min(50, lastAppearanceInterval[n] * (1 + intervalAi * 0.3));
     let neighborBonus = Array(46).fill(0);
-    let recentRoundsCount = Math.min(5, Math.floor(15 / intervalAi) + 2);
+    let recentRoundsCount = Math.min(6, Math.floor(18 / intervalAi) + 3);
     let recentRounds = pastData.slice(-recentRoundsCount);
     recentRounds.forEach(round => {
         let bonusFactor = 1 + intervalAi * 0.2;
@@ -858,6 +1030,8 @@ function calculateAiSurvivors() {
             neighborBonus[win] += 20 * bonusFactor;
             if (win > 1) neighborBonus[win - 1] += 12 * bonusFactor;
             if (win < 45) neighborBonus[win + 1] += 12 * bonusFactor;
+            if (win > 2) neighborBonus[win - 2] += 6 * bonusFactor;
+            if (win < 44) neighborBonus[win + 2] += 6 * bonusFactor;
         });
         if (round[7]) neighborBonus[round[7]] += 15 * bonusFactor;
     });
@@ -871,49 +1045,147 @@ function calculateAiSurvivors() {
     let candidates = [];
     for (let n = 1; n <= 45; n++) candidates.push({ num: n, score: scores[n] });
     candidates.sort((a, b) => b.score - a.score);
-    return candidates.slice(0, 15).map(x => x.num);
+    return candidates.slice(0, 20).map(x => x.num);
 }
 
-// ===================== 합집합 30개 =====================
-function calculateRecommendPool_Union30() {
+// ===================== 합집합 =====================
+function calculateRecommendPool_Union() {
     let unionSet = new Set([...specialSurvivors, ...aiSurvivors]);
-    let unionPool = Array.from(unionSet);
-    
-    if (unionPool.length < 30) {
-        let allNumbers = [];
-        for (let n = 1; n <= 45; n++) {
-            if (!unionPool.includes(n)) {
-                allNumbers.push(n);
-            }
-        }
-        allNumbers.sort((a, b) => (aiRealScores[b] || 0) - (aiRealScores[a] || 0));
-        let need = 30 - unionPool.length;
-        for (let i = 0; i < need && i < allNumbers.length; i++) {
-            unionPool.push(allNumbers[i]);
-        }
-    }
-    
-    return unionPool.sort((a, b) => a - b);
+    return Array.from(unionSet).sort((a, b) => a - b);
 }
 
-// ===================== 구간별 조합 =====================
+// ===================== 직전 당첨번호 동반 출현 빈도 계산 =====================
+function getCompanionFrequency(prevWins, lookback = 30) {
+    let pastData = FULL_DATA.filter(r => r[0] <= analyzeRound && r[0] > 0);
+    let recentData = pastData.slice(-lookback);
+    let freq = Array(46).fill(0);
+    for (let round of recentData) {
+        let wins = round.slice(1, 7);
+        let bonus = round[7];
+        let allNums = [...wins];
+        if (bonus) allNums.push(bonus);
+        let hasPrev = false;
+        for (let p of prevWins) {
+            if (wins.includes(p)) { hasPrev = true; break; }
+        }
+        if (hasPrev) {
+            for (let n of wins) {
+                if (!prevWins.includes(n)) freq[n] += 1;
+            }
+            if (bonus && !prevWins.includes(bonus)) freq[bonus] += 0.5;
+        }
+    }
+    return freq;
+}
+
+// ===================== 궁합수 (전체 풀 기준) =====================
+function calculateCompatibilityNumbers(baseNums, topN = 10) {
+    let pastData = FULL_DATA.filter(r => r[0] <= analyzeRound && r[0] > 0);
+    let recentData = pastData.slice(-5);
+    let compatMap = {};
+    for (let n of baseNums) {
+        let friends = {};
+        for (let idx = 0; idx < recentData.length; idx++) {
+            let round = recentData[idx];
+            let wins = round.slice(1, 7);
+            if (wins.includes(n)) {
+                let weight = Math.pow(1.6, idx + 1);
+                for (let m of wins) {
+                    if (m !== n) friends[m] = (friends[m] || 0) + weight;
+                }
+            }
+        }
+        let sorted = Object.entries(friends).sort((a, b) => b[1] - a[1]);
+        compatMap[n] = sorted.slice(0, topN).map(x => parseInt(x[0]));
+    }
+    let result = new Set();
+    for (let n of baseNums) {
+        if (compatMap[n]) {
+            for (let friend of compatMap[n]) result.add(friend);
+        }
+    }
+    return Array.from(result);
+}
+
+// ===================== 압축1 (순위 50% + 궁합 50%) =====================
+function compressRecommendPool1(compressCount) {
+    if (compressCount < 2) compressCount = 2;
+    
+    let rankScored = recommendPool.map(n => ({
+        num: n,
+        score: aiRealScores[n] || 0
+    }));
+    rankScored.sort((a, b) => b.score - a.score);
+    let half = Math.ceil(compressCount / 2);
+    let selected = rankScored.slice(0, half).map(x => x.num);
+    
+    let remain = compressCount - selected.length;
+    let compatCandidates = calculateCompatibilityNumbers(selected, 15);
+    let filtered = compatCandidates.filter(n => !selected.includes(n));
+    filtered.sort((a, b) => (aiRealScores[b] || 0) - (aiRealScores[a] || 0));
+    let added = filtered.slice(0, remain);
+    selected = [...selected, ...added];
+    
+    if (selected.length < compressCount) {
+        let extra = recommendPool.filter(n => !selected.includes(n));
+        extra.sort((a, b) => (aiRealScores[b] || 0) - (aiRealScores[a] || 0));
+        let need = compressCount - selected.length;
+        selected = [...selected, ...extra.slice(0, need)];
+    }
+    
+    return selected.slice(0, compressCount).sort((a, b) => a - b);
+}
+
+// ===================== 압축2 (동반/궁합 50% + 순위 50%) =====================
+function compressRecommendPool2(compressCount) {
+    if (compressCount < 2) compressCount = 2;
+
+    let prevData = FULL_DATA.find(r => r[0] === analyzeRound);
+    let prevWins = prevData ? prevData.slice(1, 7) : [];
+    let prevBonus = prevData ? prevData[7] : null;
+    let allPrev = [...prevWins];
+    if (prevBonus) allPrev.push(prevBonus);
+    let compFreq = getCompanionFrequency(allPrev, 30);
+
+    let scored = recommendPool.map(n => {
+        let score = 0;
+        score += (compFreq[n] || 0) * 10;
+        let compat = calculateCompatibilityNumbers([n], 5);
+        let compatScore = compat.reduce((sum, m) => sum + (aiRealScores[m] || 0), 0);
+        score += compatScore * 0.3;
+        score += (aiRealScores[n] || 0) * 0.2;
+        return { num: n, score: score };
+    });
+    scored.sort((a, b) => b.score - a.score);
+
+    let half = Math.ceil(compressCount / 2);
+    let selected = scored.slice(0, half).map(x => x.num);
+
+    let remain = compressCount - selected.length;
+    let candidates = recommendPool.filter(n => !selected.includes(n));
+    candidates.sort((a, b) => (aiRealScores[b] || 0) - (aiRealScores[a] || 0));
+    let added = candidates.slice(0, remain);
+    selected = [...selected, ...added];
+
+    if (selected.length < compressCount) {
+        let extra = recommendPool.filter(n => !selected.includes(n));
+        extra.sort((a, b) => (aiRealScores[b] || 0) - (aiRealScores[a] || 0));
+        let need = compressCount - selected.length;
+        selected = [...selected, ...extra.slice(0, need)];
+    }
+
+    return selected.slice(0, compressCount).sort((a, b) => a - b);
+}
+
+// ===================== 구간조합 (완전랜덤, 압축1 사용) =====================
 function generateZoneCombos(count) {
-    let pool = compressRecommendPool(currentCompress);
+    let pool = compressRecommendPool1(currentCompress1);
     if (pool.length < 6) {
         pool = [...recommendPool];
     }
     if (pool.length < 6) return [];
     
-    let zones = {
-        z1: pool.filter(n => n >= 1 && n <= 9),
-        z2: pool.filter(n => n >= 10 && n <= 18),
-        z3: pool.filter(n => n >= 19 && n <= 27),
-        z4: pool.filter(n => n >= 28 && n <= 36),
-        z5: pool.filter(n => n >= 37 && n <= 45)
-    };
-    
     let combos = [], usedKeys = new Set(), maxAttempts = 5000, attempts = 0;
-    
     while (combos.length < count && attempts < maxAttempts) {
         attempts++;
         let selected = [];
@@ -924,111 +1196,20 @@ function generateZoneCombos(count) {
             let shuffledFixed = shuffleArray([...fixedAvailable]);
             for (let i = 0; i < useFixed; i++) {
                 if (!selected.includes(shuffledFixed[i])) selected.push(shuffledFixed[i]);
-            }
-        }
-        
-        let zoneKeys = shuffleArray(['z1', 'z2', 'z3', 'z4', 'z5']);
-        for (let z of zoneKeys) {
-            if (selected.length >= 6) break;
-            let zonePool = zones[z] || [];
-            if (zonePool.length === 0) continue;
-            let shuffled = shuffleArray([...zonePool]);
-            let pickCount = Math.floor(Math.random() * 2) + 1;
-            for (let n of shuffled) {
-                if (selected.length >= 6) break;
-                if (!selected.includes(n)) {
-                    selected.push(n);
-                    pickCount--;
-                    if (pickCount <= 0) break;
-                }
-            }
-        }
-        
-        if (selected.length < 6) {
-            let shuffledPool = shuffleArray([...pool]);
-            for (let n of shuffledPool) {
-                if (selected.length >= 6) break;
-                if (!selected.includes(n)) selected.push(n);
-            }
-        }
-        
-        if (selected.length < 6) continue;
-        selected.sort((a, b) => a - b);
-        if (hasThreeConsecutive(selected)) continue;
-        
-        let key = selected.join(',');
-        if (usedKeys.has(key)) continue;
-        usedKeys.add(key);
-        combos.push(selected);
-    }
-    return combos;
-}
-
-// ===================== 혼합랜덤 조합 =====================
-function generateMixRandomCombos(count) {
-    let pool = compressRecommendPool(currentCompress);
-    if (pool.length < 6) {
-        pool = [...recommendPool];
-    }
-    if (pool.length < 6) return [];
-    
-    let zones = {
-        z1: pool.filter(n => n >= 1 && n <= 9),
-        z2: pool.filter(n => n >= 10 && n <= 18),
-        z3: pool.filter(n => n >= 19 && n <= 27),
-        z4: pool.filter(n => n >= 28 && n <= 36),
-        z5: pool.filter(n => n >= 37 && n <= 45)
-    };
-    
-    let combos = [], usedKeys = new Set(), maxAttempts = 5000, attempts = 0;
-    
-    while (combos.length < count && attempts < maxAttempts) {
-        attempts++;
-        let selected = [];
-        
-        if (myFixedPool.length > 0) {
-            let fixedAvailable = myFixedPool.filter(n => pool.includes(n));
-            let useFixed = Math.min(fixedAvailable.length, 4);
-            let shuffledFixed = shuffleArray([...fixedAvailable]);
-            for (let i = 0; i < useFixed; i++) {
-                if (!selected.includes(shuffledFixed[i])) selected.push(shuffledFixed[i]);
-            }
-        }
-        
-        let zoneKeys = shuffleArray(['z1', 'z2', 'z3', 'z4', 'z5']);
-        let zonePicked = 0;
-        let targetZoneCount = Math.floor(Math.random() * 2) + 2;
-        
-        for (let z of zoneKeys) {
-            if (zonePicked >= targetZoneCount) break;
-            let zonePool = zones[z] || [];
-            if (zonePool.length === 0) continue;
-            let shuffled = shuffleArray([...zonePool]);
-            for (let n of shuffled) {
-                if (zonePicked >= targetZoneCount) break;
-                if (!selected.includes(n)) {
-                    selected.push(n);
-                    zonePicked++;
-                    break;
-                }
             }
         }
         
         let shuffledPool = shuffleArray([...pool]);
-        let randomPicked = 0;
-        let targetRandom = 6 - selected.length;
         for (let n of shuffledPool) {
-            if (randomPicked >= targetRandom) break;
+            if (selected.length >= 6) break;
             if (!selected.includes(n)) {
                 selected.push(n);
-                randomPicked++;
             }
         }
         
         if (selected.length < 6) continue;
         selected.sort((a, b) => a - b);
         if (hasThreeConsecutive(selected)) continue;
-        
         let key = selected.join(',');
         if (usedKeys.has(key)) continue;
         usedKeys.add(key);
@@ -1037,64 +1218,45 @@ function generateMixRandomCombos(count) {
     return combos;
 }
 
-// ===================== 🔥 간격 조정 함수 =====================
-function changeIntervalExclude(delta) {
-    let newVal = intervalExclude + delta;
-    if (newVal < 1) newVal = 1;
-    if (newVal > 10) newVal = 10;
-    intervalExclude = newVal;
-    document.getElementById('intervalExcludeValue').innerText = intervalExclude;
-    analyze();
-    showToast('🎯 특수 간격: ' + intervalExclude + '주');
-}
-
-function changeIntervalAi(delta) {
-    let newVal = intervalAi + delta;
-    if (newVal < 1) newVal = 1;
-    if (newVal > 10) newVal = 10;
-    intervalAi = newVal;
-    document.getElementById('intervalAiValue').innerText = intervalAi;
-    analyze();
-    showToast('🤖 AI 간격: ' + intervalAi + '주');
-}
-
-// ===================== 압축 =====================
-function compressRecommendPool(compressCount) {
-    if (!recommendPool || recommendPool.length === 0) return [];
-    if (compressCount >= 30) return [...recommendPool];
-    if (compressCount < 1) compressCount = 1;
-    
-    let scored = [];
-    for (let n of recommendPool) {
-        let score = aiRealScores[n] || 0;
-        scored.push({ num: n, score: score });
+// ===================== 혼합랜덤 (완전랜덤, 압축2 사용) =====================
+function generateMixRandomCombos(count) {
+    let pool = compressRecommendPool2(currentCompress2);
+    if (pool.length < 6) {
+        pool = [...recommendPool];
     }
-    scored.sort((a, b) => b.score - a.score);
+    if (pool.length < 6) return [];
     
-    let selected = [];
-    for (let c of scored) {
-        if (selected.length >= compressCount) break;
-        let num = c.num;
-        let tooClose = false;
-        for (let s of selected) {
-            if (Math.abs(num - s) <= 2) {
-                tooClose = true;
-                break;
+    let combos = [], usedKeys = new Set(), maxAttempts = 5000, attempts = 0;
+    while (combos.length < count && attempts < maxAttempts) {
+        attempts++;
+        let selected = [];
+        if (myFixedPool.length > 0) {
+            let fixedAvailable = myFixedPool.filter(n => pool.includes(n));
+            let useFixed = Math.min(fixedAvailable.length, 4);
+            let shuffledFixed = shuffleArray([...fixedAvailable]);
+            for (let i = 0; i < useFixed; i++) {
+                if (!selected.includes(shuffledFixed[i])) selected.push(shuffledFixed[i]);
             }
         }
-        if (tooClose) continue;
-        selected.push(num);
-    }
-    if (selected.length < compressCount) {
-        for (let c of scored) {
-            if (selected.length >= compressCount) break;
-            if (!selected.includes(c.num)) selected.push(c.num);
+        let shuffledPool = shuffleArray([...pool]);
+        for (let n of shuffledPool) {
+            if (selected.length >= 6) break;
+            if (!selected.includes(n)) {
+                selected.push(n);
+            }
         }
+        if (selected.length < 6) continue;
+        selected.sort((a, b) => a - b);
+        if (hasThreeConsecutive(selected)) continue;
+        let key = selected.join(',');
+        if (usedKeys.has(key)) continue;
+        usedKeys.add(key);
+        combos.push(selected);
     }
-    return selected.sort((a, b) => a - b);
+    return combos;
 }
 
-// ===================== 나머지 함수들 =====================
+// ===================== 기타 함수들 =====================
 function hasThreeConsecutive(arr) {
     for (let i = 0; i < arr.length - 2; i++) {
         if (arr[i] + 1 === arr[i + 1] && arr[i + 1] + 1 === arr[i + 2]) return true;
@@ -1105,13 +1267,17 @@ function hasThreeConsecutive(arr) {
 function generateZoneCombo(count) {
     let combos = generateZoneCombos(count);
     if (!combos || combos.length === 0) { showToast('구간 조합 실패'); return; }
-    generatedCombos = combos; showCombos(); showToast('📐 구간 ' + combos.length + '개');
+    generatedCombos = combos;
+    showCombos();
+    showToast('📐 구간 ' + combos.length + '개 (압축1)');
 }
 
 function generateMixRandomCombo(count) {
     let combos = generateMixRandomCombos(count);
     if (!combos || combos.length === 0) { showToast('혼합랜덤 조합 실패'); return; }
-    generatedCombos = combos; showCombos(); showToast('🎲 혼합랜덤 ' + combos.length + '개');
+    generatedCombos = combos;
+    showCombos();
+    showToast('🎲 혼합랜덤 ' + combos.length + '개 (압축2)');
 }
 
 function showCombos() {
@@ -1124,7 +1290,7 @@ function showCombos() {
         html += winNumbers.map(n => '<span class="combo-ball winning">' + n + '</span>').join('');
         if (bonus) html += '<span class="combo-ball bonus">+' + bonus + '</span>';
     } else {
-        html += '<span style="color:#ffaa00;">⚠️ 미발표 회차 (당첨번호 없음)</span>';
+        html += '<span style="color:#ffaa00;">⚠️ 미발표 회차</span>';
     }
     html += '</div><div style="max-height:400px; overflow-y:auto;">';
     let third = 0, fourth = 0, fifth = 0;
@@ -1161,17 +1327,13 @@ function showCombos() {
     document.getElementById('comboPopup').style.display = 'flex';
 }
 
-function closeComboPopup() {
-    document.getElementById('comboPopup').style.display = 'none';
-}
-
+function closeComboPopup() { document.getElementById('comboPopup').style.display = 'none'; }
 function saveAllCombos() {
     if (!generatedCombos.length) { showToast('저장할 조합 없음'); return; }
     savedNumbers.push(...generatedCombos);
     localStorage.setItem('lottoSave_' + userName, JSON.stringify(savedNumbers));
     showToast('보관함 저장');
 }
-
 function openBasket() {
     let basket = document.getElementById('basketList');
     basket.innerHTML = '';
@@ -1191,11 +1353,7 @@ function openBasket() {
     }
     document.getElementById('basketPopup').style.display = 'flex';
 }
-
-function closeBasketPopup() {
-    document.getElementById('basketPopup').style.display = 'none';
-}
-
+function closeBasketPopup() { document.getElementById('basketPopup').style.display = 'none'; }
 function loadFromBasket() {
     if (savedNumbers.length) {
         generatedCombos = [...savedNumbers];
@@ -1205,7 +1363,6 @@ function loadFromBasket() {
         showToast('보관함 비어있음');
     }
 }
-
 function openReview() {
     document.getElementById('reviewRound').value = currentBaseRound;
     document.getElementById('reviewWinning').value = '';
@@ -1213,11 +1370,7 @@ function openReview() {
     document.getElementById('reviewResult').innerHTML = '<p style="text-align:center;">당첨번호 입력</p>';
     document.getElementById('reviewPopup').style.display = 'flex';
 }
-
-function closeReviewPopup() {
-    document.getElementById('reviewPopup').style.display = 'none';
-}
-
+function closeReviewPopup() { document.getElementById('reviewPopup').style.display = 'none'; }
 function compareNumbers() {
     let round = parseInt(document.getElementById('reviewRound').value);
     let winningStr = document.getElementById('reviewWinning').value;
@@ -1250,7 +1403,6 @@ function compareNumbers() {
     html += '</div>';
     document.getElementById('reviewResult').innerHTML = html;
 }
-
 function saveWinningNumbers() {
     let round = parseInt(document.getElementById('reviewRound').value);
     let winningStr = document.getElementById('reviewWinning').value;
@@ -1265,7 +1417,24 @@ function saveWinningNumbers() {
         alert('올바른 번호 입력');
     }
 }
-
+function changeIntervalExclude(delta) {
+    let newVal = intervalExclude + delta;
+    if (newVal < 1) newVal = 1;
+    if (newVal > 10) newVal = 10;
+    intervalExclude = newVal;
+    document.getElementById('intervalExcludeValue').innerText = intervalExclude;
+    analyze();
+    showToast('특수 간격 ' + intervalExclude + '주');
+}
+function changeIntervalAi(delta) {
+    let newVal = intervalAi + delta;
+    if (newVal < 1) newVal = 1;
+    if (newVal > 10) newVal = 10;
+    intervalAi = newVal;
+    document.getElementById('intervalAiValue').innerText = intervalAi;
+    analyze();
+    showToast('AI 간격 ' + intervalAi + '주');
+}
 function setRoundFromInput() {
     let val = parseInt(document.getElementById('roundInput').value);
     if (isNaN(val)) val = currentBaseRound;
@@ -1273,43 +1442,46 @@ function setRoundFromInput() {
     if (val > MAX_ROUND) val = MAX_ROUND;
     if (val !== currentBaseRound) {
         currentBaseRound = val;
+        analyzeRound = currentBaseRound - 1;
         analyze();
         showToast('예상회차 ' + currentBaseRound);
     }
     document.getElementById('roundInput').value = currentBaseRound;
+    document.getElementById('targetRound').innerText = currentBaseRound;
+    document.getElementById('analyzeRoundDisplay').innerText = analyzeRound;
 }
-
 function increaseRound() {
     if (currentBaseRound < MAX_ROUND) {
         currentBaseRound++;
+        analyzeRound = currentBaseRound - 1;
         analyze();
         showToast('예상회차 ' + currentBaseRound);
     } else {
         showToast('최대 회차');
     }
 }
-
 function decreaseRound() {
     if (currentBaseRound > MIN_ROUND) {
         currentBaseRound--;
+        analyzeRound = currentBaseRound - 1;
         analyze();
         showToast('예상회차 ' + currentBaseRound);
     } else {
         showToast('최소 회차');
     }
 }
-
-function updateCompressValue(val) {
-    currentCompress = parseInt(val);
-    document.getElementById('compressValue').innerText = currentCompress;
+function updateCompressValue1(val) {
+    currentCompress1 = parseInt(val);
+    document.getElementById('compressValue1').innerText = currentCompress1;
     updateUI();
 }
-
-function applyCompress() {
+function updateCompressValue2(val) {
+    currentCompress2 = parseInt(val);
+    document.getElementById('compressValue2').innerText = currentCompress2;
     updateUI();
-    showToast('압축값: ' + currentCompress);
 }
-
+function applyCompress1() { updateUI(); showToast('압축1: ' + currentCompress1); }
+function applyCompress2() { updateUI(); showToast('압축2: ' + currentCompress2); }
 function clearStorage() {
     if (confirm('모든 데이터 초기화?')) {
         localStorage.clear();
@@ -1317,24 +1489,13 @@ function clearStorage() {
         location.reload();
     }
 }
-
-function openHelp() {
-    document.getElementById('helpPopup').style.display = 'flex';
-}
-
-function closeHelpPopup() {
-    document.getElementById('helpPopup').style.display = 'none';
-}
-
+function openHelp() { document.getElementById('helpPopup').style.display = 'flex'; }
+function closeHelpPopup() { document.getElementById('helpPopup').style.display = 'none'; }
 function openStatusZoomPopup() {
     document.getElementById('statusZoomContent').innerHTML = document.getElementById('status').innerHTML;
     document.getElementById('statusZoomPopup').style.display = 'flex';
 }
-
-function closeStatusZoomPopup() {
-    document.getElementById('statusZoomPopup').style.display = 'none';
-}
-
+function closeStatusZoomPopup() { document.getElementById('statusZoomPopup').style.display = 'none'; }
 function resetMyFixed() {
     myFixedPool = [];
     updateUI();
@@ -1349,7 +1510,7 @@ function analyze() {
         document.getElementById('analyzeRoundDisplay').innerText = analyzeRound;
         specialSurvivors = calculateSpecialSurvivors();
         aiSurvivors = calculateAiSurvivors();
-        recommendPool = calculateRecommendPool_Union30();
+        recommendPool = calculateRecommendPool_Union();
         trashNumbers = specialSurvivors.filter(n => !aiSurvivors.includes(n));
         saveTrash();
         updateUI();
@@ -1362,43 +1523,75 @@ function updateUI() {
     let targetWinData = FULL_DATA.find(r => r[0] === currentBaseRound);
     let targetWinNumbers = targetWinData ? targetWinData.slice(1, 7) : [];
     let targetBonus = targetWinData ? targetWinData[7] : null;
-    let intersectionCount = specialSurvivors.filter(n => aiSurvivors.includes(n)).length;
-    let unionCount = new Set([...specialSurvivors, ...aiSurvivors]).size;
-    let compressed = compressRecommendPool(currentCompress);
+    
+    let interSurvivors = specialSurvivors.filter(n => aiSurvivors.includes(n));
+    let unionCount = recommendPool.length;
+    let compressed1 = compressRecommendPool1(currentCompress1);
+    let compressed2 = compressRecommendPool2(currentCompress2);
+    let interCompress = compressed1.filter(n => compressed2.includes(n));
+    
+    let common = interSurvivors.filter(n => interCompress.includes(n));
+    let targetCount = currentCompress1;
+    let finalInter = [...common];
+    if (finalInter.length < targetCount) {
+        let unionCompress = [...new Set([...compressed1, ...compressed2])];
+        let candidates = unionCompress.filter(n => !finalInter.includes(n));
+        candidates.sort((a, b) => (aiRealScores[b] || 0) - (aiRealScores[a] || 0));
+        let need = targetCount - finalInter.length;
+        let added = candidates.slice(0, need);
+        finalInter = [...finalInter, ...added];
+    } else if (finalInter.length > targetCount) {
+        finalInter.sort((a, b) => (aiRealScores[b] || 0) - (aiRealScores[a] || 0));
+        finalInter = finalInter.slice(0, targetCount);
+    }
+    finalInter.sort((a, b) => a - b);
+    let displayInter = finalInter;
 
-    function formatNum(num) {
+    function formatNum(num, type) {
         let isWinning = targetWinNumbers.includes(num);
         let isBonus = targetBonus === num;
-        if (isWinning) return '<span class="winning-num clickable" onclick="toggleMyFixed(' + num + ')">' + num + '</span>';
-        else if (isBonus) return '<span class="bonus-num clickable" onclick="toggleMyFixed(' + num + ')">' + num + '</span>';
-        else return '<span class="clickable" onclick="toggleMyFixed(' + num + ')">' + num + '</span>';
+        let cls = '';
+        if (isWinning) cls = 'winning-num';
+        else if (isBonus) cls = 'bonus-num';
+        let style = '';
+        if (type === 'c1') style = ' border-color: #ffd700;';
+        if (type === 'c2') style = ' border-color: #ff6b6b;';
+        return '<span class="clickable ' + cls + '" style="' + style + '" onclick="toggleMyFixed(' + num + ')">' + num + '</span>';
     }
 
-    function formatList(nums) {
+    function formatList(nums, type) {
         if (!nums || nums.length === 0) return '';
-        return nums.map(n => formatNum(n)).reduce((a, b) => a + ', ' + b);
+        return nums.map(n => formatNum(n, type)).reduce((a, b) => a + ', ' + b);
     }
+
+    let hit1 = compressed1.filter(n => targetWinNumbers.includes(n)).length;
+    let hit2 = compressed2.filter(n => targetWinNumbers.includes(n)).length;
 
     document.getElementById('status').innerHTML = 
-        '<div class="stat-row survivor-row"><span class="stat-label">👥특수생존(간격' + intervalExclude + ')</span><div class="number-group">' + formatList(specialSurvivors) + ' (' + specialSurvivors.filter(n => targetWinNumbers.includes(n)).length + '/' + specialSurvivors.length + ')</div></div>' +
-        '<div class="stat-row survivor-row"><span class="stat-label">🤖AI생존(간격' + intervalAi + ')</span><div class="number-group">' + formatList(aiSurvivors) + ' (' + aiSurvivors.filter(n => targetWinNumbers.includes(n)).length + '/' + aiSurvivors.length + ')</div></div>' +
-        '<div class="stat-row" style="border-left-color:#ffd700;"><span class="stat-label">⭐교집합</span><div class="number-group">' + intersectionCount + '개</div></div>' +
-        '<div class="stat-row" style="border-left-color:#4caf50;"><span class="stat-label">🧬합집합</span><div class="number-group">' + unionCount + '개</div></div>' +
-        '<div class="stat-row"><span class="stat-label">⭐추천수(30개)</span><div class="number-group">' + formatList(recommendPool) + ' (' + recommendPool.filter(n => targetWinNumbers.includes(n)).length + ')</div></div>' +
-        '<div class="stat-row" style="border-left-color:#ff6b6b;"><span class="stat-label">🔽압축(' + currentCompress + '개)</span><div class="number-group">' + formatList(compressed) + ' (' + compressed.filter(n => targetWinNumbers.includes(n)).length + ')</div></div>' +
+        '<div class="stat-row survivor-row"><span class="stat-label">👥특수생존(간격' + intervalExclude + ')</span><div class="number-group">' + formatList(specialSurvivors, '') + ' (' + specialSurvivors.length + ')</div></div>' +
+        '<div class="stat-row survivor-row"><span class="stat-label">🤖AI생존(간격' + intervalAi + ')</span><div class="number-group">' + formatList(aiSurvivors, '') + ' (' + aiSurvivors.length + ')</div></div>' +
+        '<div class="stat-row" style="border-left-color:#ffd700;"><span class="stat-label">⭐생존 교집합</span><div class="number-group">' + formatList(interSurvivors, '') + ' (' + interSurvivors.length + '개)</div></div>' +
+        '<div class="stat-row" style="border-left-color:#4caf50;"><span class="stat-label">🧬합집합(추천수)</span><div class="number-group">' + unionCount + '개</div></div>' +
+        '<div class="stat-row"><span class="stat-label">⭐추천수(' + unionCount + '개)</span><div class="number-group">' + formatList(recommendPool, '') + ' (' + recommendPool.filter(n => targetWinNumbers.includes(n)).length + ')</div></div>' +
+        '<div class="stat-row" style="border-left-color:#ffd700;"><span class="stat-label">⭐압축1(' + compressed1.length + '개) <span class="hit-badge">🎯' + hit1 + '개</span></span><div class="number-group">' + formatList(compressed1, 'c1') + '</div></div>' +
+        '<div class="stat-row" style="border-left-color:#ff6b6b;"><span class="stat-label">🔽압축2(' + compressed2.length + '개) <span class="hit-badge">🎯' + hit2 + '개</span></span><div class="number-group">' + formatList(compressed2, 'c2') + '</div></div>' +
+        '<div class="stat-row" style="border-left-color:#ff8c00;"><span class="stat-label">🔗통합교집합(생존∩압축)</span><div class="number-group">' + 
+            (displayInter.length ? displayInter.map(n => formatNum(n, '')).join(', ') : '없음') + 
+            ' (' + displayInter.length + '개)</div></div>' +
         '<div class="stat-row" onclick="openTrashPopup()" style="cursor:pointer;"><span class="stat-label">🗑️휴지통</span><div class="number-group">총 ' + trashNumbers.length + '개</div></div>' +
         '<div class="stat-row"><span class="stat-label">⭐내가고정 <button class="reset-fixed-btn" onclick="resetMyFixed()">초기화</button></span><div class="number-group">' + (myFixedPool.length ? myFixedPool.map(n => '<span class="fixed-only-yellow" style="cursor:default;">' + n + '</span>').join(' ') : '없음') + '</div></div>';
 
-    let prevData = FULL_DATA.find(r => r[0] === analyzeRound);
-    if (prevData && prevData[1] !== 0) {
-        document.getElementById('baseRoundInfo').innerHTML = prevData.slice(1, 7).map(n => '<span class="prev-num">' + n + '</span>').join('') + '<span>+</span>' + '<span class="prev-num">' + prevData[7] + '</span>';
-        document.getElementById('prevWinLabel').innerHTML = '📌 ' + prevData[0] + '회';
-    } else if (prevData) {
+    let prevDataInfo = FULL_DATA.find(r => r[0] === analyzeRound);
+    if (prevDataInfo && prevDataInfo[1] !== 0) {
+        document.getElementById('baseRoundInfo').innerHTML = prevDataInfo.slice(1, 7).map(n => '<span class="prev-num">' + n + '</span>').join('') + '<span>+</span>' + '<span class="prev-num">' + prevDataInfo[7] + '</span>';
+        document.getElementById('prevWinLabel').innerHTML = '📌 ' + prevDataInfo[0] + '회';
+    } else if (prevDataInfo) {
         document.getElementById('baseRoundInfo').innerHTML = '미발표';
     }
 
     document.getElementById('roundInput').value = currentBaseRound;
     document.getElementById('targetRound').innerText = currentBaseRound;
+    document.getElementById('analyzeRoundDisplay').innerText = analyzeRound;
 
     let targetContainer = document.getElementById('targetWinContainer');
     if (!targetContainer) {
@@ -1437,14 +1630,19 @@ function toggleMyFixed(num) {
 }
 
 window.onload = function () {
+    document.getElementById('intervalExcludeValue').innerText = intervalExclude;
+    document.getElementById('intervalAiValue').innerText = intervalAi;
+    document.getElementById('compressSlider1').value = currentCompress1;
+    document.getElementById('compressValue1').innerText = currentCompress1;
+    document.getElementById('compressSlider2').value = currentCompress2;
+    document.getElementById('compressValue2').innerText = currentCompress2;
     initUser();
     loadFixedNumbers();
     loadTrash();
     loadCustomSurvivors();
-    document.getElementById('compressSlider').value = currentCompress;
-    document.getElementById('compressValue').innerText = currentCompress;
-    document.getElementById('intervalExcludeValue').innerText = intervalExclude;
-    document.getElementById('intervalAiValue').innerText = intervalAi;
+    document.getElementById('roundInput').value = currentBaseRound;
+    document.getElementById('targetRound').innerText = currentBaseRound;
+    document.getElementById('analyzeRoundDisplay').innerText = analyzeRound;
     analyze();
 };
 </script>
