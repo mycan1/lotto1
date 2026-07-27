@@ -137,7 +137,7 @@
     <h1>📊 통합 9수/1수/5수 시스템 + 잔여 풀 재분석</h1>
     <div class="update-notice">
         ✅ <strong>2026.07.25 1234회</strong> 당첨번호 반영 완료!<br>
-        🔄 <strong>신규 기능 추가</strong>: 회차별 자동 백테스팅 팝업 (1200~1234 한 번에 분석!)
+        🔄 <strong>백테스트에 ⑤ 교집합(③∩④) 추적 기능 추가</strong> (9수 구성은 기존 방식 유지)
     </div>
     <div class="filters">
         <div class="filter-group">
@@ -194,7 +194,7 @@
     <div class="modal-overlay" id="backtestModal">
         <div class="modal-box">
             <div class="modal-header">
-                <h2>📊 회차별 자동 백테스트 결과</h2>
+                <h2>📊 회차별 자동 백테스트 결과 (⑤ 교집합 포함)</h2>
                 <button class="close-btn" onclick="document.getElementById('backtestModal').classList.remove('active')">✕</button>
             </div>
             <div class="modal-body" id="backtestBody">
@@ -367,7 +367,7 @@
         }
 
         // ========================================================================
-        // 4. 메인 분석 실행 (생략 - 기존과 동일, 공간 절약을 위해 일부 생략 가능하지만 여기선 유지)
+        // 4. 메인 분석 실행
         // ========================================================================
         function runAnalysis() {
             const logs = [];
@@ -386,7 +386,7 @@
             addLog('🚀 분석 실행 시작 (9수용)');
             
             const base = parseInt(document.getElementById('baseRound').value) || 1234;
-            const start = parseInt(document.getElementById('startRound').value) || 1000;
+            const start = parseInt(document.getElementById('startRound').value) || 1200;
             const min = parseInt(document.getElementById('minMatch').value) || 2;
             const topN = parseInt(document.getElementById('topCount').value) || 6;
             currentTopN = topN;
@@ -516,7 +516,6 @@
 
             addLog(`[완료] 결과 HTML 렌더링 준비 완료.`, LOG_TYPES.SUCCESS);
 
-            // HTML 생성
             let logHtml = `<div class="log-box"><div class="log-title">📋 실시간 로그 (Live Log) - 총 ${logs.length}개 이벤트</div>`;
             logs.forEach(log => {
                 let typeClass = 'log-info';
@@ -603,7 +602,7 @@
                         hitLabel = '(✨ 보너스 당첨!)';
                     }
                 }
-                html += `<div style="background:#2a1a1a; border:3px solid #e74c3c; border-radius:10px; padding:15px; margin:15px 0; text-align:center;">`;
+                html += `<div style="background:#2a1a2a; border:3px solid #e74c3c; border-radius:10px; padding:15px; margin:15px 0; text-align:center;">`;
                 html += `<strong style="color:#e74c3c;">💪 강력 1수 (상위 3개 유사회차 ${result.similar.slice(0,3).map(s=>s.round).join(', ')} 분석)</strong><br>`;
                 html += `<span style="font-size:40px; font-weight:bold; color:${pickColor};">${displayPick}</span><br>`;
                 html += `<span style="color:#aaa;">${hitLabel}</span>`;
@@ -660,7 +659,7 @@
         function runAnalysisForOne(silent = false) {
             const topN = parseInt(document.getElementById('topCountOne').value) || 3;
             const base = parseInt(document.getElementById('baseRound').value) || 1234;
-            const start = parseInt(document.getElementById('startRound').value) || 1000;
+            const start = parseInt(document.getElementById('startRound').value) || 1200;
             const min = parseInt(document.getElementById('minMatch').value) || 2;
             const result = findSimilar(base, start, min, topN);
             if (result.similar.length === 0) return null;
@@ -912,7 +911,7 @@
         }
 
         // ========================================================================
-        // 9. 9수 압축 (기존 6개 회차 분석법)
+        // 9. 9수 압축 (기존 방식 유지: ③번 독자 6개 + ③∩예측 3개)
         // ========================================================================
         function optimizeNine() {
             if (!similarData) {
@@ -973,7 +972,7 @@
         }
 
         // ========================================================================
-        // 10. 하이브리드 10조합 (생략 - 기존과 동일)
+        // 10. 하이브리드 10조합
         // ========================================================================
         function runHybrid() {
             runAnalysis(); optimizeNine();
@@ -1103,7 +1102,7 @@
         }
 
         // ========================================================================
-        // 12. ★★★ 회차별 자동 백테스팅 (팝업) ★★★
+        // 12. ★★★ 회차별 자동 백테스팅 (⑤ 교집합 추적 기능 포함) ★★★
         // ========================================================================
         function runBacktest() {
             const start = parseInt(document.getElementById('startRound').value) || 1200;
@@ -1117,34 +1116,29 @@
                 return;
             }
 
-            // 모달 열기
             const modal = document.getElementById('backtestModal');
             const body = document.getElementById('backtestBody');
             modal.classList.add('active');
             body.innerHTML = '<div style="text-align:center; padding:40px; color:#aaa;">⏳ 분석 중입니다. (총 ' + (end - start + 1) + '개 회차)...</div>';
 
-            // 결과 저장 배열
             const results = [];
             let total9 = 0, total5 = 0, total1 = 0, total1Bonus = 0;
             let max9 = 0;
 
-            // 비동기로 처리하여 UI 블로킹 방지 (setTimeout으로 틈 주기)
             setTimeout(() => {
                 for (let round = start; round <= end; round++) {
-                    // 1. 당첨번호 가져오기
                     const win = getWinning(round);
                     if (!win) continue;
                     const winMain = win.main;
                     const winBonus = win.bonus;
 
-                    // 2. 유사회차 찾기 (해당 회차 기준)
-                    const simResult = findSimilar(round, 1, min, topN); // 시작회차는 1부터 (데이터 범위 내)
+                    // ★★★ 시작 회차를 UI에서 가져온 start로 전달 (수동 분석과 동일) ★★★
+                    const simResult = findSimilar(round, start, min, topN);
                     if (simResult.similar.length === 0) {
-                        results.push({ round, win: winMain, bonus: winBonus, nums9: [], hit9: 0, nums5: [], hit5: 0, num1: 0, hit1: false, hit1Bonus: false });
+                        results.push({ round, win: winMain, bonus: winBonus, nums9: [], hit9: 0, nums5: [], hit5: 0, num1: 0, hit1: false, hit1Bonus: false, inter5: [] });
                         continue;
                     }
 
-                    // 3. ③번 풀 계산
                     const freq = calcFreq(simResult.similar);
                     const nextFreqMap = {};
                     simResult.similar.forEach(s => {
@@ -1163,7 +1157,18 @@
                     const additional = scoredOne.slice(0, 6).map(item => item.num);
                     const pool3 = [...new Set([...pool3_keys, ...additional])].sort((a,b)=>a-b);
 
-                    // 4. 예측 TOP 10 계산
+                    // ★★★ ④번 풀 (유사회차 2회 이상) 계산 ★★★
+                    const simFreqMap = {};
+                    simResult.similar.forEach(s => {
+                        s.nums.forEach(n => { simFreqMap[n] = (simFreqMap[n] || 0) + 1; });
+                        if (s.bonus !== null) simFreqMap[s.bonus] = (simFreqMap[s.bonus] || 0) + 1;
+                    });
+                    const pool4 = Object.keys(simFreqMap).filter(k => simFreqMap[k] >= 2).map(Number).sort((a,b)=>a-b);
+
+                    // ★★★ ⑤ 교집합 (③∩④) 계산 ★★★
+                    const pool5 = pool3.filter(n => pool4.includes(n));
+
+                    // 예측 TOP 10 (⑤ 교집합에 가중치 부여)
                     const predScore = {};
                     simResult.similar.forEach(s => {
                         if (!s.nextNums || s.nextNums.length === 0) return;
@@ -1171,6 +1176,7 @@
                         s.nextNums.forEach(n => {
                             let score = weight;
                             if (freq[n]) score += freq[n] * 0.8;
+                            if (pool5.includes(n)) score += 2.0;
                             if (winMain.includes(n)) score += 3;
                             predScore[n] = (predScore[n] || 0) + score;
                         });
@@ -1181,7 +1187,7 @@
                         .map(([num, score]) => ({ num: parseInt(num), score }));
                     const topPredNums = topPred.map(p => p.num);
 
-                    // 5. 9수 산출 (독자 6개 + 교집합 3개)
+                    // 9수 산출 (기존 방식: ③번 독자 6개 + ③∩TOP10 3개)
                     const exclusive = pool3.filter(n => !topPredNums.includes(n));
                     const inter = pool3.filter(n => topPredNums.includes(n));
                     let nums9 = [...exclusive.slice(0, 6), ...inter.slice(0, 3)];
@@ -1192,16 +1198,11 @@
                     nums9.sort((a,b) => a - b);
                     const hit9 = nums9.filter(n => winMain.includes(n)).length;
 
-                    // 6. 5수 산출 (9수에서 점수 기준 상위 5개)
-                    // 임시로 globalIntersectionMap, lastBonusIntersection 등을 사용하기 위해 전역 변수에 임시 할당
-                    const tempInter = pool3.filter(n => topPredNums.includes(n));
-                    const tempMap = {};
-                    tempInter.forEach(n => tempMap[n] = true);
-                    // 간단 점수 계산: 빈도 + 교집합 + TOP10
+                    // 5수 산출
                     const scoreMap = {};
                     pool3.forEach(n => {
                         let s = (freq[n] || 0) * 2;
-                        if (tempMap[n]) s += 10;
+                        if (pool5.includes(n)) s += 15;
                         if (topPredNums.includes(n)) s += 5;
                         scoreMap[n] = s;
                     });
@@ -1209,10 +1210,9 @@
                     const nums5 = sorted9.slice(0, 5);
                     const hit5 = nums5.filter(n => winMain.includes(n)).length;
 
-                    // 7. 1수 산출 (상위 3개 유사회차 기반)
+                    // 1수 분석
                     const oneResult = (() => {
-                        const topN_1 = topNOne;
-                        const r2 = findSimilar(round, 1, min, topN_1);
+                        const r2 = findSimilar(round, start, min, topNOne);
                         if (r2.similar.length === 0) return null;
                         const f2 = calcFreq(r2.similar);
                         const tAll = [];
@@ -1268,12 +1268,15 @@
                     const hit1 = (num1 !== 0 && winMain.includes(num1));
                     const hit1Bonus = (num1 !== 0 && num1 === winBonus);
 
-                    // 결과 저장
-                    results.push({ round, win: winMain, bonus: winBonus, nums9, hit9, nums5, hit5, num1, hit1, hit1Bonus });
+                    // ★★★ 결과 객체에 inter5(pool5) 추가 ★★★
+                    results.push({ 
+                        round, win: winMain, bonus: winBonus, 
+                        nums9, hit9, nums5, hit5, num1, hit1, hit1Bonus,
+                        inter5: pool5  // ⑤ 교집합 저장
+                    });
                     if (hit9 > max9) max9 = hit9;
                 }
 
-                // 통계 계산
                 const totalRounds = results.length;
                 let sum9 = 0, sum5 = 0, count1 = 0, count1B = 0;
                 results.forEach(r => {
@@ -1287,9 +1290,9 @@
                 const rate1 = (count1 / totalRounds * 100).toFixed(1);
                 const rate1B = (count1B / totalRounds * 100).toFixed(1);
 
-                // HTML 테이블 생성
+                // ★★★ 테이블에 ⑤ 교집합 열 추가 ★★★
                 let tableHtml = `<table>
-                    <thead><tr><th>회차</th><th>당첨번호</th><th>9수 추천 (적중)</th><th>5수 추천 (적중)</th><th>1수 추천</th></tr></thead><tbody>`;
+                    <thead><tr><th>회차</th><th>당첨번호</th><th>9수 추천 (적중)</th><th>5수 추천 (적중)</th><th>1수 추천</th><th style="background:#2a1a2a; color:#ffb3b3;">⑤ 교집합 (③∩④)</th></tr></thead><tbody>`;
                 results.forEach(r => {
                     const winStr = r.win.join(', ') + (r.bonus ? ` (${r.bonus}☆)` : '');
                     const winMain = r.win;
@@ -1308,17 +1311,26 @@
                     }).join(' ');
                     const hit1Str = r.hit1 ? '✅ 당첨!' : (r.hit1Bonus ? '⭐ 보너스!' : '❌ 미당첨');
                     const hitColor = r.hit1 ? '#2ecc71' : (r.hit1Bonus ? '#ff6b6b' : '#888');
+                    
+                    // ★★★ ⑤ 교집합 표시 (당첨번호와 비교하여 색상 표시) ★★★
+                    const inter5Str = r.inter5.length > 0 ? r.inter5.map(n => {
+                        let c = '#ddd';
+                        if (winMain.includes(n)) c = '#2ecc71';
+                        else if (n === winBonus) c = '#ff6b6b';
+                        return `<span style="color:${c}; font-weight:bold;">${n}</span>`;
+                    }).join(' ') : '없음';
+
                     tableHtml += `<tr>
                         <td>${r.round}</td>
                         <td style="color:#ffd700; font-weight:bold;">${winStr}</td>
                         <td>${num9Str} <span class="hit-cell">(${r.hit9}개)</span></td>
                         <td>${num5Str} <span class="hit-cell">(${r.hit5}개)</span></td>
                         <td style="color:${hitColor}; font-weight:bold;">${r.num1 || '-'} ${hit1Str}</td>
+                        <td style="background:#1a1a2a; color:#ddd; font-weight:bold;">${inter5Str}</td>
                     </tr>`;
                 });
                 tableHtml += `</tbody></table>`;
 
-                // 통계 요약
                 const summaryHtml = `<div class="summary-box">
                     <div class="summary-item"><div class="value">${totalRounds}</div><div class="label">📊 분석 회차</div></div>
                     <div class="summary-item"><div class="value">${avg9}</div><div class="label">🎯 9수 평균 적중</div></div>
@@ -1330,7 +1342,7 @@
 
                 body.innerHTML = tableHtml + summaryHtml;
 
-            }, 100); // 0.1초 후 실행 (UI 렌더링 보장)
+            }, 100);
         }
 
         // ========================================================================
