@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>📊 v23.5 9MAX + 동기화 + 10가지 멀티 전략</title>
+    <title>📊 v23.6 – TOP10 제외 전략 10가지 공식</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #0a0a0a; color: #fff; font-family: 'Segoe UI', sans-serif; padding: 20px; max-width: 1100px; margin: 0 auto; }
@@ -63,6 +63,7 @@
         .offset-badge { background: #2980b9; color: #fff; padding: 2px 12px; border-radius: 20px; font-size: 12px; margin-left: 8px; }
         .badge-9max { background: #e67e22; color: #fff; padding: 2px 12px; border-radius: 20px; font-size: 12px; margin-left: 8px; }
         .badge-strong { background: #ffd700; color: #000; padding: 2px 12px; border-radius: 20px; font-size: 12px; margin-left: 8px; }
+        .badge-exclude { background: #e74c3c; color: #fff; padding: 2px 12px; border-radius: 20px; font-size: 12px; margin-left: 8px; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
@@ -102,18 +103,23 @@
         .multi-table td { padding: 8px; border: 1px solid #444; text-align: center; }
         .multi-table .strategy-name { color: #9b59b6; font-weight: bold; }
         .multi-table .rec6 { background: #1a1a2a; }
-        @media (max-width: 700px) { .strategy-grid { grid-template-columns: 1fr 1fr; } }
+        .formula-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .formula-card { background: #1a1a2a; padding: 8px 12px; border-radius: 8px; border-left: 3px solid #e74c3c; }
+        .formula-card .fname { color: #ffd700; font-size: 13px; font-weight: bold; }
+        .formula-card .fnums { font-size: 20px; letter-spacing: 2px; }
+        @media (max-width: 700px) { .formula-grid { grid-template-columns: 1fr; } }
         @media (max-width: 500px) { .strategy-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-    <h1>📊 v23.5 9MAX + 10가지 멀티 전략 + 동기화</h1>
+    <h1>📊 v23.6 – TOP10 제외 전략 10가지 공식</h1>
     <div class="update-notice">
         ✅ <strong>유사회차 최대 40개 확장</strong><br>
         ✅ <strong>📅 예상 회차 ↔ 수동 테스트 회차 자동 동기화</strong><br>
         ✅ <strong>📊 백테스트 / 📈 히스토리 실제 동작</strong><br>
         ✅ <strong>🧩 10가지 멀티 전략 (10수→6수 추천)</strong><br>
-        ✅ <strong>9MAX / v23.0 / 강력1수/5수 유지</strong>
+        ✅ <strong>9MAX / v23.0 / 강력1수/5수 유지</strong><br>
+        ✅ <strong>🔥 TOP10 제외 전략 10가지 공식 추가</strong> (TOP10은 무조건 제외!)
     </div>
     <div class="filters">
         <div class="filter-group">
@@ -287,7 +293,7 @@
     }
 
     // ========================================================================
-    // 동기화 설정 (예상 회차 ↔ 수동 테스트 회차)
+    // 동기화 설정
     // ========================================================================
     document.getElementById('baseRound').addEventListener('input', function() {
         document.getElementById('manualRound').value = this.value;
@@ -374,10 +380,169 @@
     function colorArray(arr, winMain, winBonus) { return arr.map(n => colorNum(n, winMain, winBonus)).join(', '); }
 
     // ========================================================================
-    // 🚀 runAnalysis (9MAX + v23.0 10수)
+    // 🔥 TOP10 제외 전략 10가지 공식 (헬퍼 함수)
+    // ========================================================================
+    function getExcludeSet(topNums) {
+        return new Set(topNums);
+    }
+
+    // ① TOP10 제외 + ③만 우선
+    function getExcludeTop10_Only3(pool3, pool4, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const only3 = pool3.filter(n => !pool4.includes(n) && !excludeSet.has(n));
+        const rest = pool3.filter(n => !only3.includes(n) && !excludeSet.has(n));
+        const result = [...only3.slice(0, 4), ...rest.slice(0, 2)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    // ② TOP10 제외 + ③∩④∩③만
+    function getExcludeTop10_TripleWithOnly3(pool3, pool4, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const intersect = pool3.filter(n => pool4.includes(n) && !excludeSet.has(n));
+        const only3 = pool3.filter(n => !pool4.includes(n) && !excludeSet.has(n));
+        const result = [...intersect.slice(0, 3), ...only3.slice(0, 3)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    // ③ TOP10 제외 + ③만+④만
+    function getExcludeTop10_Only3And4(pool3, pool4, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const only3 = pool3.filter(n => !pool4.includes(n) && !excludeSet.has(n));
+        const only4 = pool4.filter(n => !pool3.includes(n) && !excludeSet.has(n));
+        const result = [...only3.slice(0, 3), ...only4.slice(0, 3)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    // ④ TOP10 제외 + 고저 2:4
+    function getExcludeTop10_HighLow24(arr, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const filtered = arr.filter(n => !excludeSet.has(n));
+        const lows = filtered.filter(n => n <= 22);
+        const highs = filtered.filter(n => n >= 23);
+        const result = [...lows.slice(0, 2), ...highs.slice(0, 4)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    // ⑤ TOP10 제외 + 저/고 4:2
+    function getExcludeTop10_LowHigh42(arr, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const filtered = arr.filter(n => !excludeSet.has(n));
+        const lows = filtered.filter(n => n <= 22);
+        const highs = filtered.filter(n => n >= 23);
+        const result = [...lows.slice(0, 4), ...highs.slice(0, 2)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    // ⑥ TOP10 제외 + 고저 3:3
+    function getExcludeTop10_HighLow33(arr, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const filtered = arr.filter(n => !excludeSet.has(n));
+        const lows = filtered.filter(n => n <= 22);
+        const highs = filtered.filter(n => n >= 23);
+        const result = [...lows.slice(0, 3), ...highs.slice(0, 3)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    // ⑦ TOP10 제외 + 홀짝 2:4
+    function getExcludeTop10_OddEven24(arr, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const filtered = arr.filter(n => !excludeSet.has(n));
+        const odds = filtered.filter(n => n % 2 === 1);
+        const evens = filtered.filter(n => n % 2 === 0);
+        const result = [...odds.slice(0, 2), ...evens.slice(0, 4)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    // ⑧ TOP10 제외 + ④만 우선
+    function getExcludeTop10_Only4(pool3, pool4, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const only4 = pool4.filter(n => !pool3.includes(n) && !excludeSet.has(n));
+        const rest = pool4.filter(n => !only4.includes(n) && !excludeSet.has(n));
+        const result = [...only4.slice(0, 4), ...rest.slice(0, 2)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    // ⑨ TOP10 제외 + 끝수 3:3:4
+    function getExcludeTop10_EndDigit334(arr, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const filtered = arr.filter(n => !excludeSet.has(n));
+        const group1 = filtered.filter(n => n % 10 >= 0 && n % 10 <= 4);
+        const group2 = filtered.filter(n => n % 10 >= 5 && n % 10 <= 9);
+        let result = [...group1.slice(0, 3), ...group2.slice(0, 3)];
+        const rest = filtered.filter(n => !result.includes(n));
+        for (const n of rest) {
+            if (result.length >= 6) break;
+            if (!result.includes(n)) result.push(n);
+        }
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    // ⑩ TOP10 제외 + 합계 150
+    function getExcludeTop10_Sum150(arr, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const filtered = arr.filter(n => !excludeSet.has(n));
+        const pool = filtered.slice(0, 20);
+        let best = [];
+        let bestDiff = Infinity;
+        for (let tries = 0; tries < 300; tries++) {
+            let comb = [];
+            let temp = [...pool];
+            for (let i = 0; i < 6; i++) {
+                const idx = Math.floor(Math.random() * temp.length);
+                comb.push(temp[idx]);
+                temp.splice(idx, 1);
+            }
+            const sum = comb.reduce((a,b) => a+b, 0);
+            const diff = Math.abs(sum - 150);
+            if (diff < bestDiff) {
+                bestDiff = diff;
+                best = comb.slice();
+            }
+        }
+        return best.sort((a,b) => a-b);
+    }
+
+    // ========================================================================
+    // 🚀 runAnalysis (9MAX + v23.0 + TOP10 제외 전략 10가지)
     // ========================================================================
     function runAnalysis() {
-        console.log('🚀 v23.5 9MAX 실행');
+        console.log('🚀 v23.6 실행 (TOP10 제외 전략 포함)');
         winData = null; similarData = null;
         const excludeBonus = isBonusExcluded(), sortMode = document.getElementById('similarSort')?.value || 'high';
         const offset = parseInt(document.getElementById('refOffset').value) || -1;
@@ -484,7 +649,29 @@
         const total9Hit = hit9.length + (hit9Bonus.length ? 1 : 0);
         const totalV23Hit = hitV23.length + (hitV23Bonus.length ? 1 : 0);
 
+        // ====================================================================
+        // 🔥 TOP10 제외 전략 10가지 공식 실행
+        // ====================================================================
+        const pool3Numbers = finalPool3;
+        const pool4Numbers = pool4;
+        const topPredNums = topPred.map(p => p.num);
+
+        const excludeFormulas = {
+            '① ③만 우선': getExcludeTop10_Only3(pool3Numbers, pool4Numbers, topPredNums),
+            '② ③∩④∩③만': getExcludeTop10_TripleWithOnly3(pool3Numbers, pool4Numbers, topPredNums),
+            '③ ③만+④만': getExcludeTop10_Only3And4(pool3Numbers, pool4Numbers, topPredNums),
+            '④ 고저 2:4': getExcludeTop10_HighLow24(pool3Numbers, topPredNums),
+            '⑤ 저/고 4:2': getExcludeTop10_LowHigh42(pool3Numbers, topPredNums),
+            '⑥ 고저 3:3': getExcludeTop10_HighLow33(pool3Numbers, topPredNums),
+            '⑦ 홀짝 2:4': getExcludeTop10_OddEven24(pool3Numbers, topPredNums),
+            '⑧ ④만 우선': getExcludeTop10_Only4(pool3Numbers, pool4Numbers, topPredNums),
+            '⑨ 끝수 3:3:4': getExcludeTop10_EndDigit334(pool3Numbers, topPredNums),
+            '⑩ 합계 150': getExcludeTop10_Sum150(pool3Numbers, topPredNums)
+        };
+
+        // ====================================================================
         // UI 렌더링
+        // ====================================================================
         let html = `<div class="winning-info">🎯 기준 패턴 (${base+offset}회): <span>${baseNums.join(', ')}</span>`;
         if (winData) html += ` &nbsp;|&nbsp; ✅ ${targetRound}회 실제 당첨 (검증용): <span style="color:#2ecc71;">${winData.main.join(', ')}</span> | 보너스: <span style="color:#ff6b6b;">${winData.bonus}</span>`;
         else html += ` &nbsp;|&nbsp; ⚠️ ${targetRound}회 미추첨 (검증 데이터 없음)`;
@@ -499,6 +686,28 @@
         else html += '⚠️ 조건을 만족하는 번호가 없습니다.';
         html += `</div>`;
 
+        // ===== 🔥 TOP10 제외 전략 10가지 공식 =====
+        html += `<div style="background: #0a1a2a; border: 3px solid #e74c3c; border-radius: 15px; padding: 15px 20px; margin: 15px 0;">
+            <div style="color: #e74c3c; font-size: 18px; font-weight: bold; margin-bottom: 10px;">🔥 TOP10 제외 전략 10가지 공식 (6수 추천) <span class="badge-exclude">TOP10 제외</span></div>
+            <div class="formula-grid">`;
+
+        for (const [name, nums] of Object.entries(excludeFormulas)) {
+            const hitCount = nums.filter(n => winMain && winMain.includes(n)).length;
+            const bonusHit = winBonus !== null && nums.includes(winBonus) ? 1 : 0;
+            const totalHit = hitCount + bonusHit;
+            const color = totalHit >= 3 ? '#2ecc71' : (totalHit >= 2 ? '#ffd700' : '#e74c3c');
+            const numStr = nums.map(n => colorNum(n, winMain, winBonus)).join(' ');
+            html += `<div class="formula-card" style="border-left-color: ${color};">
+                <div class="fname" style="color: ${color};">${name} (${totalHit}개)</div>
+                <div class="fnums">${numStr}</div>
+            </div>`;
+        }
+
+        html += `</div>
+            <div style="font-size: 11px; color: #888; margin-top: 8px;">📌 TOP10에 있는 번호는 무조건 제외하고 생성 | ★ 본번호 | ☆ 보너스</div>
+        </div>`;
+
+        // 9MAX 결과
         html += `<div class="optimize-result" style="border-color: ${total9Hit >= 3 ? '#2ecc71' : '#e67e22'};">
             <div class="label" style="color:#ffd700; font-size:18px; font-weight:bold;">🎯 9MAX 압축 결과 (${targetRound}회 예상) <span class="badge-9max">9MAX 공식</span></div>
             <div style="background:#1a1a1a; border-radius:8px; padding:8px 15px; margin:10px 0; text-align:center;">
@@ -509,6 +718,7 @@
             <div class="source">📌 기준: ${base+offset}회 | 🔒 ${minMatch}회 이상 | 9MAX</div>
         </div>`;
 
+        // v23.0 10수 결과
         html += `<div class="v23-box">
             <div class="title">🧬 v23.0 강제 보호 10수 <span class="badge-v23">1회 이상 우선</span> <span class="offset-badge">오프셋 ${offset}</span></div>
             <div class="numbers">${v23Result.map(n => colorNum(n, winMain, winBonus)).join(' ')}</div>
@@ -946,8 +1156,8 @@
         document.getElementById('topCountDisplay').textContent = 40;
         document.getElementById('refOffset').value = '-1';
         document.getElementById('excludeBonus').checked = true;
-        document.getElementById('resultArea').innerHTML = '<div class="loading">🟢 v23.5 완전체 (동기화 + 10가지 전략) 준비 완료! "🚀 분석 실행"을 눌러주세요.</div>';
-        console.log('🟢 v23.5 완전체 로드 완료');
+        document.getElementById('resultArea').innerHTML = '<div class="loading">🟢 v23.6 (TOP10 제외 전략) 준비 완료! "🚀 분석 실행"을 눌러주세요.</div>';
+        console.log('🟢 v23.6 로드 완료 (TOP10 제외 전략 10가지 추가)');
     };
     </script>
 </body>
