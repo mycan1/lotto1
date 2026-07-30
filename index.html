@@ -2,10 +2,10 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>📊 통합 9수/1수/5수 + 히스토리 전략 v19</title>
+    <title>📊 v23.1 – 10가지 분석 공식 + 당첨 표시</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #0a0a0a; color: #fff; font-family: 'Segoe UI', sans-serif; padding: 20px; max-width: 1100px; margin: 0 auto; }
+        body { background: #0a0a0a; color: #fff; font-family: 'Segoe UI', sans-serif; padding: 20px; max-width: 1200px; margin: 0 auto; }
         h1 { color: #ffd700; text-align: center; border-bottom: 3px solid #ffd700; padding-bottom: 10px; margin-bottom: 20px; }
         .filters { background: #1a1a1a; border: 2px solid #ffd700; border-radius: 15px; padding: 15px 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
         .filter-group { display: flex; flex-direction: column; gap: 3px; }
@@ -19,220 +19,53 @@
         button:hover { background: #00e6b8; transform: scale(1.02); box-shadow: 0 0 20px #00e6b8; }
         button.secondary { background: #555; color: #fff; }
         button.secondary:hover { background: #777; }
-        button.strong-btn { background: #e74c3c; color: #fff; font-size: 14px; padding: 8px 18px; }
-        button.strong-btn:hover { background: #c0392b; transform: scale(1.05); box-shadow: 0 0 25px #e74c3c; }
-        button.optimize-btn { background: #00b894; color: #fff; font-size: 14px; padding: 8px 18px; }
-        button.optimize-btn:hover { background: #00a381; transform: scale(1.05); box-shadow: 0 0 25px #00b894; }
-        button.hybrid-btn { background: #f1c40f; color: #000; font-size: 14px; padding: 8px 18px; border: 2px solid #fff; }
-        button.hybrid-btn:hover { background: #ffd700; transform: scale(1.05); box-shadow: 0 0 30px #f1c40f; }
-        button.residual-btn { background: #9b59b6; color: #fff; font-size: 14px; padding: 8px 18px; }
-        button.residual-btn:hover { background: #8e44ad; transform: scale(1.05); box-shadow: 0 0 25px #9b59b6; }
-        button.backtest-btn { background: #f39c12; color: #000; font-size: 14px; padding: 8px 18px; border: 2px solid #fff; }
-        button.backtest-btn:hover { background: #e67e22; transform: scale(1.05); box-shadow: 0 0 30px #f39c12; }
-        button.strategy-btn { background: #e67e22; color: #fff; font-size: 14px; padding: 8px 18px; border: 2px solid #fff; }
-        button.strategy-btn:hover { background: #d35400; transform: scale(1.05); box-shadow: 0 0 25px #e67e22; }
-        button.history-btn { background: #2980b9; color: #fff; font-size: 14px; padding: 8px 18px; border: 2px solid #fff; }
-        button.history-btn:hover { background: #1f618d; transform: scale(1.05); box-shadow: 0 0 25px #2980b9; }
         .result-area { background: #1a1a1a; border: 2px solid #ffd700; border-radius: 15px; padding: 20px; margin-top: 20px; overflow-x: auto; }
-        .section-title { color: #ffd700; font-size: 18px; font-weight: bold; margin: 15px 0 10px 0; }
-        .winning-info { background: #2a2a2a; border-left: 4px solid #f1c40f; padding: 10px 15px; border-radius: 8px; margin: 10px 0; }
-        .winning-info span { color: #f1c40f; font-weight: bold; font-size: 18px; }
         .loading { text-align: center; padding: 40px; color: #aaa; }
-        .pool-box { background: #1a2a1a; border: 2px solid #2ecc71; padding: 10px; border-radius: 8px; margin: 10px 0; }
-        .intersection-box { background: #2a1a2a; border: 2px solid #ff6b6b; padding: 10px 15px; border-radius: 8px; margin: 10px 0; }
-        .intersection-box strong { color: #ff6b6b; }
-        .recent-box { background: #1a1a2a; border: 2px solid #3498db; padding: 10px 15px; border-radius: 8px; margin: 10px 0; }
-        .recent-box strong { color: #3498db; }
-        .collected-item { display: inline-block; background: #333; padding: 2px 10px; border-radius: 20px; margin: 2px 4px; font-size: 14px; font-weight: bold; }
-        .collected-item .freq { color: #aaa; font-size: 11px; font-weight: normal; margin-left: 2px; }
-        .strong-result { background: #2a1a2a; border: 3px solid #e74c3c; border-radius: 15px; padding: 15px 20px; margin: 10px 0 20px 0; text-align: center; }
-        .strong-result .number { font-size: 60px; font-weight: 900; line-height: 1.2; }
-        .strong-result .label { font-size: 16px; color: #ffd700; margin-top: 5px; }
-        .strong-result .desc { font-size: 13px; color: #aaa; margin-top: 5px; }
-        .strong-result .source { display: inline-block; background: #333; padding: 4px 15px; border-radius: 20px; color: #88ccff; font-size: 12px; margin-top: 5px; }
-        .strong5-result { background: #1a2a2a; border: 2px solid #e67e22; border-radius: 12px; padding: 15px 20px; margin: 10px 0 20px 0; }
-        .strong5-result .label { font-size: 16px; color: #ffd700; margin-bottom: 10px; }
-        .strong5-result .rank-item { display: flex; align-items: center; justify-content: space-between; background: #222; padding: 8px 15px; border-radius: 8px; margin-bottom: 6px; border-left: 4px solid #e67e22; }
-        .strong5-result .rank-item .rank { font-weight: bold; color: #ffd700; min-width: 40px; }
-        .strong5-result .rank-item .num { font-size: 20px; font-weight: bold; min-width: 40px; }
-        .strong5-result .rank-item .num.hit { color: #2ecc71; }
-        .strong5-result .rank-item .num.bonus { color: #ff6b6b; }
-        .strong5-result .rank-item .info { font-size: 13px; color: #aaa; }
-        .optimize-result { background: #0a1a0a; border: 3px solid #00b894; border-radius: 15px; padding: 20px; margin: 10px 0; text-align: center; }
-        .optimize-result .number-list { font-size: 32px; font-weight: bold; margin: 15px 0; letter-spacing: 4px; }
-        .optimize-result .number-list span { margin: 0 8px; }
-        .hybrid-result-box { margin-top: 20px; border: 3px solid #f1c40f; border-radius: 15px; padding: 20px; background: #1a1a0a; text-align: center; }
-        .hybrid-result-box .grid-combos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; margin-top: 10px; }
-        .hybrid-result-box .combo-item { background: #222; padding: 8px 12px; border-radius: 8px; border: 1px solid #555; font-size: 14px; }
-        .hybrid-result-box .fixed-num { color: #e74c3c; font-weight: bold; background: #333; padding: 0 6px; border-radius: 4px; }
-        .hybrid-result-box .label-title { font-size: 20px; color: #f1c40f; font-weight: bold; }
-        .hybrid-result-box .info-line { margin: 10px 0; font-size: 14px; color: #aaa; }
+        .auto-btn { background: #e74c3c; color: #fff; font-size: 16px; padding: 10px 24px; border: 2px solid #fff; border-radius: 30px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        .auto-btn:hover { background: #c0392b; transform: scale(1.03); box-shadow: 0 0 30px #e74c3c; }
+        .bonus-toggle { display: flex; align-items: center; gap: 8px; background: #1a1a2a; padding: 5px 12px; border-radius: 20px; border: 1px solid #555; }
+        .bonus-toggle label { color: #ffd700; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .bonus-toggle input[type="checkbox"] { width: 18px; height: 18px; accent-color: #ffd700; cursor: pointer; }
+        .auto-status { font-size: 13px; color: #aaa; margin-top: 5px; }
+        .progress-dots { display: flex; gap: 12px; justify-content: center; margin: 10px 0; }
+        .progress-dot { width: 12px; height: 12px; border-radius: 50%; background: #444; transition: all 0.3s; }
+        .progress-dot.done { background: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
+        .progress-dot.active { background: #ffd700; box-shadow: 0 0 15px #ffd700; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
         .update-notice { background: #2a1a2a; border: 2px solid #2ecc71; border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; color: #2ecc71; }
         .update-notice strong { color: #ffd700; }
-        .range-container { display: flex; align-items: center; gap: 10px; }
-        .range-container input[type="range"] { flex: 1; min-width: 120px; }
-        .filter-group .btn-group { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-        .filter-group .btn-group button { flex: 0 1 auto; min-width: 70px; font-size: 13px; padding: 6px 14px; }
-        .combo-box { background: #1a2a1a; border: 1px solid #2ecc71; border-radius: 10px; padding: 10px 15px; margin: 5px 0; display: flex; flex-wrap: wrap; align-items: center; }
-        .combo-box span { display: inline-block; background: #333; padding: 2px 10px; border-radius: 20px; margin: 2px 4px; font-size: 13px; }
-        .source { display: inline-block; background: #333; padding: 4px 15px; border-radius: 20px; color: #88ccff; font-size: 12px; margin-top: 5px; }
-        .rank-4 { color: #00b894; font-weight: bold; }
-        .rank-5 { color: #2ecc71; font-weight: bold; }
-        .tag-badge { display: inline-block; background: #444; padding: 0 8px; border-radius: 10px; font-size: 11px; color: #88ccff; margin: 0 2px; border: 1px solid #555; }
-        .trace-box { background: #1a1a2a; border: 2px solid #3498db; border-radius: 10px; padding: 12px 15px; margin-top: 15px; text-align: left; }
-        .trace-box .title { color: #3498db; font-weight: bold; font-size: 15px; margin-bottom: 8px; }
-        .trace-item { margin: 4px 0; font-size: 14px; }
-        .trace-item .num { font-weight: bold; display: inline-block; min-width: 30px; }
-        .trace-item .tags { color: #aaa; }
-        .detail-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
-        .detail-table th { background: #333; color: #ffd700; padding: 6px; text-align: center; border: 1px solid #555; }
-        .detail-table td { padding: 5px; text-align: center; border: 1px solid #444; color: #ccc; }
-        .detail-table .hit { color: #2ecc71; font-weight: bold; }
-        .detail-table .bonus-hit { color: #ff6b6b; font-weight: bold; }
-        .detail-table .match { background: rgba(46, 204, 113, 0.1); }
-        .detail-table .win-num { color: #2ecc71; font-weight: bold; }
-        .detail-table .bonus-num { color: #ff6b6b; font-weight: bold; }
-        .colored-num { font-weight: bold; }
-        .colored-num.hit { color: #2ecc71; }
-        .colored-num.bonus { color: #ff6b6b; }
-
-        .hit-num { color: #2ecc71 !important; font-weight: bold; }
-        .bonus-num { color: #ff6b6b !important; font-weight: bold; }
-
-        .log-box { background: #0d0d0d; border: 1px solid #555; border-radius: 10px; padding: 10px 15px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 13px; color: #ccc; }
-        .log-box .log-title { color: #ffd700; font-weight: bold; font-size: 15px; margin-bottom: 8px; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        .log-entry { padding: 2px 0; border-bottom: 1px solid #1a1a1a; }
-        .log-entry .time { color: #666; font-size: 11px; margin-right: 8px; }
-        .log-info { color: #88ccff; }
-        .log-success { color: #2ecc71; }
-        .log-warning { color: #ffd700; }
-        .log-error { color: #e74c3c; }
-        .log-entry .prefix { font-weight: bold; margin-right: 5px; }
-        .notice-box { background: #2a1a2a; border-left: 4px solid #9b59b6; padding: 10px 15px; border-radius: 8px; margin: 10px 0; color: #d0b0ff; }
-        .group-label { display: inline-block; padding: 2px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-        .group-exclusive { background: #1a2a3a; color: #88ccff; border: 1px solid #3498db; }
-        .group-inter { background: #2a1a2a; color: #ffb3b3; border: 1px solid #e74c3c; }
-        .rank-badge { display: inline-block; padding: 0 6px; border-radius: 10px; font-size: 10px; font-weight: bold; margin-left: 2px; background: #333; }
-        .rank-1 { color: #ffd700; }
-        .rank-2 { color: #c0c0c0; }
-        .rank-3 { color: #cd7f32; }
-        .rank-9 { color: #e74c3c; }
-
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
-        .modal-overlay.active { display: flex; }
-        .modal-box { background: #1a1a1a; border: 2px solid #ffd700; border-radius: 15px; max-width: 95%; max-height: 90%; width: 1400px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(255, 215, 0, 0.3); }
-        .modal-header { background: #2a2a2a; padding: 15px 20px; border-bottom: 2px solid #ffd700; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        .modal-header h2 { color: #ffd700; margin: 0; font-size: 22px; }
-        .modal-header .close-btn { background: #e74c3c; color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 20px; font-weight: bold; cursor: pointer; line-height: 36px; text-align: center; }
-        .modal-header .close-btn:hover { background: #c0392b; }
-        .modal-body { padding: 20px; overflow: auto; flex: 1; }
-        .modal-body .range-selector { background: #1a1a2a; padding: 15px; border-radius: 10px; margin-bottom: 15px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; border: 1px solid #555; }
-        .modal-body .range-selector label { color: #ffd700; font-weight: bold; margin-right: 5px; }
-        .modal-body .range-selector input { background: #2a2a2a; border: 1px solid #555; color: #fff; padding: 5px 10px; border-radius: 6px; width: 100px; }
-        .modal-body .range-selector button { background: #00b894; color: #fff; border: none; padding: 6px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
-        .modal-body .range-selector button:hover { background: #00a381; }
-        .modal-body table { width: 100%; min-width: 1200px; border-collapse: collapse; font-size: 12px; }
-        .modal-body th { background: #333; color: #ffd700; padding: 6px 4px; text-align: center; border: 1px solid #555; position: sticky; top: 0; z-index: 10; white-space: nowrap; }
-        .modal-body td { padding: 4px 6px; text-align: center; border: 1px solid #444; color: #ddd; font-size: 12px; white-space: nowrap; }
-        .modal-body .hit-cell { color: #2ecc71; font-weight: bold; }
-        .modal-body .bonus-cell { color: #ff6b6b; font-weight: bold; }
-        .modal-body .total-row { background: #1a2a1a; border-top: 3px solid #ffd700; font-weight: bold; }
-        .modal-body .total-row td { color: #ffd700; }
-        .modal-body .summary-box { background: #0a0a0a; border: 1px solid #555; border-radius: 10px; padding: 15px; margin-top: 15px; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
-        .modal-body .summary-item { background: #1a1a1a; padding: 10px; border-radius: 8px; text-align: center; border-left: 4px solid #ffd700; }
-        .modal-body .summary-item .value { font-size: 24px; font-weight: bold; color: #ffd700; }
-        .modal-body .summary-item .label { font-size: 12px; color: #aaa; }
-        .modal-body .num9-compact { font-size: 13px; letter-spacing: 0.5px; }
-        .modal-body .num9-compact .hit-num { color: #2ecc71; font-weight: bold; }
-        .modal-body .num9-compact .bonus-num { color: #ff6b6b; font-weight: bold; }
-        .color-green { color: #2ecc71; font-weight: bold; }
-        .color-red { color: #ff6b6b; font-weight: bold; }
-
-        .strategy-badge { display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; }
-        .strategy-9 { background: #1a3a1a; color: #2ecc71; border: 1px solid #2ecc71; }
-        .strategy-6 { background: #3a2a1a; color: #f1c40f; border: 1px solid #f1c40f; }
-        .strategy-emergency { background: #3a1a1a; color: #e74c3c; border: 1px solid #e74c3c; }
-        .bonus-toggle {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #1a1a2a;
-            padding: 5px 12px;
-            border-radius: 20px;
-            border: 1px solid #555;
-        }
-        .bonus-toggle label {
-            color: #ffd700;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .bonus-toggle input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: #ffd700;
-            cursor: pointer;
-        }
-        .residual-result .freq-item {
-            display: inline-block;
-            background: #222;
-            padding: 2px 10px;
-            border-radius: 20px;
-            margin: 2px 4px;
-            font-size: 14px;
-        }
-        .residual-result .freq-item .cnt {
-            color: #aaa;
-            font-size: 11px;
-        }
-        .residual-result .freq-item .hit {
-            color: #2ecc71;
-        }
-        .residual-result .freq-item .bonus {
-            color: #ff6b6b;
-        }
-        .strategy-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-            margin-top: 15px;
-        }
-        .strategy-card {
-            background: #0a0a0a;
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 4px solid #2ecc71;
-        }
-        .strategy-card .label {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        @media (max-width: 700px) {
-            .strategy-grid { grid-template-columns: 1fr 1fr; }
-        }
-        @media (max-width: 500px) {
-            .strategy-grid { grid-template-columns: 1fr; }
-        }
+        .method-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 20px; }
+        .method-card { background: #0a0a1a; border: 2px solid #444; border-radius: 12px; padding: 12px; transition: border-color 0.3s; }
+        .method-card:hover { border-color: #ffd700; }
+        .method-card .method-name { color: #ffd700; font-weight: bold; font-size: 16px; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 8px; }
+        .method-card .numbers { font-size: 22px; font-weight: bold; letter-spacing: 2px; }
+        .method-card .numbers span { margin: 0 4px; }
+        .method-card .desc { color: #888; font-size: 11px; margin-top: 5px; }
+        .method-card .hit-info { color: #aaa; font-size: 12px; margin-top: 3px; }
+        .status-bar { background: #1a1a2a; padding: 10px 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #3498db; }
+        .status-bar .step.done { color: #2ecc71; }
+        .winning-info { background: #2a2a2a; border-left: 4px solid #f1c40f; padding: 10px 15px; border-radius: 8px; margin: 10px 0; }
+        .winning-info span { color: #f1c40f; font-weight: bold; font-size: 18px; }
+        .winning-info .hit-num { color: #2ecc71; }
+        .winning-info .bonus-num { color: #ff6b6b; }
     </style>
 </head>
 <body>
-    <h1>📊 통합 9수/1수/5수 + 히스토리 전략 v19</h1>
+    <h1>📊 v23.1 – 10가지 분석 공식 + 당첨 표시</h1>
     <div class="update-notice">
-        ✅ <strong>히스토리 전략 minMatch 동기화</strong> (2회 고정 → minMatch 값 따라감)<br>
-        ✅ <strong>1235회 미추첨 처리 완료</strong> (당첨번호 표시 불가)<br>
-        ✅ <strong>보너스 통계 완전 제거</strong> (③/④/⑤/출현순위/2회이상/9수 모두 본번호만 사용)<br>
-        ✅ <strong>전략 A/B/C 테스트 유지</strong> (현재 유사회차 기반)<br>
-        ✅ <strong>통합 빈도 모든 번호 표시</strong> (상위 10개 제한 제거, 등장한 모든 번호 출력)<br>
-        ✅ <strong>백테스트 완전 수정</strong> (회차별로 독립적인 분석 적용, 색상은 예상 회차 기준)
+        ✅ <strong>당첨번호 매치 표시</strong> – 각 공식 결과에서 실제 당첨번호와 일치하는 번호를 초록색(★)으로 표시<br>
+        ✅ <strong>적중 개수 표시</strong> – 각 방법별로 맞힌 번호 개수를 함께 표시<br>
+        ✅ <strong>보너스 번호 구분</strong> – 보너스 번호와 일치하면 빨간색(☆)으로 표시
     </div>
+
     <div class="filters">
         <div class="filter-group">
             <label>📅 예상 회차</label>
-            <input type="number" id="baseRound" value="1234" min="1" max="9999">
+            <input type="number" id="baseRound" value="1230" min="1" max="9999" onchange="autoRun()">
         </div>
         <div class="filter-group">
             <label>🔢 시작 회차</label>
-            <input type="number" id="startRound" value="1000" min="1" max="9999">
+            <input type="number" id="startRound" value="1200" min="1" max="9999">
         </div>
         <div class="filter-group">
             <label>🎯 최소 일치</label>
@@ -252,67 +85,44 @@
             </select>
         </div>
         <div class="filter-group">
-            <label>📊 9수 유사회차 개수</label>
+            <label>📊 유사회차 개수</label>
             <div class="range-container">
-                <input type="range" id="topCount" min="3" max="20" value="10" step="1">
-                <span class="range-value" id="topCountDisplay">10</span>
+                <input type="range" id="topCount" min="3" max="20" value="3" step="1" oninput="document.getElementById('topCountDisplay').textContent=this.value">
+                <span class="range-value" id="topCountDisplay">3</span>
                 <span class="range-label">개</span>
             </div>
         </div>
         <div class="filter-group">
             <label>&nbsp;</label>
             <div class="btn-group">
-                <button onclick="runAnalysis()">🚀 분석 실행</button>
-                <button onclick="recommendStrong1()" class="strong-btn">💪 강력 1수</button>
-                <button onclick="recommendStrong5()" class="strong-btn" style="background:#e67e22;">💪 강력 5수</button>
-                <button onclick="optimizeNine()" class="optimize-btn">🎯 9수 압축</button>
-                <button onclick="runHybrid()" class="hybrid-btn">🤝 하이브리드</button>
-                <button onclick="runResidualAnalysis()" class="residual-btn">📊 통합 빈도</button>
-                <button onclick="runStrategyTest()" class="strategy-btn">🧪 현재 전략 A/B/C</button>
-                <button onclick="runBacktestHistoryStrategy()" class="history-btn">📈 히스토리 전략</button>
-                <button onclick="openBacktestModal()" class="backtest-btn">📊 백테스트</button>
+                <button onclick="autoRun()" class="auto-btn">⚡ 자동 실행 (원클릭)</button>
                 <button onclick="resetAll()" class="secondary">🗑️ 초기화</button>
             </div>
         </div>
         <div class="filter-group" style="flex-basis:100%; border-top:1px solid #333; padding-top:10px; margin-top:5px;">
-            <label>🔍 수동 테스트 회차</label>
-            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                <input type="number" id="manualRound" value="1234" min="1" max="9999" style="width:120px; padding:6px 12px; border-radius:8px; border:1px solid #555; background:#2a2a2a; color:#fff; font-size:14px;">
-                <button onclick="runManualTest()" class="strong-btn" style="background:#3498db; padding:8px 25px;">🔍 테스트 실행</button>
-                <span style="color:#888; font-size:12px;">※ 특정 회차만 빠르게 분석</span>
-                <div class="bonus-toggle">
-                    <input type="checkbox" id="excludeBonus" checked>
-                    <label for="excludeBonus">🚫 보너스 제거 (본번호만 분석)</label>
-                </div>
+            <div class="bonus-toggle">
+                <input type="checkbox" id="excludeBonus" checked>
+                <label for="excludeBonus">🚫 보너스 제거 (본번호만 분석)</label>
+            </div>
+            <div class="auto-status" id="statusDisplay">⏳ 준비 완료. "⚡ 자동 실행"을 누르세요.</div>
+            <div class="progress-dots" id="progressDots">
+                <div class="progress-dot" id="dot1"></div>
+                <div class="progress-dot" id="dot2"></div>
+                <div class="progress-dot" id="dot3"></div>
+                <div class="progress-dot" id="dot4"></div>
             </div>
         </div>
     </div>
-    <div class="result-area" id="resultArea"><div class="loading">🟢 준비 완료! "🚀 분석 실행" 버튼을 눌러주세요.</div></div>
 
-    <!-- 백테스트 모달 -->
-    <div class="modal-overlay" id="backtestModal">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h2>📊 전략별 백테스트</h2>
-                <button class="close-btn" onclick="document.getElementById('backtestModal').classList.remove('active')">✕</button>
-            </div>
-            <div class="modal-body" id="backtestBody">
-                <div class="range-selector">
-                    <div><label>시작:</label><input type="number" id="btStartRound" value="1000" min="1"></div>
-                    <div><label>종료:</label><input type="number" id="btEndRound" value="1234" min="2"></div>
-                    <button onclick="runBacktest()">▶ 분석 실행</button>
-                    <span style="color:#888; font-size:13px; margin-left:10px;">※ 기본값: 상단 필터</span>
-                </div>
-                <div id="backtestResult" style="text-align:center; padding:20px; color:#aaa;">⏳ 분석을 실행하려면 "분석 실행" 버튼을 누르세요.</div>
-            </div>
-        </div>
+    <div class="result-area" id="resultArea">
+        <div class="loading">🟢 준비 완료! "⚡ 자동 실행" 버튼을 눌러주세요.</div>
     </div>
 
     <script>
     'use strict';
 
     // ========================================================================
-    // 1. DATA (1001~1234회)
+    // 1. DATA (1001~1234회) – 생략 (동일)
     // ========================================================================
     const DATA = [
         [1234,1,15,19,31,35,43,27],[1233,2,7,20,25,37,40,29],[1232,12,15,19,22,24,36,3],[1231,4,13,14,18,31,38,15],
@@ -377,33 +187,225 @@
     ];
 
     // ========================================================================
-    // 2. 전역 변수
+    // 2. 기본 함수 (getWinning, isBonusExcluded, checkFutureData 등)
     // ========================================================================
-    let activeFreq2 = [], oldNextFreq2 = [];
-    let globalIntersectionMap = {}, globalFreqData = {};
-    let similarData = null, winData = null, baseNums = [];
-    let lastTopPred = [], lastBonusIntersection = [], lastTop9 = [];
-    let currentTopN = 10;
-    let prevWinBonus = null;
-    let backtestResults = null;
-
     function getWinning(round) {
         const row = DATA.find(r => r[0] === round);
         return row ? { main: row.slice(1, 7), bonus: row[7] } : null;
     }
-
     function isBonusExcluded() {
         return document.getElementById('excludeBonus')?.checked !== false;
     }
-
     function checkFutureData(baseRound) {
         const maxRound = DATA.reduce((max, row) => Math.max(max, row[0]), 0);
-        if (baseRound > maxRound + 1) {
-            console.warn(`⚠️ [방화벽] 기준 회차(${baseRound})는 데이터 최대 회차(${maxRound})보다 1 이상 큽니다. 예측만 진행합니다.`);
-        }
+        if (baseRound > maxRound + 1) console.warn(`⚠️ 기준 회차(${baseRound})는 데이터 최대(${maxRound})보다 1 이상 큼.`);
         return baseRound;
     }
 
+    // 정적 빈도 계산 (1~45)
+    function calcStaticFreq() {
+        const freq = {};
+        for (let i=1;i<=45;i++) freq[i]=0;
+        DATA.forEach(row => {
+            for (let i=1;i<=6;i++) freq[row[i]] = (freq[row[i]]||0)+1;
+        });
+        return freq;
+    }
+    const staticFreqMap = calcStaticFreq();
+
+    // 최근 10회 빈도
+    function recentFreq(baseRound) {
+        const freq = {};
+        for (let i=1;i<=45;i++) freq[i]=0;
+        for (let r=baseRound-10; r<baseRound; r++) {
+            const w = getWinning(r);
+            if (w) w.main.forEach(n => freq[n] = (freq[n]||0)+1);
+        }
+        return freq;
+    }
+
+    // ========================================================================
+    // 3. 10가지 분석 공식 (각각 6개 번호 반환)
+    // ========================================================================
+    function method1_highFreq(baseRound, excludeBonus) {
+        const sorted = Object.entries(staticFreqMap).sort((a,b)=>b[1]-a[1]);
+        return sorted.slice(0,6).map(([num])=>parseInt(num)).sort((a,b)=>a-b);
+    }
+
+    function method2_recentFreq(baseRound, excludeBonus) {
+        const freq = recentFreq(baseRound);
+        const sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]);
+        return sorted.slice(0,6).map(([num])=>parseInt(num)).sort((a,b)=>a-b);
+    }
+
+    function method3_intersection(baseRound, startRound, minMatch, topN) {
+        const result = findSimilar(baseRound, startRound, minMatch, topN);
+        if (!result.similar.length) return [];
+        const freq = calcFreq(result.similar);
+        const nextFreqMap = {};
+        result.similar.forEach(s => {
+            s.nextNums.forEach(n => { nextFreqMap[n] = (nextFreqMap[n]||0)+1; });
+            if (!isBonusExcluded() && s.nextBonus!==null) nextFreqMap[s.nextBonus] = (nextFreqMap[s.nextBonus]||0)+0.5;
+        });
+        const pool3 = Object.keys(nextFreqMap).filter(k=>nextFreqMap[k]>=2).map(Number);
+        const simFreqMap = {};
+        result.similar.forEach(s => s.remainedNums.forEach(n => { simFreqMap[n] = (simFreqMap[n]||0)+1; }));
+        const pool4 = Object.keys(simFreqMap).filter(k=>simFreqMap[k]>=2).map(Number);
+        const intersect = pool3.filter(n => pool4.includes(n));
+        let selected = intersect.slice(0,6);
+        if (selected.length < 6) {
+            const rest = pool3.filter(n => !selected.includes(n)).sort((a,b)=>a-b);
+            for (let n of rest) { if (selected.length>=6) break; selected.push(n); }
+        }
+        while (selected.length < 6) {
+            const rand = Math.floor(Math.random()*45)+1;
+            if (!selected.includes(rand)) selected.push(rand);
+        }
+        return selected.sort((a,b)=>a-b);
+    }
+
+    function method4_coldFreq(baseRound, excludeBonus) {
+        const sorted = Object.entries(staticFreqMap).sort((a,b)=>a[1]-b[1]);
+        return sorted.slice(0,6).map(([num])=>parseInt(num)).sort((a,b)=>a-b);
+    }
+
+    function method5_oddEven(baseRound, excludeBonus) {
+        const candidates = getTopCandidates(baseRound, 20);
+        const odds = candidates.filter(n=>n%2===1);
+        const evens = candidates.filter(n=>n%2===0);
+        let selected = [];
+        selected = selected.concat(odds.slice(0,3));
+        selected = selected.concat(evens.slice(0,3));
+        while (selected.length < 6) {
+            const rand = Math.floor(Math.random()*45)+1;
+            if (!selected.includes(rand)) selected.push(rand);
+        }
+        return selected.sort((a,b)=>a-b);
+    }
+
+    function method6_highLow(baseRound, excludeBonus) {
+        const candidates = getTopCandidates(baseRound, 20);
+        const lows = candidates.filter(n=>n<23);
+        const highs = candidates.filter(n=>n>=23);
+        let selected = [];
+        selected = selected.concat(lows.slice(0,3));
+        selected = selected.concat(highs.slice(0,3));
+        while (selected.length < 6) {
+            const rand = Math.floor(Math.random()*45)+1;
+            if (!selected.includes(rand)) selected.push(rand);
+        }
+        return selected.sort((a,b)=>a-b);
+    }
+
+    function method7_consecutive(baseRound, excludeBonus) {
+        const candidates = getTopCandidates(baseRound, 30);
+        let pairs = [];
+        for (let i=0; i<candidates.length-1; i++) {
+            for (let j=i+1; j<candidates.length; j++) {
+                if (Math.abs(candidates[i]-candidates[j])===1) {
+                    pairs.push([candidates[i], candidates[j]]);
+                }
+            }
+        }
+        let selected = [];
+        if (pairs.length>0) {
+            const pair = pairs[0];
+            selected.push(pair[0], pair[1]);
+            for (let n of candidates) {
+                if (selected.length>=6) break;
+                if (!selected.includes(n)) selected.push(n);
+            }
+        }
+        while (selected.length < 6) {
+            const rand = Math.floor(Math.random()*45)+1;
+            if (!selected.includes(rand)) selected.push(rand);
+        }
+        return selected.sort((a,b)=>a-b);
+    }
+
+    function method8_sumCenter(baseRound, excludeBonus) {
+        const candidates = getTopCandidates(baseRound, 30);
+        let best = [];
+        let bestDiff = Infinity;
+        for (let tries=0; tries<100; tries++) {
+            let pool = candidates.slice(0,15);
+            let comb = [];
+            while (comb.length<6) {
+                let idx = Math.floor(Math.random()*pool.length);
+                let num = pool[idx];
+                if (!comb.includes(num)) comb.push(num);
+            }
+            let sum = comb.reduce((a,b)=>a+b,0);
+            let diff = Math.abs(sum - 135);
+            if (diff < bestDiff) {
+                bestDiff = diff;
+                best = comb.slice();
+            }
+        }
+        if (best.length===0) best = candidates.slice(0,6);
+        while (best.length < 6) {
+            const rand = Math.floor(Math.random()*45)+1;
+            if (!best.includes(rand)) best.push(rand);
+        }
+        return best.sort((a,b)=>a-b);
+    }
+
+    function method9_prime(baseRound, excludeBonus) {
+        const primes = [2,3,5,7,11,13,17,19,23,29,31,37,41,43];
+        const candidates = getTopCandidates(baseRound, 30);
+        let selected = candidates.filter(n=>primes.includes(n)).slice(0,6);
+        while (selected.length < 6) {
+            const rand = Math.floor(Math.random()*45)+1;
+            if (!selected.includes(rand)) selected.push(rand);
+        }
+        return selected.sort((a,b)=>a-b);
+    }
+
+    function method10_pattern(baseRound, startRound, minMatch, topN) {
+        const result = findSimilar(baseRound, startRound, minMatch, topN);
+        if (!result.similar.length) return [];
+        const best = result.similar[0];
+        const next = getWinning(best.round + 1);
+        if (!next) return [];
+        let selected = next.main.slice(0,6);
+        while (selected.length < 6) {
+            const rand = Math.floor(Math.random()*45)+1;
+            if (!selected.includes(rand)) selected.push(rand);
+        }
+        return selected.sort((a,b)=>a-b);
+    }
+
+    // ===== 헬퍼 함수: 상위 후보 획득 (점수 기반) =====
+    function getTopCandidates(baseRound, count=20) {
+        const start = parseInt(document.getElementById('startRound').value) || 1200;
+        const minMatch = parseInt(document.getElementById('minMatch').value) || 2;
+        const topN = parseInt(document.getElementById('topCount').value) || 3;
+        const result = findSimilar(baseRound, start, minMatch, topN);
+        if (!result.similar.length) return [];
+        const freq = calcFreq(result.similar);
+        const scoreMap = {};
+        const allNums = new Set();
+        result.similar.forEach(s => {
+            s.nextNums.forEach(n => allNums.add(n));
+            s.remainedNums.forEach(n => allNums.add(n));
+        });
+        allNums.forEach(num => {
+            let score = (freq[num]||0) * 1.2;
+            let rc = 0;
+            for (let r=baseRound-3; r<baseRound; r++) {
+                const w = getWinning(r);
+                if (w && w.main.includes(num)) rc++;
+            }
+            score += rc * 25;
+            scoreMap[num] = score;
+        });
+        const sorted = Object.entries(scoreMap).sort((a,b)=>b[1]-a[1]).map(([num])=>parseInt(num));
+        return sorted.slice(0, count);
+    }
+
+    // ========================================================================
+    // 4. 기존 함수들 (findSimilar, calcFreq 등) – 복사
+    // ========================================================================
     function findSimilar(baseRound, startRound, minMatch, topN) {
         const prev = getWinning(baseRound - 1);
         if (!prev) return { similar: [], prevNums: [] };
@@ -412,38 +414,26 @@
         const result = [];
         const excludeBonus = isBonusExcluded();
         const sortMode = document.getElementById('similarSort')?.value || 'high';
-
         for (const row of DATA) {
             const r = row[0];
             if (r >= baseRound || r < startRound) continue;
-            const nums = row.slice(1, 7);
+            const nums = row.slice(1,7);
             const bonus = row[7];
             let matchCount = nums.filter(n => baseNums.includes(n)).length;
             if (!excludeBonus && bonus === baseBonus) matchCount += 1;
-            if (matchCount < minMatch) continue;
-            if (matchCount > 6) {
-                console.warn(`⚠️ [방화벽] ${r}회의 matchCount(${matchCount})가 6을 초과하여 제외됨`);
-                continue;
-            }
-            const next = (r + 1 < baseRound) ? getWinning(r + 1) : null;
+            if (matchCount < minMatch || matchCount > 6) continue;
+            const next = (r+1 < baseRound) ? getWinning(r+1) : null;
             const nextFiltered = next ? next.main.filter(n => !baseNums.includes(n)) : [];
-            const nextBonusFiltered = (next && next.bonus !== null && !baseNums.includes(next.bonus)) ? next.bonus : null;
+            const nextBonusFiltered = (next && next.bonus!==null && !baseNums.includes(next.bonus)) ? next.bonus : null;
             result.push({
-                round: r,
-                remainedNums: nums.filter(n => !baseNums.includes(n)),
-                bonus: bonus,
-                matchCount: matchCount,
-                nextNums: nextFiltered,
-                nextBonus: nextBonusFiltered,
+                round: r, remainedNums: nums.filter(n=>!baseNums.includes(n)),
+                bonus: bonus, matchCount: matchCount,
+                nextNums: nextFiltered, nextBonus: nextBonusFiltered
             });
         }
-        result.sort((a, b) => {
-            if (sortMode === 'low') {
-                if (a.matchCount !== b.matchCount) return a.matchCount - b.matchCount;
-            } else {
-                if (b.matchCount !== a.matchCount) return b.matchCount - a.matchCount;
-            }
-            return b.round - a.round;
+        result.sort((a,b) => {
+            if (sortMode==='low') return a.matchCount - b.matchCount;
+            else return b.matchCount - a.matchCount;
         });
         return { similar: result.slice(0, topN), prevNums: baseNums };
     }
@@ -452,876 +442,132 @@
         const freq = {};
         const excludeBonus = isBonusExcluded();
         similarResults.forEach(s => {
-            s.nextNums.forEach(n => { freq[n] = (freq[n] || 0) + 1; });
-            if (!excludeBonus && s.nextBonus !== null) freq[s.nextBonus] = (freq[s.nextBonus] || 0) + 0.5;
-            s.remainedNums.forEach(n => { freq[n] = (freq[n] || 0) + 0.5; });
-            if (!excludeBonus && s.bonus !== null) freq[s.bonus] = (freq[s.bonus] || 0) + 0.5;
+            s.nextNums.forEach(n => { freq[n] = (freq[n]||0)+1; });
+            if (!excludeBonus && s.nextBonus!==null) freq[s.nextBonus] = (freq[s.nextBonus]||0)+0.5;
+            s.remainedNums.forEach(n => { freq[n] = (freq[n]||0)+0.5; });
+            if (!excludeBonus && s.bonus!==null) freq[s.bonus] = (freq[s.bonus]||0)+0.5;
         });
         return freq;
     }
 
-    function getTop10FromPattern(baseRound, startRound, minMatch, topN = 30, excludeBonus = false, sortMode = 'high') {
-        const prev = getWinning(baseRound - 1);
-        if (!prev) return [];
-        const baseNums = prev.main;
-        const baseBonus = prev.bonus;
-        const similarRounds = [];
-
-        for (const row of DATA) {
-            const r = row[0];
-            if (r >= baseRound || r < startRound) continue;
-            const nums = row.slice(1, 7);
-            const bonus = row[7];
-            let matchCount = nums.filter(n => baseNums.includes(n)).length;
-            if (!excludeBonus && bonus === baseBonus) matchCount += 1;
-            if (matchCount < minMatch) continue;
-            if (matchCount > 6) continue;
-            similarRounds.push({ round: r, matchCount });
-        }
-
-        similarRounds.sort((a, b) => {
-            if (sortMode === 'low') {
-                if (a.matchCount !== b.matchCount) return a.matchCount - b.matchCount;
-            } else {
-                if (b.matchCount !== a.matchCount) return b.matchCount - a.matchCount;
-            }
-            return b.round - a.round;
+    // ========================================================================
+    // 5. 자동 실행 (v23.1 – 당첨 표시 포함)
+    // ========================================================================
+    let autoRunning = false;
+    function setStatus(step, msg) {
+        document.getElementById('statusDisplay').textContent = msg;
+        const dots = document.querySelectorAll('.progress-dot');
+        dots.forEach((dot, idx) => {
+            dot.className = 'progress-dot';
+            if (idx < step) dot.classList.add('done');
+            else if (idx === step) dot.classList.add('active');
         });
-
-        const freqMap = {};
-        for (const s of similarRounds.slice(0, topN)) {
-            if (s.round + 1 >= baseRound) {
-                console.warn(`⚠️ [방화벽] ${s.round}회의 다음 회차(${s.round+1})는 현재 기준 회차(${baseRound})와 같거나 커서 제외됨 (누출 차단)`);
-                continue;
-            }
-            const next = getWinning(s.round + 1);
-            if (!next) continue;
-
-            const recency = baseRound - s.round;
-            let weight = 1.0;
-            if (recency <= 10) weight = 1.5;
-            else if (recency <= 20) weight = 1.2;
-            else weight = 0.8;
-
-            for (const n of next.main) {
-                freqMap[n] = (freqMap[n] || 0) + weight;
-            }
-            if (next.bonus !== null && !excludeBonus) {
-                freqMap[next.bonus] = (freqMap[next.bonus] || 0) + weight * 0.8;
-            }
-        }
-
-        const filteredFreq = Object.entries(freqMap)
-            .filter(([num, freq]) => freq >= minMatch)
-            .map(([num, freq]) => ({
-                num: parseInt(num),
-                score: Math.round(freq * 10) / 10,
-                freq: Math.round(freq * 10) / 10
-            }))
-            .sort((a, b) => b.score - a.score || b.freq - a.freq)
-            .slice(0, 10);
-
-        return filteredFreq;
     }
 
-    function colorNum(n, winMain, winBonus, showMark = true) {
-        let color = '#fff';
-        let mark = '';
-        if (showMark && winMain && winMain.includes(n)) {
-            color = '#2ecc71';
-            mark = '★';
-        } else if (showMark && winBonus !== null && winBonus === n) {
-            color = '#ff6b6b';
-            mark = '☆';
-        }
-        return `<span style="color:${color}; font-weight:bold;">${n}${mark}</span>`;
-    }
-
-    function colorArray(arr, winMain, winBonus) {
-        return arr.map(n => colorNum(n, winMain, winBonus)).join(', ');
-    }
-
-    // ========================================================================
-    // 3. runAnalysis
-    // ========================================================================
-    function runAnalysis() {
-        console.log('🚀 runAnalysis 실행');
-        winData = null;
-        similarData = null;
-        
-        const excludeBonus = isBonusExcluded();
-        const sortMode = document.getElementById('similarSort')?.value || 'high';
-        const baseRaw = parseInt(document.getElementById('baseRound').value) || 1234;
-        const base = checkFutureData(baseRaw);
-        const start = parseInt(document.getElementById('startRound').value) || 1000;
-        const minMatch = parseInt(document.getElementById('minMatch').value) || 2;
-        const topN = parseInt(document.getElementById('topCount').value) || 10;
-        currentTopN = topN;
-        document.getElementById('topCountDisplay').textContent = topN;
-        const targetRound = base;
-
-        const result = findSimilar(base, start, minMatch, topN);
-        if (result.similar.length === 0) {
-            document.getElementById('resultArea').innerHTML = `<div style="color:#f39c12; padding:20px;">⚠️ 유사회차 없음 (${base-1}회 기준, ${minMatch}회 이상)</div>`;
-            return;
-        }
-        similarData = result.similar;
-        baseNums = result.prevNums;
-        window.baseNums = baseNums;
-        prevWinBonus = getWinning(base - 1)?.bonus;
-
-        const freq = calcFreq(result.similar);
-        globalFreqData = freq;
-        
-        const tempWinData = getWinning(base);
-        winData = tempWinData ? tempWinData : null;
-        const winMain = winData ? winData.main : [];
-        const winBonus = winData ? winData.bonus : null;
-
-        const allSimNums = [];
-        const allNextNums = [];
-        result.similar.forEach(s => {
-            s.remainedNums.forEach(n => allSimNums.push(n));
-            s.nextNums.forEach(n => allNextNums.push(n));
-        });
-
-        const freqMap = {};
-        allSimNums.forEach(n => { freqMap[n] = (freqMap[n] || 0) + 1; });
-        const validSet = new Set(
-            Object.keys(freqMap)
-                .filter(k => freqMap[k] >= minMatch)
-                .map(Number)
-        );
-
-        const nextFreqMap = {};
-        allNextNums.forEach(n => { nextFreqMap[n] = (nextFreqMap[n] || 0) + 1; });
-        const pool3 = Object.keys(nextFreqMap).filter(k => nextFreqMap[k] >= 2).map(Number);
-        const oneHitNext = Object.keys(nextFreqMap).filter(k => nextFreqMap[k] === 1).map(Number);
-        const scoredOne = oneHitNext.map(n => ({ num: Number(n), score: 0 }));
-        scoredOne.sort((a,b) => b.score - a.score);
-        const additional = scoredOne.slice(0, 6).map(item => item.num);
-        const finalPool3 = [...new Set([...pool3, ...additional])].sort((a,b)=>a-b);
-
-        const simFreqMap = {};
-        allSimNums.forEach(n => { simFreqMap[n] = (simFreqMap[n] || 0) + 1; });
-        const pool4 = Object.keys(simFreqMap).filter(k => simFreqMap[k] >= 2).map(Number).sort((a,b)=>a-b);
-        const pool5 = finalPool3.filter(n => pool4.includes(n));
-
-        const top10Result = getTop10FromPattern(base, start, minMatch, 30, excludeBonus, sortMode);
-        const topPred = top10Result.map(item => ({ num: item.num, score: item.score, count: Math.round(item.freq) }));
-        lastTopPred = topPred;
-        const topPredTop5 = topPred.slice(0, 5).map(p => p.num);
-
-        const bonusSet = new Set();
-        const nextBonusSet = new Set();
-        result.similar.forEach(s => {
-            if (!excludeBonus && s.bonus !== null) bonusSet.add(s.bonus);
-            if (!excludeBonus && s.nextBonus !== null) nextBonusSet.add(s.nextBonus);
-        });
-        const bonusIntersection = [...bonusSet].filter(n => nextBonusSet.has(n)).sort((a,b)=>a-b);
-        lastBonusIntersection = bonusIntersection;
-
-        activeFreq2 = finalPool3;
-        oldNextFreq2 = pool4;
-        globalIntersectionMap = {};
-        pool5.forEach(n => globalIntersectionMap[n] = true);
-
-        // ===== 9수 생성 =====
-        let selected9 = [];
-        const candidatePool = [...pool5, ...finalPool3, ...pool4];
-        const validCandidates = candidatePool.filter(n => validSet.has(n));
-        const scoreMap = {};
-        validCandidates.forEach(num => {
-            let score = (freq[num] || 0) * 1.2;
-            let recentCount = 0;
-            for (let r = base - 3; r < base; r++) {
-                const w = getWinning(r);
-                if (w && w.main.includes(num)) recentCount++;
-            }
-            score += recentCount * 25;
-            const related = [];
-            if (baseNums.length > 0) {
-                for (let i = 0; i < baseNums.length; i++) {
-                    for (let j = i+1; j < baseNums.length; j++) {
-                        const sum = baseNums[i] + baseNums[j];
-                        const diff = Math.abs(baseNums[i] - baseNums[j]);
-                        if (sum <= 45) related.push(sum);
-                        if (diff > 0) related.push(diff);
-                    }
-                }
-            }
-            if (related.includes(num)) score += 8;
-            if (!excludeBonus && bonusIntersection.includes(num)) score += 10;
-            if (topPredTop5.includes(num)) score += 30;
-            scoreMap[num] = Math.round(score * 10) / 10;
-        });
-        const sorted = Object.entries(scoreMap).sort((a,b) => b[1] - a[1]).map(([num]) => parseInt(num));
-        for (const n of sorted) {
-            if (selected9.length >= 9) break;
-            if (!selected9.includes(n)) selected9.push(n);
-        }
-        selected9.sort((a,b) => a-b);
-        lastTop9 = selected9;
-
-        const sortedScores = Object.entries(scoreMap).sort((a,b) => b[1] - a[1]);
-        const strong1 = sortedScores.length > 0 ? parseInt(sortedScores[0][0]) : '없음';
-
-        // ===== UI 렌더링 =====
-        let html = `<div class="winning-info">🎯 기준 패턴 (${targetRound}회): <span>${baseNums.join(', ')}</span>`;
-        if (winData) {
-            html += ` &nbsp;|&nbsp; ✅ ${targetRound}회 실제 당첨 (검증용): <span style="color:#2ecc71;">${winData.main.join(', ')}</span> | 보너스: <span style="color:#ff6b6b;">${winData.bonus}</span>`;
-        } else {
-            html += ` &nbsp;|&nbsp; ⚠️ ${targetRound}회 미추첨 (검증 데이터 없음)`;
-        }
-        html += `</div>`;
-
-        html += `<div class="recent-box"><strong>📊 상위 ${topN}개 유사회차</strong><br>🔹 유사회차: ${result.similar.map(s=>s.round).join(', ')}</div>`;
-
-        html += `<div style="margin-top:15px;">`;
-        html += `<div class="pool-box"><strong>③ 상위 ${topN}개 유사다음회차 동반수 (${finalPool3.length}개):</strong> ${colorArray(finalPool3, winMain, winBonus)}</div>`;
-        html += `<div class="pool-box" style="border-color:#e67e22;"><strong>④ 상위 ${topN}개 유사회차 2회 이상 동반수 (${pool4.length}개):</strong> ${colorArray(pool4, winMain, winBonus)}</div>`;
-        html += `<div class="intersection-box"><strong>⑤ 교집합 (③∩④, ${pool5.length}개):</strong> ${pool5.length > 0 ? colorArray(pool5, winMain, winBonus) : '없음'}</div>`;
-        html += `</div>`;
-
-        html += `<div style="background:#0a1a0a; border:2px solid #ffd700; border-radius:10px; padding:12px; margin:10px 0;">`;
-        html += `<strong style="color:#ffd700;">🔮 ${targetRound}회 예상번호 - 예측 TOP 10 (${minMatch}회 이상)</strong><br>`;
-        if (topPred.length > 0) {
-            html += topPred.map(p => `${colorNum(p.num, winMain, winBonus)} (${p.score}점, ${p.count}회)`).join(' ');
-        } else {
-            html += '⚠️ 조건을 만족하는 번호가 없습니다.';
-        }
-        html += `</div>`;
-
-        html += `<div style="background:#2a1a2a; border:2px solid #ff6b6b; border-radius:10px; padding:12px; margin:10px 0;">`;
-        html += `<strong style="color:#ff6b6b;">🎯 두 보너스 집합 교집합 (${bonusIntersection.length}개)</strong><br>`;
-        if (bonusIntersection.length > 0) html += colorArray(bonusIntersection, winMain, winBonus);
-        else html += '없음';
-        html += `</div>`;
-
-        const allFreqMap = {};
-        allSimNums.forEach(n => { allFreqMap[n] = (allFreqMap[n] || 0) + 1; });
-        const filteredFreq = Object.entries(allFreqMap)
-            .filter(([num, cnt]) => cnt >= minMatch)
-            .sort((a, b) => b[1] - a[1] || a[0] - b[0])
-            .slice(0, 20)
-            .map(([num, cnt]) => ({ num: parseInt(num), cnt }));
-
-        html += `<div style="background:#1a1a1a; border:2px solid #ffd700; border-radius:10px; padding:12px; margin:10px 0;">`;
-        html += `<strong style="color:#ffd700;">📊 출현순위 TOP 20 (유사회차 기준, ${minMatch}회 이상)</strong><br>`;
-        if (filteredFreq.length > 0) {
-            html += filteredFreq.map(({num, cnt}) => `${colorNum(num, winMain, winBonus)}(${cnt}회)`).join(' ');
-        } else {
-            html += '⚠️ 조건을 만족하는 번호가 없습니다.';
-        }
-        html += `</div>`;
-
-        if (strong1 !== '없음') {
-            let pickColor = '#e74c3c';
-            let displayPick = strong1;
-            let hitLabel = '(검증 결과 미당첨)';
-            if (winData) {
-                if (winMain.includes(strong1)) { pickColor = '#2ecc71'; displayPick = strong1 + '★'; hitLabel = '(🔥 본번호 당첨!)'; }
-                else if (strong1 === winBonus) { pickColor = '#ff6b6b'; displayPick = strong1 + '☆'; hitLabel = '(✨ 보너스 당첨!)'; }
-            }
-            html += `<div style="background:#2a1a2a; border:3px solid #e74c3c; border-radius:10px; padding:15px; margin:15px 0; text-align:center;">`;
-            html += `<strong style="color:#e74c3c;">💪 강력 1수 (${targetRound}회 예상)</strong><br>`;
-            html += `<span style="font-size:40px; font-weight:bold; color:${pickColor};">${displayPick}</span><br>`;
-            html += `<span style="color:#aaa;">${hitLabel}</span>`;
-            html += `</div>`;
-        }
-
-        html += `<div style="margin-top:15px; overflow-x:auto;">`;
-        html += `<strong style="color:#3498db;">🔹 유사회차 (상위 ${topN}개 전체) - ⭐ ${targetRound}회 당번 일치</strong>`;
-        html += `<table class="detail-table"><thead><tr><th>회차</th><th>번호 (직전 당번 제거)</th><th>보너스</th><th>일치</th><th>⭐ ${targetRound}회 당번 일치</th></tr></thead><tbody>`;
-        result.similar.forEach(s => {
-            const displayNums = s.remainedNums.map(n => {
-                if (winMain.includes(n)) return `<span class="win-num">${n}★</span>`;
-                else if (winBonus === n) return `<span class="bonus-num">${n}☆</span>`;
-                else return n;
-            }).join(', ');
-            const displayBonus = s.bonus !== null ? (winMain.includes(s.bonus) ? `<span class="win-num">${s.bonus}★</span>` : (winBonus === s.bonus ? `<span class="bonus-num">${s.bonus}☆</span>` : s.bonus)) : '-';
-            const hitNums = s.remainedNums.filter(n => winMain.includes(n));
-            const hitBonus = (s.bonus !== null && winBonus === s.bonus) ? `(보너스 ☆)` : '';
-            html += `<tr><td>${s.round}</td><td>${displayNums}</td><td>${displayBonus}</td><td class="match">${s.matchCount}개</td><td class="hit">${hitNums.length > 0 ? hitNums.join(', ') : '-'} ${hitBonus}</td></tr>`;
-        });
-        html += `</tbody></table></div>`;
-
-        const over2 = Object.keys(allFreqMap)
-            .filter(k => allFreqMap[k] >= minMatch)
-            .map(Number)
-            .sort((a,b)=>a-b);
-        html += `<div style="margin-top:10px; background:#1a1a2a; padding:10px; border-radius:8px;">`;
-        html += `<strong>✅ 상위 ${topN}개 유사회차 기준 ${minMatch}회 이상 등장 (${over2.length}개):</strong> ${colorArray(over2, winMain, winBonus)}`;
-        html += `</div>`;
-
-        let hitMain = [], hitBonusArr = [];
-        if (winData) {
-            selected9.forEach(n => {
-                if (winMain.includes(n)) hitMain.push(n);
-                else if (n === winBonus) hitBonusArr.push(n);
-            });
-        }
-        const totalHit = hitMain.length + (hitBonusArr.length ? 1 : 0);
-        const displayCount = selected9.length;
-        html += `<div class="optimize-result" style="border-color: ${totalHit >= 3 ? '#2ecc71' : '#e74c3c'};">
-            <div class="label" style="color:#ffd700; font-size:18px; font-weight:bold;">🎯 9수 압축 결과 (${targetRound}회 예상) - ${minMatch}회 이상 ${displayCount}개</div>
-            <div style="background:#1a1a1a; border-radius:8px; padding:8px 15px; margin:10px 0; text-align:center;">
-                <span style="font-size:28px; font-weight:bold; letter-spacing:3px;">${selected9.map(n => colorNum(n, winMain, winBonus)).join(' ')}</span>
-            </div>
-            <div class="desc">📊 본번호: ${hitMain.length}개 (${hitMain.join(', ') || '없음'})${hitBonusArr.length ? ` | 보너스: ${hitBonusArr.join(', ')}` : ''}</div>
-            <div style="font-size:24px; font-weight:bold; color:${totalHit >= 3 ? '#2ecc71' : '#e74c3c'};">✅ ${winData ? '총 ' + totalHit + '개 적중' : '⚠️ 검증 데이터 없음'}</div>
-            <div class="source">📌 기준 회차: ${base-1}회 (예상: ${targetRound}회) | 🔒 ${minMatch}회 이상 (보너스 제외)</div>
-        </div>`;
-
-        document.getElementById('resultArea').innerHTML = html;
-    }
-
-    // ========================================================================
-    // 4. 🧪 현재 전략 A/B/C
-    // ========================================================================
-    function runStrategyTest() {
-        const resultDiv = document.getElementById('resultArea');
-        
-        if (typeof similarData === 'undefined' || !similarData || similarData.length === 0) {
-            alert('⚠️ 먼저 "🚀 분석 실행"을 눌러주세요!');
-            return;
-        }
-
-        const data = similarData;
-        const winDataObj = winData || null;
-        const targetRound = document.getElementById('baseRound').value;
-
-        const perfectMatch = data.find(s => s.matchCount === 6);
-        let strategyA = [];
-        if (perfectMatch) {
-            const excludeSet = new Set(perfectMatch.remainedNums);
-            for (let i = 1; i <= 45; i++) {
-                if (!excludeSet.has(i)) strategyA.push(i);
-            }
-        } else {
-            const freqAll = {};
-            data.forEach(s => {
-                s.remainedNums.forEach(n => freqAll[n] = (freqAll[n] || 0) + 1);
-            });
-            const scored = [];
-            for (let i = 1; i <= 45; i++) {
-                scored.push({ num: i, count: freqAll[i] || 0 });
-            }
-            scored.sort((a, b) => a.count - b.count || a.num - b.num);
-            strategyA = scored.map(item => item.num);
-        }
-        const topA = strategyA.slice(0, 10);
-
-        const sortedByOld = [...data].sort((a, b) => a.round - b.round);
-        const oldRounds = sortedByOld.slice(0, 2);
-        const freqB = {};
-        oldRounds.forEach(s => {
-            s.remainedNums.forEach(n => freqB[n] = (freqB[n] || 0) + 1);
-        });
-        const sortedB = Object.entries(freqB).sort((a, b) => b[1] - a[1] || a[0] - b[0]).map(([num]) => parseInt(num));
-        const topB = sortedB.slice(0, 5);
-
-        const freqC = {};
-        data.forEach(s => {
-            s.remainedNums.forEach(n => freqC[n] = (freqC[n] || 0) + 1);
-        });
-        const sortedC = Object.entries(freqC).sort((a, b) => b[1] - a[1] || a[0] - b[0]).map(([num]) => parseInt(num));
-        const topC = sortedC.slice(0, 5);
-
-        let hitA = [], hitB = [], hitC = [];
-        if (winDataObj) {
-            const winMain = winDataObj.main;
-            const winBonus = winDataObj.bonus;
-            hitA = topA.filter(n => winMain.includes(n) || n === winBonus);
-            hitB = topB.filter(n => winMain.includes(n) || n === winBonus);
-            hitC = topC.filter(n => winMain.includes(n) || n === winBonus);
-        }
-
-        const cardHtml = `
-        <div id="strategyResultCard" style="background: #1a2a1a; border: 3px solid #f1c40f; border-radius: 15px; padding: 20px; margin-top: 20px; box-shadow: 0 0 30px rgba(241, 196, 15, 0.1);">
-            <h3 style="color: #f1c40f; margin-bottom: 15px;">🧪 현재 유사회차 기반 3가지 전략</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
-                <div style="background: #1a1a2a; padding: 15px; border-radius: 10px; border-left: 4px solid #e74c3c;">
-                    <div style="color: #e74c3c; font-weight: bold;">⚡ 전략 A (역발상)</div>
-                    <div style="font-size: 13px; color: #aaa;">${topA.join(', ')}</div>
-                    <div style="color: ${hitA.length > 0 ? '#2ecc71' : '#888'};">✅ ${hitA.length}개 적중</div>
-                </div>
-                <div style="background: #1a1a2a; padding: 15px; border-radius: 10px; border-left: 4px solid #3498db;">
-                    <div style="color: #3498db; font-weight: bold;">⏳ 전략 B (올드 룰)</div>
-                    <div style="font-size: 13px; color: #aaa;">${topB.join(', ')}</div>
-                    <div style="color: ${hitB.length > 0 ? '#2ecc71' : '#888'};">✅ ${hitB.length}개 적중</div>
-                </div>
-                <div style="background: #1a1a2a; padding: 15px; border-radius: 10px; border-left: 4px solid #9b59b6;">
-                    <div style="color: #9b59b6; font-weight: bold;">📌 전략 C (잔여 집중)</div>
-                    <div style="font-size: 13px; color: #aaa;">${topC.join(', ')}</div>
-                    <div style="color: ${hitC.length > 0 ? '#2ecc71' : '#888'};">✅ ${hitC.length}개 적중</div>
-                </div>
-            </div>
-            <div style="margin-top: 15px; color: #888; font-size: 12px; border-top: 1px solid #333; padding-top: 10px;">
-                📌 기준 회차: ${targetRound}${winDataObj ? ` | 당첨: ${winDataObj.main.join(', ')} (보너스 ${winDataObj.bonus})` : ' (검증 데이터 없음)'}
-            </div>
-        </div>
-        `;
-
-        const oldCard = document.getElementById('strategyResultCard');
-        if (oldCard) oldCard.remove();
-        resultDiv.insertAdjacentHTML('beforeend', cardHtml);
-    }
-
-    // ========================================================================
-    // 5. 📈 히스토리 전략
-    // ========================================================================
-    function runBacktestHistoryStrategy() {
-        const resultDiv = document.getElementById('resultArea');
-        
-        if (!backtestResults || backtestResults.length === 0) {
-            alert('⚠️ 먼저 "📊 백테스트"를 실행하여 히스토리를 생성해주세요!');
-            return;
-        }
-
-        const results = backtestResults;
-        const freq1 = {}, freq5 = {}, freqTop10 = {};
-        const currentMinMatch = parseInt(document.getElementById('minMatch').value) || 2;
-
-        results.forEach(r => {
-            if (r.num1 && r.num1 > 0) {
-                freq1[r.num1] = (freq1[r.num1] || 0) + 1;
-            }
-            if (r.nums5 && r.nums5.length > 0) {
-                r.nums5.forEach(n => {
-                    if (n > 0) freq5[n] = (freq5[n] || 0) + 1;
-                });
-            }
-            if (r.topPredNums && r.topPredNums.length > 0) {
-                r.topPredNums.forEach(n => {
-                    if (n > 0) freqTop10[n] = (freqTop10[n] || 0) + 1;
-                });
-            }
-        });
-
-        const getTop = (freq, n = 5) => {
-            const filtered = Object.entries(freq)
-                .filter(([num, count]) => count >= currentMinMatch)
-                .sort((a, b) => b[1] - a[1] || parseInt(a[0]) - parseInt(b[0]));
-            if (filtered.length === 0) return [];
-            return filtered.slice(0, n).map(([num]) => parseInt(num));
-        };
-
-        const topA = getTop(freqTop10, 5);
-        const topB = getTop(freq1, 5);
-        const topC = getTop(freq5, 5);
-
-        const totalRounds = results.length;
-
-        const cardHtml = `
-        <div id="historyStrategyCard" style="background: #0a1a2a; border: 3px solid #2980b9; border-radius: 15px; padding: 20px; margin-top: 20px; box-shadow: 0 0 30px rgba(41, 128, 185, 0.2);">
-            <h3 style="color: #2980b9; margin-bottom: 15px;">📈 백테스트 히스토리 전략 (${totalRounds}개 회차 분석, ${currentMinMatch}회 이상만 추천)</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
-                <div style="background: #1a1a2a; padding: 15px; border-radius: 10px; border-left: 4px solid #f1c40f;">
-                    <div style="color: #f1c40f; font-weight: bold; font-size: 16px;">🎯 전략 A (TOP10 빈도)</div>
-                    <div style="font-size: 13px; color: #aaa; margin-top: 5px;">${topA.length > 0 ? topA.join(', ') : '⚠️ 조건을 만족하는 번호 없음'}</div>
-                    <div style="font-size: 12px; color: #888; margin-top: 5px;">출현 횟수: ${topA.map(n => `${n}(${freqTop10[n]||0}회)`).join(', ')}</div>
-                </div>
-                <div style="background: #1a1a2a; padding: 15px; border-radius: 10px; border-left: 4px solid #e74c3c;">
-                    <div style="color: #e74c3c; font-weight: bold; font-size: 16px;">💪 전략 B (1수 빈도)</div>
-                    <div style="font-size: 13px; color: #aaa; margin-top: 5px;">${topB.length > 0 ? topB.join(', ') : '⚠️ 조건을 만족하는 번호 없음'}</div>
-                    <div style="font-size: 12px; color: #888; margin-top: 5px;">출현 횟수: ${topB.map(n => `${n}(${freq1[n]||0}회)`).join(', ')}</div>
-                </div>
-                <div style="background: #1a1a2a; padding: 15px; border-radius: 10px; border-left: 4px solid #2ecc71;">
-                    <div style="color: #2ecc71; font-weight: bold; font-size: 16px;">📌 전략 C (5수 빈도)</div>
-                    <div style="font-size: 13px; color: #aaa; margin-top: 5px;">${topC.length > 0 ? topC.join(', ') : '⚠️ 조건을 만족하는 번호 없음'}</div>
-                    <div style="font-size: 12px; color: #888; margin-top: 5px;">출현 횟수: ${topC.map(n => `${n}(${freq5[n]||0}회)`).join(', ')}</div>
-                </div>
-            </div>
-            <div style="margin-top: 15px; color: #888; font-size: 12px; border-top: 1px solid #333; padding-top: 10px; display: flex; justify-content: space-between;">
-                <span>📌 분석 기준: 최소일치 ${currentMinMatch}개, 상위 ${document.getElementById('topCount').value}개 유사회차</span>
-                <span style="color: #555;">🔄 "📊 백테스트" 실행 후 갱신됩니다.</span>
-            </div>
-        </div>
-        `;
-
-        const oldCard = document.getElementById('historyStrategyCard');
-        if (oldCard) oldCard.remove();
-        resultDiv.insertAdjacentHTML('beforeend', cardHtml);
-    }
-
-    // ========================================================================
-    // 6. 백테스트 (수정 완료 - round 전달)
-    // ========================================================================
-    function runBacktest() {
-        // ✅ 1. 현재 baseRound 값을 읽어서 종료 회차에 자동 설정
-        const baseRound = parseInt(document.getElementById('baseRound').value) || 1234;
-        const startRound = parseInt(document.getElementById('startRound').value) || 1000;
-        document.getElementById('btEndRound').value = baseRound;
-        document.getElementById('btStartRound').value = startRound;
-
-        // ✅ 2. 예상 회차의 당첨번호 (녹색/빨간색 기준)
-        const targetWin = getWinning(baseRound);
-        const targetMain = targetWin ? targetWin.main : [];
-        const targetBonus = targetWin ? targetWin.bonus : null;
-
-        const start = parseInt(document.getElementById('btStartRound').value) || 1000;
-        const endRaw = parseInt(document.getElementById('btEndRound').value) || 1234;
-        const end = checkFutureData(endRaw);
-        const minMatch = parseInt(document.getElementById('minMatch').value) || 2;
-        const topN = parseInt(document.getElementById('topCount').value) || 10;
-        const excludeBonus = isBonusExcluded();
-        const sortMode = document.getElementById('similarSort')?.value || 'high';
-
-        if (start >= end) { alert('시작 회차는 종료 회차보다 작아야 합니다.'); return; }
-
-        const resultDiv = document.getElementById('backtestResult');
-        resultDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">⏳ 분석 중입니다. (총 ' + (end - start + 1) + '개 회차)...</div>';
-
-        const results = [];
-        let total9 = 0, totalUnion9 = 0, totalTop10 = 0, total1 = 0, total5 = 0, max9 = 0;
-
-        setTimeout(() => {
-            for (let round = start; round <= end; round++) {
-                const win = getWinning(round);
-                if (!win) continue;
-                const winMain = win.main;
-                const winBonus = win.bonus;
-
-                // ✅ 3. 수정된 부분: round를 전달하여 각 회차별로 독립 분석
-                const topPredLocal = getTop10FromPattern(round, start, minMatch, 30, excludeBonus, sortMode);
-                const topPredNums = topPredLocal.map(p => p.num);
-                const hitTop10 = topPredNums.filter(n => winMain.includes(n)).length;
-
-                const simResult = findSimilar(round, start, minMatch, topN);
-                if (simResult.similar.length === 0) {
-                    results.push({ round, win: winMain, bonus: winBonus, nums9: [], hit9: 0, unionTop9: [], hitUnion9: 0, topPredNums, hitTop10, num1: 0, hit1: 0, nums5: [], hit5: 0 });
-                    continue;
-                }
-
-                const freq = calcFreq(simResult.similar);
-                const nextFreqMap = {};
-                simResult.similar.forEach(s => {
-                    s.nextNums.forEach(n => { nextFreqMap[n] = (nextFreqMap[n] || 0) + 1; });
-                    if (s.nextBonus !== null) nextFreqMap[s.nextBonus] = (nextFreqMap[s.nextBonus] || 0) + 1;
-                });
-                const pool3 = Object.keys(nextFreqMap).filter(k => nextFreqMap[k] >= 2).map(Number);
-                const oneHit = Object.keys(nextFreqMap).filter(k => nextFreqMap[k] === 1).map(Number);
-                const scoredOne = oneHit.map(n => ({ num: Number(n), score: 0 }));
-                scoredOne.sort((a,b) => b.score - a.score);
-                const additional = scoredOne.slice(0, 6).map(item => item.num);
-                const finalPool3 = [...new Set([...pool3, ...additional])].sort((a,b)=>a-b);
-
-                const allSimNums = [];
-                simResult.similar.forEach(s => {
-                    s.remainedNums.forEach(n => allSimNums.push(n));
-                });
-                const freqMap = {};
-                allSimNums.forEach(n => { freqMap[n] = (freqMap[n] || 0) + 1; });
-                const validSet = new Set(
-                    Object.keys(freqMap)
-                        .filter(k => freqMap[k] >= minMatch)
-                        .map(Number)
-                );
-
-                const simFreqMap = {};
-                allSimNums.forEach(n => { simFreqMap[n] = (simFreqMap[n] || 0) + 1; });
-                const pool4 = Object.keys(simFreqMap).filter(k => simFreqMap[k] >= 2).map(Number).sort((a,b)=>a-b);
-                const pool5 = finalPool3.filter(n => pool4.includes(n));
-
-                let selected9 = [];
-                const candidatePool = [...pool5, ...finalPool3, ...pool4];
-                const validCandidates = candidatePool.filter(n => validSet.has(n));
-                const scoreMap = {};
-                validCandidates.forEach(num => {
-                    let s = (freq[num]||0)*1.2;
-                    let rc = 0;
-                    for (let r = round - 3; r < round; r++) {
-                        const w = getWinning(r);
-                        if (w && w.main.includes(num)) rc++;
-                    }
-                    s += rc * 25;
-                    const rel = [];
-                    const bn = getWinning(round-1)?.main || [];
-                    for (let i=0; i<bn.length; i++) {
-                        for (let j=i+1; j<bn.length; j++) {
-                            const sum = bn[i]+bn[j];
-                            const diff = Math.abs(bn[i]-bn[j]);
-                            if (sum<=45) rel.push(sum);
-                            if (diff>0) rel.push(diff);
-                        }
-                    }
-                    if (rel.includes(num)) s += 8;
-                    const bInter = (() => {
-                        const bs = new Set(), nbs = new Set();
-                        simResult.similar.forEach(s => { if (s.bonus !== null) bs.add(s.bonus); if (s.nextBonus !== null) nbs.add(s.nextBonus); });
-                        return [...bs].filter(n => nbs.has(n));
-                    })();
-                    if (!excludeBonus && bInter.includes(num)) s += 10;
-                    if (topPredLocal.slice(0,5).some(p => p.num === num)) s += 30;
-                    scoreMap[num] = Math.round(s*10)/10;
-                });
-                const sorted = Object.entries(scoreMap).sort((a,b) => b[1] - a[1]).map(([num]) => parseInt(num));
-                for (const n of sorted) {
-                    if (selected9.length >= 9) break;
-                    if (!selected9.includes(n)) selected9.push(n);
-                }
-                selected9.sort((a,b)=>a-b);
-                const nums9 = selected9;
-                const hit9 = nums9.filter(n => winMain.includes(n)).length;
-
-                const sortedScores = Object.entries(scoreMap).sort((a,b) => b[1] - a[1]);
-                const num1 = sortedScores.length > 0 ? parseInt(sortedScores[0][0]) : 0;
-                const nums5 = sortedScores.slice(0, 5).map(item => parseInt(item[0]));
-                const hit1 = (num1 !== 0 && winMain.includes(num1)) ? 1 : 0;
-                const hit5 = nums5.filter(n => winMain.includes(n)).length;
-
-                const unionSet = new Set([...nums9]);
-                const unionCandidates = Array.from(unionSet);
-                const unionScore = {};
-                unionCandidates.forEach(num => {
-                    unionScore[num] = (scoreMap[num] || 0) * 1.5;
-                });
-                const unionSorted = Object.entries(unionScore).sort((a,b) => b[1] - a[1]).map(([num]) => parseInt(num));
-                const unionTop9 = unionSorted.slice(0, 9).sort((a,b)=>a-b);
-                const hitUnion9 = unionTop9.filter(n => winMain.includes(n)).length;
-
-                results.push({ round, win: winMain, bonus: winBonus, nums9, hit9, unionTop9, hitUnion9, topPredNums, hitTop10, num1, hit1, nums5, hit5 });
-
-                if (hit9 > max9) max9 = hit9;
-                total9 += hit9;
-                totalUnion9 += hitUnion9;
-                totalTop10 += hitTop10;
-                total1 += hit1;
-                total5 += hit5;
-            }
-
-            backtestResults = results;
-
-            const totalRounds = results.length;
-            const avg9 = (total9 / totalRounds).toFixed(2);
-            const avgUnion9 = (totalUnion9 / totalRounds).toFixed(2);
-            const avgTop10 = (totalTop10 / totalRounds).toFixed(2);
-            const avg1 = (total1 / totalRounds).toFixed(2);
-            const avg5 = (total5 / totalRounds).toFixed(2);
-
-            let tableHtml = `<table><thead><tr>
-                <th>회차</th>
-                <th>당첨번호</th>
-                <th style="color:#2ecc71;">9수</th>
-                <th style="color:#e67e22;">1수</th>
-                <th style="color:#f1c40f;">5수</th>
-                <th style="color:#00b894;">통합 TOP 9</th>
-                <th style="color:#ffd700;">예측 TOP 10</th>
-            </tr></thead><tbody>`;
-
-            results.forEach(r => {
-                const winStr = r.win.join(', ') + (r.bonus ? `(${r.bonus}☆)` : '');
-                // ✅ 예상 회차(targetMain) 기준으로 색칠
-                const formatNum = (n) => {
-                    if (targetMain.includes(n)) return `<span class="hit-num">${n}</span>`;
-                    if (n === targetBonus) return `<span class="bonus-num">${n}</span>`;
-                    return n;
-                };
-                const num9Str = r.nums9.map(n => formatNum(n)).join(' ');
-                const num1Str = r.num1 !== 0 ? formatNum(r.num1) : '-';
-                const num5Str = r.nums5.length > 0 ? r.nums5.map(n => formatNum(n)).join(' ') : '-';
-                const unionStr = r.unionTop9.map(n => formatNum(n)).join(' ');
-                const top10Str = r.topPredNums.map(n => formatNum(n)).join(' ');
-
-                tableHtml += `<tr>
-                    <td>${r.round}</td>
-                    <td style="color:#ffd700;">${winStr}</td>
-                    <td>${num9Str} (${r.hit9})</td>
-                    <td>${num1Str} (${r.hit1})</td>
-                    <td>${num5Str} (${r.hit5})</td>
-                    <td>${unionStr} (${r.hitUnion9})</td>
-                    <td>${top10Str} (${r.hitTop10})</td>
-                </tr>`;
-            });
-            tableHtml += `</tbody></table>`;
-
-            const summaryHtml = `<div class="summary-box">
-                <div class="summary-item"><div class="value">${totalRounds}</div><div class="label">📊 분석 회차</div></div>
-                <div class="summary-item"><div class="value">${avgTop10}</div><div class="label">🎯 예측 TOP 10</div></div>
-                <div class="summary-item"><div class="value">${avg1}</div><div class="label">💪 1수 평균</div></div>
-                <div class="summary-item"><div class="value">${avg5}</div><div class="label">💪 5수 평균</div></div>
-                <div class="summary-item"><div class="value">${avg9}</div><div class="label">🎯 9수 평균</div></div>
-                <div class="summary-item"><div class="value">${avgUnion9}</div><div class="label">🎯 통합 TOP 9</div></div>
-                <div class="summary-item"><div class="value">${max9}</div><div class="label">🏆 최대 적중</div></div>
-            </div>`;
-
-            resultDiv.innerHTML = tableHtml + summaryHtml;
-            console.log('✅ 백테스트 완료. (회차별 독립 분석 적용, 예상 회차 기준 색상)');
-        }, 100);
-    }
-
-    // ========================================================================
-    // 7. 📊 통합 빈도
-    // ========================================================================
-    function runResidualAnalysis() {
-        const resultDiv = document.getElementById('resultArea');
-
-        if (!backtestResults || backtestResults.length === 0) {
-            alert('⚠️ 먼저 "📊 백테스트"를 실행해주세요!');
-            return;
-        }
-
-        const results = backtestResults;
-        const totalRounds = results.length;
-
-        const baseRound = parseInt(document.getElementById('baseRound').value) || 1234;
-        const currentWin = getWinning(baseRound);
-        const winMainSet = new Set(currentWin ? currentWin.main : []);
-        const winBonus = currentWin ? currentWin.bonus : null;
-
-        const freq9 = {}, freq1 = {}, freq5 = {}, freqUnion = {}, freqTop10 = {};
-        const allFreq = {};
-
-        results.forEach(r => {
-            r.nums9.forEach(n => {
-                freq9[n] = (freq9[n] || 0) + 1;
-                allFreq[n] = (allFreq[n] || 0) + 1;
-            });
-            if (r.num1 > 0) {
-                freq1[r.num1] = (freq1[r.num1] || 0) + 1;
-                allFreq[r.num1] = (allFreq[r.num1] || 0) + 1;
-            }
-            r.nums5.forEach(n => {
-                freq5[n] = (freq5[n] || 0) + 1;
-                allFreq[n] = (allFreq[n] || 0) + 1;
-            });
-            r.unionTop9.forEach(n => {
-                freqUnion[n] = (freqUnion[n] || 0) + 1;
-                allFreq[n] = (allFreq[n] || 0) + 1;
-            });
-            r.topPredNums.forEach(n => {
-                freqTop10[n] = (freqTop10[n] || 0) + 1;
-                allFreq[n] = (allFreq[n] || 0) + 1;
-            });
-        });
-
-        const sortFreq = (freqObj) => {
-            return Object.entries(freqObj)
-                .sort((a, b) => b[1] - a[1] || parseInt(a[0]) - parseInt(b[0]))
-                .map(([num, cnt]) => ({ num: parseInt(num), cnt }));
-        };
-
-        const topAll = sortFreq(allFreq).slice(0, 20);
-        const top9 = sortFreq(freq9);
-        const top1 = sortFreq(freq1);
-        const top5 = sortFreq(freq5);
-        const topUnion = sortFreq(freqUnion);
-        const topPred = sortFreq(freqTop10);
-
-        const renderItems = (items) => {
-            if (!items || items.length === 0) return '⚠️ 등장한 번호 없음';
-            return items.map(({num, cnt}) => {
-                let color = '#fff';
-                if (winMainSet.has(num)) {
-                    color = '#2ecc71';
-                } else if (winBonus === num) {
-                    color = '#ff6b6b';
-                }
-                return `<span class="freq-item" style="color:${color};">${num} <span class="cnt" style="color:#aaa;">(${cnt}회)</span></span>`;
-            }).join(' ');
-        };
-
-        let html = `
-        <div class="residual-result" style="background: #1a1a2a; border: 2px solid #9b59b6; border-radius: 15px; padding: 20px; margin-top: 20px;">
-            <h3 style="color: #9b59b6;">📊 통합 빈도 분석 (백테스트 ${totalRounds}회 기준)</h3>
-            <div class="strategy-grid">
-                <div class="strategy-card" style="border-left-color: #2ecc71;">
-                    <div class="label" style="color: #2ecc71;">🎯 9수 (${top9.length}개)</div>
-                    <div style="font-size: 13px;">${renderItems(top9)}</div>
-                </div>
-                <div class="strategy-card" style="border-left-color: #e74c3c;">
-                    <div class="label" style="color: #e74c3c;">💪 1수 (${top1.length}개)</div>
-                    <div style="font-size: 13px;">${renderItems(top1)}</div>
-                </div>
-                <div class="strategy-card" style="border-left-color: #f1c40f;">
-                    <div class="label" style="color: #f1c40f;">📌 5수 (${top5.length}개)</div>
-                    <div style="font-size: 13px;">${renderItems(top5)}</div>
-                </div>
-                <div class="strategy-card" style="border-left-color: #00b894;">
-                    <div class="label" style="color: #00b894;">🎯 통합 TOP 9 (${topUnion.length}개)</div>
-                    <div style="font-size: 13px;">${renderItems(topUnion)}</div>
-                </div>
-                <div class="strategy-card" style="border-left-color: #ffd700;">
-                    <div class="label" style="color: #ffd700;">🔮 예측 TOP 10 (${topPred.length}개)</div>
-                    <div style="font-size: 13px;">${renderItems(topPred)}</div>
-                </div>
-            </div>
-            <div style="margin-top: 20px; background: #0a0a0a; padding: 15px; border-radius: 8px; border-top: 2px solid #9b59b6;">
-                <div style="color: #ffd700; font-weight: bold; font-size: 16px;">📈 전체 통합 빈도 TOP 20 (모든 전략 번호 수집)</div>
-                <div style="font-size: 16px; margin-top: 8px;">
-                    ${renderItems(topAll)}
-                </div>
-            </div>
-            <div style="margin-top: 12px; color: #888; font-size: 12px; border-top: 1px solid #333; padding-top: 10px;">
-                <span style="color:#2ecc71;">■ 녹색</span> = 기준 회차(${baseRound}회) 본번호 당첨자 | 
-                <span style="color:#ff6b6b;">■ 빨간색</span> = 기준 회차 보너스 번호<br>
-                ⚡ 각 전략별로 등장한 <strong>모든 번호</strong>를 빈도순으로 표시했습니다 (상위 제한 없음).
-            </div>
-        </div>
-        `;
-
-        resultDiv.innerHTML = html;
-    }
-
-    // ========================================================================
-    // 8. 기타 버튼들
-    // ========================================================================
-    function recommendStrong1() {
-        if (!lastTop9 || lastTop9.length === 0) { alert('⚠️ 먼저 "분석 실행"을 해주세요.'); return; }
-        const base = parseInt(document.getElementById('baseRound').value) || 1234;
-        const sorted = [...lastTop9].sort((a,b) => (globalFreqData[b]||0) - (globalFreqData[a]||0));
-        const pick = sorted[0];
-        const winMain = winData ? winData.main : [];
-        const winBonus = winData ? winData.bonus : null;
-        let color = '#e74c3c', label = '미당첨';
-        if (winMain.includes(pick)) { color = '#2ecc71'; label = '본번호 당첨!'; }
-        else if (pick === winBonus) { color = '#ff6b6b'; label = '보너스 당첨!'; }
-        document.getElementById('resultArea').innerHTML += `<div class="strong-result"><div class="label">💪 강력 1수 (${base}회 예상)</div><div class="number" style="color:${color};">${pick}</div><div class="desc">${label}</div></div>`;
-    }
-    function recommendStrong5() {
-        if (!lastTop9 || lastTop9.length === 0) { alert('⚠️ 먼저 "분석 실행"을 해주세요.'); return; }
-        const base = parseInt(document.getElementById('baseRound').value) || 1234;
-        const sorted = [...lastTop9].sort((a,b) => (globalFreqData[b]||0) - (globalFreqData[a]||0));
-        const strong5 = sorted.slice(0, 5);
-        document.getElementById('resultArea').innerHTML += `<div class="strong5-result"><div class="label">💪 강력 5수 (${base}회 예상)</div><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:10px 0;">${strong5.map(n => `<span style="font-size:24px; font-weight:bold; color:#fff;">${n}</span>`).join('')}</div></div>`;
-    }
-    function optimizeNine() { runAnalysis(); }
-    function runHybrid() { alert('🤝 하이브리드: 분석 실행 후 사용 가능'); }
     function resetAll() {
         document.getElementById('resultArea').innerHTML = '<div class="loading">🟢 초기화 완료!</div>';
-        similarData = null; winData = null; activeFreq2 = []; lastTop9 = [];
-        backtestResults = null;
-    }
-    function openBacktestModal() {
-        const baseRound = parseInt(document.getElementById('baseRound').value) || 1234;
-        const startRound = parseInt(document.getElementById('startRound').value) || 1000;
-        document.getElementById('btStartRound').value = startRound;
-        document.getElementById('btEndRound').value = baseRound;
-        document.getElementById('backtestModal').classList.add('active');
-        document.getElementById('backtestResult').innerHTML = '⏳ 분석을 실행하려면 "분석 실행" 버튼을 누르세요.';
-    }
-    function runManualTest() {
-        const round = parseInt(document.getElementById('manualRound').value) || 1234;
-        document.getElementById('baseRound').value = round;
-        alert(`🔍 수동 테스트: 기준 회차를 ${round}회로 설정했습니다. "분석 실행"을 눌러주세요.`);
-        runAnalysis();
+        document.getElementById('statusDisplay').textContent = '⏳ 초기화 완료. "⚡ 자동 실행"을 누르세요.';
+        document.querySelectorAll('.progress-dot').forEach(d=>d.className='progress-dot');
+        autoRunning = false;
     }
 
-    document.getElementById('topCount').addEventListener('input', function() {
-        document.getElementById('topCountDisplay').textContent = this.value;
-    });
+    function autoRun() {
+        if (autoRunning) return;
+        autoRunning = true;
+        const baseRound = parseInt(document.getElementById('baseRound').value) || 1230;
+        const startRound = parseInt(document.getElementById('startRound').value) || 1200;
+        const minMatch = parseInt(document.getElementById('minMatch').value) || 2;
+        const topN = parseInt(document.getElementById('topCount').value) || 3;
+        const excludeBonus = isBonusExcluded();
 
+        // 기준 회차 당첨번호 미리 획득
+        const win = getWinning(baseRound);
+        const winMain = win ? win.main : [];
+        const winBonus = win ? win.bonus : null;
+
+        document.getElementById('statusDisplay').textContent = '⏳ 실행 중...';
+        document.getElementById('resultArea').innerHTML = '<div class="loading">⏳ 10가지 분석 공식 생성 중...</div>';
+
+        setTimeout(() => {
+            const methods = [
+                { name: '① 고정 빈도 상위', desc: '전체 데이터에서 가장 많이 등장한 번호 6개', fn: method1_highFreq },
+                { name: '② 최근 10회 빈도', desc: '최근 10회차에서 많이 등장한 번호 6개', fn: method2_recentFreq },
+                { name: '③ 교집합 우선', desc: '③과 ④의 교집합에서 6개 (부족시 ③에서 보충)', fn: method3_intersection },
+                { name: '④ 저빈도 역발상', desc: '전체 데이터에서 가장 적게 등장한 번호 6개', fn: method4_coldFreq },
+                { name: '⑤ 홀짝 균형', desc: '홀수 3개, 짝수 3개로 구성 (상위 후보)', fn: method5_oddEven },
+                { name: '⑥ 고저 균형', desc: '저(1~22) 3개, 고(23~45) 3개로 구성', fn: method6_highLow },
+                { name: '⑦ 연속번호 포함', desc: '상위 후보 중 연속쌍을 포함한 6개', fn: method7_consecutive },
+                { name: '⑧ 합계 중심', desc: '합계가 135에 가까운 조합 (상위 후보 기반)', fn: method8_sumCenter },
+                { name: '⑨ 소수 위주', desc: '소수 번호를 우선 선택 (상위 후보 중)', fn: method9_prime },
+                { name: '⑩ 패턴 매칭', desc: '가장 유사한 과거 회차의 다음 회차 번호', fn: method10_pattern }
+            ];
+
+            // 상단 정보
+            let html = `<div class="winning-info">🎯 기준 회차: ${baseRound}회 &nbsp;|&nbsp; 당첨번호: `;
+            html += winMain.map(n => `<span class="hit-num">${n}</span>`).join(' ');
+            if (winBonus !== null) html += ` &nbsp;|&nbsp; 보너스: <span class="bonus-num">${winBonus}</span>`;
+            html += `</div>`;
+
+            html += `<div class="method-grid">`;
+
+            methods.forEach((m, idx) => {
+                let result;
+                try {
+                    if (idx === 2 || idx === 9) {
+                        result = m.fn(baseRound, startRound, minMatch, topN);
+                    } else {
+                        result = m.fn(baseRound, excludeBonus);
+                    }
+                } catch(e) {
+                    result = [];
+                }
+                if (!result || result.length===0) result = [1,2,3,4,5,6];
+
+                // 번호별 색상 및 마크 표시
+                const numStr = result.map(n => {
+                    let color = '#ffd700';
+                    let mark = '';
+                    if (winMain.includes(n)) {
+                        color = '#2ecc71';
+                        mark = '★';
+                    } else if (winBonus === n) {
+                        color = '#ff6b6b';
+                        mark = '☆';
+                    }
+                    return `<span style="color:${color};">${n}${mark}</span>`;
+                }).join(' ');
+
+                const hitCount = result.filter(n => winMain.includes(n)).length;
+                const bonusHit = (winBonus !== null && result.includes(winBonus)) ? 1 : 0;
+                const hitText = hitCount > 0 ? `🎯 적중: ${hitCount}개` : '❌ 없음';
+                const bonusText = bonusHit ? ' (보너스 ☆)' : '';
+
+                html += `<div class="method-card">
+                    <div class="method-name">${m.name}</div>
+                    <div class="numbers">${numStr}</div>
+                    <div class="desc">${m.desc}</div>
+                    <div class="hit-info">${hitText}${bonusText}</div>
+                </div>`;
+            });
+
+            html += `</div>`;
+            html += `<div class="status-bar" style="border-left-color:#2ecc71;"><span class="step done">✅ 분석 완료 (10가지 공식, 당첨 표시 포함)</span></div>`;
+            document.getElementById('resultArea').innerHTML = html;
+            document.getElementById('statusDisplay').textContent = '✅ 완료';
+            autoRunning = false;
+        }, 300);
+    }
+
+    // ========================================================================
+    // 6. 초기화 및 onload
+    // ========================================================================
     window.onload = function() {
-        const baseVal = checkFutureData(1234);
+        const baseVal = checkFutureData(1230);
         document.getElementById('baseRound').value = baseVal;
-        document.getElementById('startRound').value = 1000;
-        document.getElementById('topCount').value = 10;
-        document.getElementById('topCountDisplay').textContent = 10;
-        document.getElementById('excludeBonus').checked = true;
-        document.getElementById('resultArea').innerHTML = '<div class="loading">🟢 준비 완료! "🚀 분석 실행" 버튼을 눌러주세요.</div>';
-        console.log('🟢 v19 로드 완료 (백테스트 회차별 독립 분석 적용)');
-        console.log('💡 사용법: 1) 📊 백테스트 실행 → 2) 📊 통합 빈도 클릭');
+        document.getElementById('startRound').value = 1200;
+        document.getElementById('topCount').value = 3;
+        document.getElementById('topCountDisplay').textContent = 3;
+        document.getElementById('resultArea').innerHTML = '<div class="loading">🟢 준비 완료! "⚡ 자동 실행"을 누르세요. (v23.1 – 당첨 표시)</div>';
     };
     </script>
 </body>
