@@ -1,4 +1,780 @@
-   }
+-<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+</head>
+<body>
+
+<h1>This is a Heading</h1>
+<p>This is a paragraph.</p>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>📊 v23.7.2 – 수동테스트도 시작회차 연동</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0a0a0a; color: #fff; font-family: 'Segoe UI', sans-serif; padding: 20px; max-width: 1100px; margin: 0 auto; }
+        h1 { color: #ffd700; text-align: center; border-bottom: 3px solid #ffd700; padding-bottom: 10px; margin-bottom: 20px; }
+        .filters { background: #1a1a1a; border: 2px solid #ffd700; border-radius: 15px; padding: 15px 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
+        .filter-group { display: flex; flex-direction: column; gap: 3px; }
+        .filter-group label { color: #ffd700; font-size: 12px; font-weight: bold; }
+        .filter-group input, .filter-group select { padding: 6px 12px; border-radius: 8px; border: 1px solid #555; background: #2a2a2a; color: #fff; font-size: 14px; width: 100%; }
+        .filter-group input[type="number"] { width: 100px; }
+        .filter-group input[type="range"] { width: 180px; padding: 0; background: transparent; accent-color: #ffd700; }
+        .filter-group input[type="checkbox"] { width: 20px; height: 20px; accent-color: #ffd700; cursor: pointer; }
+        .filter-group .range-value { color: #ffd700; font-weight: bold; font-size: 16px; min-width: 30px; display: inline-block; text-align: center; }
+        button { background: #ffd700; color: #000; border: none; border-radius: 30px; padding: 8px 20px; font-weight: bold; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+        button:hover { background: #00e6b8; transform: scale(1.02); box-shadow: 0 0 20px #00e6b8; }
+        button.secondary { background: #555; color: #fff; }
+        button.secondary:hover { background: #777; }
+        button.strong-btn { background: #e74c3c; color: #fff; font-size: 14px; padding: 8px 18px; }
+        button.strong-btn:hover { background: #c0392b; transform: scale(1.05); box-shadow: 0 0 25px #e74c3c; }
+        button.backtest-btn { background: #f39c12; color: #000; font-size: 14px; padding: 8px 18px; border: 2px solid #fff; }
+        button.backtest-btn:hover { background: #e67e22; transform: scale(1.05); box-shadow: 0 0 30px #f39c12; }
+        .result-area { background: #1a1a1a; border: 2px solid #ffd700; border-radius: 15px; padding: 20px; margin-top: 20px; overflow-x: auto; }
+        .winning-info { background: #2a2a2a; border-left: 4px solid #f1c40f; padding: 10px 15px; border-radius: 8px; margin: 10px 0; }
+        .winning-info span { color: #f1c40f; font-weight: bold; font-size: 18px; }
+        .loading { text-align: center; padding: 40px; color: #aaa; }
+        .pool-box { background: #1a2a1a; border: 2px solid #2ecc71; padding: 10px; border-radius: 8px; margin: 10px 0; }
+        .intersection-box { background: #2a1a2a; border: 2px solid #ff6b6b; padding: 10px 15px; border-radius: 8px; margin: 10px 0; }
+        .intersection-box strong { color: #ff6b6b; }
+        .recent-box { background: #1a1a2a; border: 2px solid #3498db; padding: 10px 15px; border-radius: 8px; margin: 10px 0; }
+        .recent-box strong { color: #3498db; }
+        .strong-result { background: #2a1a2a; border: 3px solid #e74c3c; border-radius: 15px; padding: 15px 20px; margin: 10px 0 20px 0; text-align: center; }
+        .strong-result .number { font-size: 60px; font-weight: 900; line-height: 1.2; }
+        .strong-result .label { font-size: 16px; color: #ffd700; margin-top: 5px; }
+        .strong-result .desc { font-size: 13px; color: #aaa; margin-top: 5px; }
+        .strong-result .source { display: inline-block; background: #333; padding: 4px 15px; border-radius: 20px; color: #88ccff; font-size: 12px; margin-top: 5px; }
+        .strong5-result { background: #1a2a2a; border: 2px solid #e67e22; border-radius: 12px; padding: 15px 20px; margin: 10px 0 20px 0; }
+        .strong5-result .label { font-size: 16px; color: #ffd700; margin-bottom: 10px; }
+        .optimize-result { background: #0a1a0a; border: 3px solid #00b894; border-radius: 15px; padding: 20px; margin: 10px 0; text-align: center; }
+        .optimize-result .number-list { font-size: 32px; font-weight: bold; margin: 15px 0; letter-spacing: 4px; }
+        .source { display: inline-block; background: #333; padding: 4px 15px; border-radius: 20px; color: #88ccff; font-size: 12px; margin-top: 5px; }
+        .detail-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+        .detail-table th { background: #333; color: #ffd700; padding: 6px; text-align: center; border: 1px solid #555; }
+        .detail-table td { padding: 5px; text-align: center; border: 1px solid #444; color: #ccc; }
+        .detail-table .hit { color: #2ecc71; font-weight: bold; }
+        .detail-table .match { background: rgba(46, 204, 113, 0.1); }
+        .detail-table .win-num { color: #2ecc71; font-weight: bold; }
+        .detail-table .bonus-num { color: #ff6b6b; font-weight: bold; }
+        .hit-num { color: #2ecc71 !important; font-weight: bold; }
+        .bonus-num { color: #ff6b6b !important; font-weight: bold; }
+        .v23-box { background: #0a1a2a; border: 3px solid #9b59b6; border-radius: 15px; padding: 15px 20px; margin: 10px 0; }
+        .v23-box .title { color: #9b59b6; font-size: 18px; font-weight: bold; }
+        .v23-box .numbers { font-size: 28px; font-weight: bold; letter-spacing: 3px; margin: 8px 0; }
+        .v23-box .stats { font-size: 14px; color: #aaa; }
+        .badge-v23 { background: #9b59b6; color: #fff; padding: 2px 12px; border-radius: 20px; font-size: 12px; margin-left: 8px; }
+        .offset-badge { background: #2980b9; color: #fff; padding: 2px 12px; border-radius: 20px; font-size: 12px; margin-left: 8px; }
+        .badge-9max { background: #e67e22; color: #fff; padding: 2px 12px; border-radius: 20px; font-size: 12px; margin-left: 8px; }
+        .badge-strong { background: #ffd700; color: #000; padding: 2px 12px; border-radius: 20px; font-size: 12px; margin-left: 8px; }
+        .badge-exclude { background: #e74c3c; color: #fff; padding: 2px 12px; border-radius: 20px; font-size: 12px; margin-left: 8px; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: #1a1a1a; border: 2px solid #ffd700; border-radius: 15px; max-width: 95%; max-height: 90%; width: 1400px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(255, 215, 0, 0.3); }
+        .modal-header { background: #2a2a2a; padding: 15px 20px; border-bottom: 2px solid #ffd700; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .modal-header h2 { color: #ffd700; margin: 0; font-size: 22px; }
+        .modal-header .close-btn { background: #e74c3c; color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 20px; font-weight: bold; cursor: pointer; line-height: 36px; text-align: center; }
+        .modal-header .close-btn:hover { background: #c0392b; }
+        .modal-body { padding: 20px; overflow: auto; flex: 1; }
+        .modal-body .range-selector { background: #1a1a2a; padding: 15px; border-radius: 10px; margin-bottom: 15px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; border: 1px solid #555; }
+        .modal-body .range-selector label { color: #ffd700; font-weight: bold; margin-right: 5px; }
+        .modal-body .range-selector input { background: #2a2a2a; border: 1px solid #555; color: #fff; padding: 5px 10px; border-radius: 6px; width: 100px; }
+        .modal-body .range-selector button { background: #00b894; color: #fff; border: none; padding: 6px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .modal-body .range-selector button:hover { background: #00a381; }
+        .modal-body table { width: 100%; min-width: 1200px; border-collapse: collapse; font-size: 12px; }
+        .modal-body th { background: #333; color: #ffd700; padding: 6px 4px; text-align: center; border: 1px solid #555; position: sticky; top: 0; z-index: 10; white-space: nowrap; }
+        .modal-body td { padding: 4px 6px; text-align: center; border: 1px solid #444; color: #ddd; font-size: 12px; white-space: nowrap; }
+        .modal-body .hit-cell { color: #2ecc71; font-weight: bold; }
+        .modal-body .bonus-cell { color: #ff6b6b; font-weight: bold; }
+        .modal-body .summary-box { background: #0a0a0a; border: 1px solid #555; border-radius: 10px; padding: 15px; margin-top: 15px; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+        .modal-body .summary-item { background: #1a1a1a; padding: 10px; border-radius: 8px; text-align: center; border-left: 4px solid #ffd700; }
+        .modal-body .summary-item .value { font-size: 24px; font-weight: bold; color: #ffd700; }
+        .modal-body .summary-item .label { font-size: 12px; color: #aaa; }
+        .bonus-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #1a1a2a;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid #555;
+        }
+        .bonus-toggle label { color: #ffd700; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .bonus-toggle input[type="checkbox"] { width: 18px; height: 18px; accent-color: #ffd700; cursor: pointer; }
+        .update-notice { background: #2a1a2a; border: 2px solid #2ecc71; border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; color: #2ecc71; }
+        .update-notice strong { color: #ffd700; }
+        .formula-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .formula-card { background: #1a1a2a; padding: 8px 12px; border-radius: 8px; border-left: 3px solid #e74c3c; }
+        .formula-card .fname { color: #ffd700; font-size: 13px; font-weight: bold; }
+        .formula-card .fnums { font-size: 20px; letter-spacing: 2px; }
+        @media (max-width: 700px) { .formula-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 500px) { .strategy-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <h1>📊 v23.7.2 – 수동테스트도 시작회차 연동</h1>
+    <div class="update-notice">
+        ✅ <strong>📅 예상 회차 ↔ 시작 회차 자동 연동</strong><br>
+        ✅ <strong>🔍 수동 테스트 회차도 시작 회차 연동</strong><br>
+        ✅ <strong>📊 백테스트 = 수동 분석 동일 로직</strong> (1수/5수 포함)<br>
+        ✅ <strong>💪 강력 5수</strong> = TOP10 제외 후 9MAX 상위 5개<br>
+        ✅ <strong>💪 강력 1수</strong> = 5수 중 최고 점수<br>
+        ✅ <strong>🔥 TOP10 제외 전략 10가지 유지</strong>
+    </div>
+    <div class="filters">
+        <div class="filter-group">
+            <label>📅 예상 회차</label>
+            <input type="number" id="baseRound" value="1235" min="1" max="9999">
+        </div>
+        <div class="filter-group">
+            <label>🔢 시작 회차</label>
+            <input type="number" id="startRound" value="1000" min="1" max="9999">
+        </div>
+        <div class="filter-group">
+            <label>🔍 기준 오프셋</label>
+            <select id="refOffset">
+                <option value="-1" selected>-1 (직전)</option>
+                <option value="-2">-2 (2회 전)</option>
+                <option value="-3">-3 (3회 전)</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>🎯 최소 일치</label>
+            <select id="minMatch">
+                <option value="1" selected>1개</option>
+                <option value="2">2개</option>
+                <option value="3">3개</option>
+                <option value="4">4개</option>
+                <option value="5">5개</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>📊 유사회차 정렬</label>
+            <select id="similarSort">
+                <option value="high">많이 포함 (추세)</option>
+                <option value="low" selected>적게 포함 (역발상)</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>📊 9수 유사회차 개수</label>
+            <div class="range-container">
+                <input type="range" id="topCount" min="3" max="40" value="40" step="1">
+                <span class="range-value" id="topCountDisplay">40</span>
+                <span class="range-label">개</span>
+            </div>
+        </div>
+        <div class="filter-group">
+            <label>&nbsp;</label>
+            <div class="btn-group">
+                <button onclick="runAnalysis()">🚀 분석 실행</button>
+                <button onclick="recommendStrong1()" class="strong-btn">💪 강력 1수</button>
+                <button onclick="recommendStrong5()" class="strong-btn" style="background:#e67e22;">💪 강력 5수</button>
+                <button onclick="openBacktestModal()" class="backtest-btn">📊 백테스트</button>
+                <button onclick="resetAll()" class="secondary">🗑️ 초기화</button>
+            </div>
+        </div>
+        <div class="filter-group" style="flex-basis:100%; border-top:1px solid #333; padding-top:10px; margin-top:5px;">
+            <label>🔍 수동 테스트 회차</label>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <input type="number" id="manualRound" value="1235" min="1" max="9999" style="width:120px; padding:6px 12px; border-radius:8px; border:1px solid #555; background:#2a2a2a; color:#fff; font-size:14px;">
+                <button onclick="runManualTest()" class="strong-btn" style="background:#3498db; padding:8px 25px;">🔍 테스트 실행</button>
+                <span style="color:#888; font-size:12px;">※ 특정 회차만 빠르게 분석</span>
+                <div class="bonus-toggle">
+                    <input type="checkbox" id="excludeBonus" checked>
+                    <label for="excludeBonus">🚫 보너스 제거 (본번호만 분석)</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="result-area" id="resultArea"><div class="loading">🟢 준비 완료! "🚀 분석 실행" 버튼을 눌러주세요.</div></div>
+
+    <!-- 백테스트 모달 -->
+    <div class="modal-overlay" id="backtestModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>📊 전략별 백테스트</h2>
+                <button class="close-btn" onclick="document.getElementById('backtestModal').classList.remove('active')">✕</button>
+            </div>
+            <div class="modal-body" id="backtestBody">
+                <div class="range-selector">
+                    <div><label>시작:</label><input type="number" id="btStartRound" value="1000" min="1"></div>
+                    <div><label>종료:</label><input type="number" id="btEndRound" value="1234" min="2"></div>
+                    <button onclick="runBacktest()">▶ 분석 실행</button>
+                    <span style="color:#888; font-size:13px; margin-left:10px;">※ 기본값: 상단 필터 (오프셋 적용)</span>
+                </div>
+                <div id="backtestResult" style="text-align:center; padding:20px; color:#aaa;">⏳ 분석을 실행하려면 "분석 실행" 버튼을 누르세요.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    'use strict';
+    // ========================================================================
+    // 1. DATA (1001~1234회)
+    // ========================================================================
+    const DATA = [
+        [1234,1,15,19,31,35,43,27],[1233,2,7,20,25,37,40,29],[1232,12,15,19,22,24,36,3],[1231,4,13,14,18,31,38,15],
+        [1230,3,8,9,22,28,42,45],[1229,12,13,29,34,37,42,16],[1228,24,29,30,31,35,44,1],[1227,1,14,16,34,41,44,13],
+        [1226,4,6,13,17,26,28,41],[1225,8,9,19,25,41,42,33],[1224,9,18,21,27,44,45,28],[1223,16,18,20,32,33,39,26],
+        [1222,4,11,17,22,32,41,34],[1221,6,13,18,28,30,36,9],[1220,2,22,25,28,34,43,16],[1219,1,2,15,28,39,45,31],
+        [1218,3,28,31,32,42,45,25],[1217,8,10,15,20,29,31,41],[1216,3,10,14,15,23,24,25],[1215,13,15,19,21,44,45,39],
+        [1214,10,15,19,27,30,33,14],[1213,5,11,25,27,36,38,2],[1212,5,8,25,31,41,44,45],[1211,23,26,27,35,38,40,10],
+        [1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],
+        [1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],
+        [1202,5,12,21,33,37,40,7],[1201,7,9,24,27,35,36,37],[1200,1,2,4,16,20,32,45],[1199,16,24,25,30,31,32,7],
+        [1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],[1195,3,15,27,33,34,36,37],
+        [1194,3,13,15,24,33,37,2],[1193,6,9,16,19,24,28,17],[1192,10,16,23,36,39,40,11],[1191,1,4,11,12,20,41,2],
+        [1190,7,9,19,23,26,45,33],[1189,9,19,29,35,37,38,31],[1188,3,4,12,19,22,27,9],[1187,5,13,26,29,37,40,42],
+        [1186,2,8,13,16,23,28,35],[1185,6,17,22,28,29,32,38],[1184,14,16,23,25,31,37,42],[1183,4,15,17,23,27,36,31],
+        [1182,1,13,21,25,28,31,22],[1181,8,10,14,20,33,41,28],[1180,6,12,18,37,40,41,3],[1179,3,16,18,24,40,44,21],
+        [1178,5,6,11,27,43,44,17],[1177,3,7,15,16,19,43,21],[1176,7,9,11,21,30,35,29],[1175,3,4,6,8,32,42,31],
+        [1174,8,11,14,17,36,39,22],[1173,1,5,18,20,30,35,3],[1172,7,9,24,40,42,44,45],[1171,3,6,7,11,12,17,19],
+        [1170,3,13,28,34,38,42,25],[1169,5,12,24,26,39,42,20],[1168,9,21,24,30,33,37,29],[1167,8,23,31,35,39,40,24],
+        [1166,14,23,25,27,29,42,16],[1165,6,7,27,29,38,45,17],[1164,17,18,23,25,38,39,22],[1163,2,13,15,16,33,43,4],
+        [1162,20,21,22,25,28,29,6],[1161,2,20,34,42,37,24,15],[1160,7,13,18,36,39,45,19],[1159,3,9,27,28,38,39,7],
+        [1158,21,25,27,32,37,38,20],[1157,5,7,12,20,25,26,28],[1156,30,31,34,39,41,45,7],[1155,10,16,19,27,37,38,13],
+        [1154,4,8,22,26,32,38,27],[1153,1,9,10,13,35,44,5],[1152,30,31,32,35,36,37,5],[1151,2,3,9,15,27,29,8],
+        [1150,8,9,18,35,39,45,25],[1149,8,15,19,21,32,36,38],[1148,3,6,13,15,16,22,32],[1147,7,11,24,26,27,37,32],
+        [1146,6,11,17,19,40,43,28],[1145,2,11,31,33,37,44,32],[1144,3,4,12,15,26,34,6],[1143,10,16,17,27,28,36,6],
+        [1142,2,8,28,30,37,41,22],[1141,7,11,12,21,26,35,20],[1140,7,10,22,29,31,38,15],[1139,5,12,15,30,37,40,18],
+        [1138,14,16,19,20,29,34,35],[1137,4,9,12,15,33,45,26],[1136,21,33,35,38,42,44,1],[1135,1,6,13,19,21,33,4],
+        [1134,3,7,9,13,19,24,23],[1133,13,14,20,28,29,34,23],[1132,6,7,19,28,34,41,5],[1131,1,2,6,14,27,38,33],
+        [1130,15,19,21,25,27,28,40],[1129,5,10,11,17,28,34,22],[1128,1,5,8,16,28,33,45],[1127,10,15,24,30,31,37,32],
+        [1126,4,5,9,11,37,40,7],[1125,6,14,25,33,40,44,30],[1124,3,8,17,30,33,34,28],[1123,13,19,21,24,34,35,26],
+        [1122,3,6,21,30,34,35,22],[1121,6,24,31,32,38,44,8],[1120,2,19,26,31,38,41,34],[1119,1,9,12,13,20,45,3],
+        [1118,11,13,14,15,16,45,3],[1117,3,4,9,30,33,36,7],[1116,15,16,17,25,30,31,32],[1115,7,12,23,32,34,36,8],
+        [1114,10,16,19,32,33,38,3],[1113,11,13,20,21,32,44,8],[1112,16,20,26,36,42,44,24],[1111,3,13,30,33,43,45,4],
+        [1110,3,7,11,20,22,41,24],[1109,10,12,13,19,33,40,2],[1108,7,19,26,37,39,44,27],[1107,6,14,30,31,40,41,29],
+        [1106,1,3,4,29,42,45,36],[1105,6,16,34,37,39,40,11],[1104,1,7,21,30,35,38,2],[1103,10,12,29,31,40,44,2],
+        [1102,13,14,22,26,37,38,20],[1101,6,7,13,28,36,42,41],[1100,17,26,29,30,31,43,12],[1099,3,20,28,38,40,43,4],
+        [1098,12,16,21,24,41,43,15],[1097,14,33,34,35,37,40,4],[1096,1,12,16,19,23,43,34],[1095,8,14,28,29,34,40,12],
+        [1094,6,7,26,40,41,14,29],[1093,10,17,22,30,35,43,44],[1092,7,18,19,26,33,45,37],[1091,6,20,23,24,28,30,44],
+        [1090,12,19,21,29,40,45,1],[1089,4,18,31,37,42,43,40],[1088,11,21,22,30,39,44,31],[1087,13,14,18,21,34,44,16],
+        [1086,11,16,25,27,35,36,37],[1085,4,7,17,18,38,44,36],[1084,8,12,13,29,33,42,5],[1083,3,7,14,15,22,38,17],
+        [1082,21,26,27,32,34,42,31],[1081,1,9,16,23,24,38,17],[1080,13,16,23,31,36,44,38],[1079,4,8,18,24,37,45,6],
+        [1078,6,10,11,14,36,38,43],[1077,4,8,17,30,40,43,34],[1076,3,7,9,33,36,37,10],[1075,1,23,24,35,44,45,10],
+        [1074,1,6,20,27,28,41,15],[1073,6,18,28,30,32,38,15],[1072,16,18,20,23,32,43,27],[1071,1,2,11,21,30,35,39],
+        [1070,3,6,14,22,30,41,36],[1069,1,10,18,22,28,31,44],[1068,4,7,19,26,33,35,3],[1067,7,10,19,23,28,33,18],
+        [1066,6,11,16,19,21,32,45],[1065,3,18,19,23,32,45,24],[1064,3,6,9,18,22,35,14],[1063,3,6,22,23,24,38,30],
+        [1062,20,31,32,40,41,45,12],[1061,4,24,27,35,37,45,15],[1060,3,10,24,33,38,45,36],[1059,7,10,22,25,34,40,27],
+        [1058,11,23,25,30,32,40,42],[1057,8,13,19,27,40,45,12],[1056,13,20,24,32,36,45,29],[1055,4,7,12,14,22,33,31],
+        [1054,14,19,27,28,30,45,33],[1053,22,26,29,30,34,45,15],[1052,5,17,26,27,35,38,1],[1051,21,26,30,32,33,35,44],
+        [1050,6,12,31,35,38,43,17],[1049,3,5,13,20,21,37,17],[1048,6,12,17,21,32,39,30],[1047,2,20,33,40,42,44,32],
+        [1046,7,16,25,29,35,36,28],[1045,6,14,15,19,21,41,37],[1044,12,17,20,26,28,36,4],[1043,3,5,12,22,26,31,19],
+        [1042,5,14,15,23,34,43,4],[1041,6,7,9,11,17,18,45],[1040,8,16,26,29,31,36,11],[1039,2,3,6,19,36,39,26],
+        [1038,7,16,24,27,37,44,2],[1037,2,14,15,22,27,33,31],[1036,2,5,22,32,34,45,39],[1035,9,14,34,35,41,42,2],
+        [1034,26,31,32,33,38,40,11],[1033,3,11,15,20,35,44,10],[1032,1,6,12,19,36,42,28],[1031,6,7,22,32,35,36,19],
+        [1030,2,5,11,17,24,29,9],[1029,12,30,32,37,39,41,24],[1028,5,7,12,13,18,35,23],[1027,14,16,27,35,39,45,5],
+        [1026,5,12,13,31,32,41,34],[1025,8,9,20,25,29,33,7],[1024,9,18,20,22,38,44,10],[1023,10,14,16,18,29,35,25],
+        [1022,5,6,11,29,42,45,28],[1021,12,15,17,24,29,45,16],[1020,12,27,29,38,41,45,6],[1019,1,4,13,17,34,39,6],
+        [1018,3,19,21,25,37,45,35],[1017,12,18,22,23,30,34,32],[1016,15,26,28,34,41,42,44],[1015,14,23,31,33,37,40,44],
+        [1014,3,11,14,18,26,27,21],[1013,21,22,26,34,36,41,32],[1012,5,11,18,20,35,45,3],[1011,1,9,12,26,35,38,42],
+        [1010,9,12,15,25,34,36,3],[1009,15,23,29,34,40,44,20],[1008,9,11,30,31,41,44,33],[1007,8,11,16,19,21,25,40],
+        [1006,8,11,15,16,17,37,36],[1005,8,13,18,24,27,29,17],[1004,7,15,30,37,39,44,18],[1003,1,4,29,39,43,45,31],
+        [1002,17,25,33,35,38,45,15],[1001,6,10,12,14,20,42,15]
+    ];
+
+    let winData = null, baseNums = [], similarData = null;
+    let lastTop9 = [], lastV23Result = [], globalFreqData = {};
+    let lastTopPred = [];
+    let backtestResults = null;
+    let lastStartRound = 1000;
+    let lastBaseRound = 1235;
+
+    function getWinning(round) {
+        const row = DATA.find(r => r[0] === round);
+        return row ? { main: row.slice(1, 7), bonus: row[7] } : null;
+    }
+    function isBonusExcluded() { return document.getElementById('excludeBonus')?.checked !== false; }
+    function checkFutureData(baseRound) {
+        const maxRound = DATA.reduce((max, row) => Math.max(max, row[0]), 0);
+        if (baseRound > maxRound + 1) console.warn('⚠️ 예측 회차가 데이터 범위를 초과했습니다.');
+        return baseRound;
+    }
+
+    // ========================================================================
+    // 동기화 설정 (예상 회차 ↔ 시작 회차 ↔ 수동 테스트 연동)
+    // ========================================================================
+    document.getElementById('baseRound').addEventListener('input', function() {
+        const baseVal = parseInt(this.value) || 1235;
+        const diff = baseVal - lastBaseRound;
+        const newStart = Math.max(1, lastStartRound + diff);
+        document.getElementById('startRound').value = newStart;
+        document.getElementById('manualRound').value = baseVal;
+        lastBaseRound = baseVal;
+        lastStartRound = newStart;
+    });
+
+    document.getElementById('manualRound').addEventListener('input', function() {
+        const val = parseInt(this.value) || 1235;
+        const diff = val - lastBaseRound;
+        const newStart = Math.max(1, lastStartRound + diff);
+        document.getElementById('baseRound').value = val;
+        document.getElementById('startRound').value = newStart;
+        lastBaseRound = val;
+        lastStartRound = newStart;
+    });
+
+    document.getElementById('startRound').addEventListener('input', function() {
+        lastStartRound = parseInt(this.value) || 1000;
+    });
+
+    function findSimilar(baseRound, startRound, minMatch, topN, offset = -1) {
+        const refRound = baseRound + offset;
+        const prev = getWinning(refRound);
+        if (!prev) return { similar: [], prevNums: [] };
+        const baseNums = prev.main, baseBonus = prev.bonus;
+        const result = [], excludeBonus = isBonusExcluded();
+        const sortMode = document.getElementById('similarSort')?.value || 'high';
+        for (const row of DATA) {
+            const r = row[0];
+            if (r >= baseRound || r < startRound) continue;
+            const nums = row.slice(1, 7), bonus = row[7];
+            let matchCount = nums.filter(n => baseNums.includes(n)).length;
+            if (!excludeBonus && bonus === baseBonus) matchCount += 1;
+            if (matchCount < minMatch || matchCount > 6) continue;
+            const next = (r + 1 < baseRound) ? getWinning(r + 1) : null;
+            const nextFiltered = next ? next.main.filter(n => !baseNums.includes(n)) : [];
+            const nextBonusFiltered = (next && next.bonus !== null && !baseNums.includes(next.bonus)) ? next.bonus : null;
+            result.push({ round: r, remainedNums: nums.filter(n => !baseNums.includes(n)), bonus, matchCount, nextNums: nextFiltered, nextBonus: nextBonusFiltered });
+        }
+        result.sort((a, b) => {
+            if (sortMode === 'low') return a.matchCount - b.matchCount || b.round - a.round;
+            return b.matchCount - a.matchCount || b.round - a.round;
+        });
+        return { similar: result.slice(0, topN), prevNums: baseNums };
+    }
+
+    function calcFreq(similarResults) {
+        const freq = {}, excludeBonus = isBonusExcluded();
+        similarResults.forEach(s => {
+            s.nextNums.forEach(n => freq[n] = (freq[n] || 0) + 1);
+            if (!excludeBonus && s.nextBonus !== null) freq[s.nextBonus] = (freq[s.nextBonus] || 0) + 0.5;
+            s.remainedNums.forEach(n => freq[n] = (freq[n] || 0) + 0.5);
+            if (!excludeBonus && s.bonus !== null) freq[s.bonus] = (freq[s.bonus] || 0) + 0.5;
+        });
+        return freq;
+    }
+
+    function getTop10FromPattern(baseRound, startRound, minMatch, topN = 30, excludeBonus, sortMode, offset = -1) {
+        const refRound = baseRound + offset;
+        const prev = getWinning(refRound);
+        if (!prev) return [];
+        const baseNums = prev.main, baseBonus = prev.bonus;
+        const similarRounds = [];
+        for (const row of DATA) {
+            const r = row[0];
+            if (r >= baseRound || r < startRound) continue;
+            const nums = row.slice(1, 7), bonus = row[7];
+            let matchCount = nums.filter(n => baseNums.includes(n)).length;
+            if (!excludeBonus && bonus === baseBonus) matchCount += 1;
+            if (matchCount < minMatch || matchCount > 6) continue;
+            similarRounds.push({ round: r, matchCount });
+        }
+        similarRounds.sort((a, b) => {
+            if (sortMode === 'low') return a.matchCount - b.matchCount || b.round - a.round;
+            return b.matchCount - a.matchCount || b.round - a.round;
+        });
+        const freqMap = {};
+        for (const s of similarRounds.slice(0, topN)) {
+            if (s.round + 1 >= baseRound) continue;
+            const next = getWinning(s.round + 1);
+            if (!next) continue;
+            const recency = baseRound - s.round;
+            let weight = recency <= 10 ? 1.5 : recency <= 20 ? 1.2 : 0.8;
+            for (const n of next.main) freqMap[n] = (freqMap[n] || 0) + weight;
+            if (next.bonus !== null && !excludeBonus) freqMap[next.bonus] = (freqMap[next.bonus] || 0) + weight * 0.8;
+        }
+        return Object.entries(freqMap).filter(([n, f]) => f >= minMatch).map(([n, f]) => ({ num: parseInt(n), score: Math.round(f*10)/10, freq: Math.round(f*10)/10 })).sort((a,b) => b.score - a.score || b.freq - a.freq).slice(0, 10);
+    }
+
+    function colorNum(n, winMain, winBonus, showMark = true) {
+        let color = '#fff', mark = '';
+        if (showMark && winMain && winMain.includes(n)) { color = '#2ecc71'; mark = '★'; }
+        else if (showMark && winBonus !== null && winBonus === n) { color = '#ff6b6b'; mark = '☆'; }
+        return `<span style="color:${color}; font-weight:bold;">${n}${mark}</span>`;
+    }
+    function colorArray(arr, winMain, winBonus) { return arr.map(n => colorNum(n, winMain, winBonus)).join(', '); }
+
+    // ========================================================================
+    // 🔥 TOP10 제외 전략 10가지 공식 (헬퍼 함수)
+    // ========================================================================
+    function getExcludeSet(topNums) {
+        return new Set(topNums);
+    }
+
+    function getExcludeTop10_Only3(pool3, pool4, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const only3 = pool3.filter(n => !pool4.includes(n) && !excludeSet.has(n));
+        const rest = pool3.filter(n => !only3.includes(n) && !excludeSet.has(n));
+        const result = [...only3.slice(0, 4), ...rest.slice(0, 2)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    function getExcludeTop10_TripleWithOnly3(pool3, pool4, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const intersect = pool3.filter(n => pool4.includes(n) && !excludeSet.has(n));
+        const only3 = pool3.filter(n => !pool4.includes(n) && !excludeSet.has(n));
+        const result = [...intersect.slice(0, 3), ...only3.slice(0, 3)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    function getExcludeTop10_Only3And4(pool3, pool4, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const only3 = pool3.filter(n => !pool4.includes(n) && !excludeSet.has(n));
+        const only4 = pool4.filter(n => !pool3.includes(n) && !excludeSet.has(n));
+        const result = [...only3.slice(0, 3), ...only4.slice(0, 3)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    function getExcludeTop10_HighLow24(arr, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const filtered = arr.filter(n => !excludeSet.has(n));
+        const lows = filtered.filter(n => n <= 22);
+        const highs = filtered.filter(n => n >= 23);
+        const result = [...lows.slice(0, 2), ...highs.slice(0, 4)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    function getExcludeTop10_LowHigh42(arr, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const filtered = arr.filter(n => !excludeSet.has(n));
+        const lows = filtered.filter(n => n <= 22);
+        const highs = filtered.filter(n => n >= 23);
+        const result = [...lows.slice(0, 4), ...highs.slice(0, 2)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    function getExcludeTop10_HighLow33(arr, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const filtered = arr.filter(n => !excludeSet.has(n));
+        const lows = filtered.filter(n => n <= 22);
+        const highs = filtered.filter(n => n >= 23);
+        const result = [...lows.slice(0, 3), ...highs.slice(0, 3)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    function getExcludeTop10_OddEven24(arr, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const filtered = arr.filter(n => !excludeSet.has(n));
+        const odds = filtered.filter(n => n % 2 === 1);
+        const evens = filtered.filter(n => n % 2 === 0);
+        const result = [...odds.slice(0, 2), ...evens.slice(0, 4)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    function getExcludeTop10_Only4(pool3, pool4, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const only4 = pool4.filter(n => !pool3.includes(n) && !excludeSet.has(n));
+        const rest = pool4.filter(n => !only4.includes(n) && !excludeSet.has(n));
+        const result = [...only4.slice(0, 4), ...rest.slice(0, 2)];
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    function getExcludeTop10_EndDigit334(arr, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const filtered = arr.filter(n => !excludeSet.has(n));
+        const group1 = filtered.filter(n => n % 10 >= 0 && n % 10 <= 4);
+        const group2 = filtered.filter(n => n % 10 >= 5 && n % 10 <= 9);
+        let result = [...group1.slice(0, 3), ...group2.slice(0, 3)];
+        const rest = filtered.filter(n => !result.includes(n));
+        for (const n of rest) {
+            if (result.length >= 6) break;
+            if (!result.includes(n)) result.push(n);
+        }
+        while (result.length < 6) {
+            const rand = Math.floor(Math.random() * 45) + 1;
+            if (!result.includes(rand) && !excludeSet.has(rand)) result.push(rand);
+        }
+        return result.sort((a,b) => a-b);
+    }
+
+    function getExcludeTop10_Sum150(arr, topNums) {
+        const excludeSet = getExcludeSet(topNums);
+        const filtered = arr.filter(n => !excludeSet.has(n));
+        const pool = filtered.slice(0, 20);
+        let best = [];
+        let bestDiff = Infinity;
+        for (let tries = 0; tries < 300; tries++) {
+            let comb = [];
+            let temp = [...pool];
+            for (let i = 0; i < 6; i++) {
+                const idx = Math.floor(Math.random() * temp.length);
+                comb.push(temp[idx]);
+                temp.splice(idx, 1);
+            }
+            const sum = comb.reduce((a,b) => a+b, 0);
+            const diff = Math.abs(sum - 150);
+            if (diff < bestDiff) {
+                bestDiff = diff;
+                best = comb.slice();
+            }
+        }
+        return best.sort((a,b) => a-b);
+    }
+
+    // ========================================================================
+    // 🚀 runAnalysis (수동 분석 - 9MAX + v23.0 + TOP10 제외 전략 10가지)
+    // ========================================================================
+    function runAnalysis() {
+        console.log('🚀 v23.7.2 실행 (수동 분석)');
+        winData = null; similarData = null;
+        const excludeBonus = isBonusExcluded(), sortMode = document.getElementById('similarSort')?.value || 'high';
+        const offset = parseInt(document.getElementById('refOffset').value) || -1;
+        const baseRaw = parseInt(document.getElementById('baseRound').value) || 1235;
+        const base = checkFutureData(baseRaw);
+        const start = parseInt(document.getElementById('startRound').value) || 1000;
+        const minMatch = parseInt(document.getElementById('minMatch').value) || 1;
+        const topN = parseInt(document.getElementById('topCount').value) || 40;
+        document.getElementById('topCountDisplay').textContent = topN;
+        const targetRound = base;
+
+        const result = findSimilar(base, start, minMatch, topN, offset);
+        if (result.similar.length === 0) { document.getElementById('resultArea').innerHTML = `<div style="color:#f39c12; padding:20px;">⚠️ 유사회차 없음</div>`; return; }
+        similarData = result.similar; baseNums = result.prevNums; window.baseNums = baseNums;
+        const freq = calcFreq(result.similar); globalFreqData = freq;
+        const tempWinData = getWinning(base); winData = tempWinData || null;
+        const winMain = winData ? winData.main : [], winBonus = winData ? winData.bonus : null;
+
+        const allSimNums = [], allNextNums = [];
+        result.similar.forEach(s => { s.remainedNums.forEach(n => allSimNums.push(n)); s.nextNums.forEach(n => allNextNums.push(n)); });
+        const freqMap = {}; allSimNums.forEach(n => freqMap[n] = (freqMap[n] || 0) + 1);
+        const validSet = new Set(Object.keys(freqMap).filter(k => freqMap[k] >= minMatch).map(Number));
+        const nextFreqMap = {}; allNextNums.forEach(n => nextFreqMap[n] = (nextFreqMap[n] || 0) + 1);
+        const pool3 = Object.keys(nextFreqMap).filter(k => nextFreqMap[k] >= 2).map(Number);
+        const oneHit = Object.keys(nextFreqMap).filter(k => nextFreqMap[k] === 1).map(Number);
+        const scoredOne = oneHit.map(n => ({ num: Number(n), score: 0 })).sort((a,b)=>b.score - a.score);
+        const additional = scoredOne.slice(0, 6).map(item => item.num);
+        const finalPool3 = [...new Set([...pool3, ...additional])].sort((a,b)=>a-b);
+        const simFreqMap = {}; allSimNums.forEach(n => simFreqMap[n] = (simFreqMap[n] || 0) + 1);
+        const pool4 = Object.keys(simFreqMap).filter(k => simFreqMap[k] >= 2).map(Number).sort((a,b)=>a-b);
+        const pool5 = finalPool3.filter(n => pool4.includes(n));
+        const top10Result = getTop10FromPattern(base, start, minMatch, 30, excludeBonus, sortMode, offset);
+        const topPred = top10Result.map(item => ({ num: item.num, score: item.score, count: Math.round(item.freq) }));
+        lastTopPred = topPred;
+        const topPredTop10 = topPred.map(p => p.num);
+        const bonusSet = new Set(), nextBonusSet = new Set();
+        result.similar.forEach(s => { if (!excludeBonus && s.bonus !== null) bonusSet.add(s.bonus); if (!excludeBonus && s.nextBonus !== null) nextBonusSet.add(s.nextBonus); });
+        const bonusIntersection = [...bonusSet].filter(n => nextBonusSet.has(n)).sort((a,b)=>a-b);
+
+        // ====================================================================
+        // 🔥 9MAX 생성 (TOP10 제외 후)
+        // ====================================================================
+        const excludeSet = new Set(topPredTop10);
+        const oneHitCandidates = [...validSet].filter(n => !excludeSet.has(n));
+        let guaranteed = [...pool4].filter(n => !excludeSet.has(n));
+        while (guaranteed.length > 9) guaranteed.pop();
+        
+        const restCandidates = oneHitCandidates.filter(n => !guaranteed.includes(n));
+        const scoreMap9 = {};
+        restCandidates.forEach(num => {
+            let score = (freq[num] || 0) * 1.2;
+            const related = [];
+            if (baseNums.length > 0) {
+                for (let i = 0; i < baseNums.length; i++) {
+                    for (let j = i+1; j < baseNums.length; j++) {
+                        const sum = baseNums[i] + baseNums[j];
+                        const diff = Math.abs(baseNums[i] - baseNums[j]);
+                        if (sum <= 45) related.push(sum);
+                        if (diff > 0) related.push(diff);
+                    }
+                }
+            }
+            if (related.includes(num)) score += 16;
+            // TOP10 제외되었으므로 topPredTop10 가산점은 의미 없음
+            if (!excludeBonus && bonusIntersection.includes(num)) score += 10;
+            scoreMap9[num] = Math.round(score * 10) / 10;
+        });
+        const sorted9 = Object.entries(scoreMap9).sort((a,b) => b[1] - a[1]).map(([num]) => parseInt(num));
+        const fillers = sorted9.filter(n => !guaranteed.includes(n));
+        let final9 = [...guaranteed];
+        for (const n of fillers) { if (final9.length >= 9) break; if (!final9.includes(n)) final9.push(n); }
+        if (final9.length < 9) {
+            const extra = oneHitCandidates.filter(n => !final9.includes(n) && !excludeSet.has(n));
+            for (const n of extra) { if (final9.length >= 9) break; final9.push(n); }
+        }
+        final9.sort((a,b) => a-b);
+        lastTop9 = final9;
+
+        // ====================================================================
+        // v23.0 강제 보호 10수 (TOP10 제외 적용)
+        // ====================================================================
+        const scoreMapV23 = {};
+        for (let i = 1; i <= 45; i++) {
+            let score = 0;
+            if (validSet.has(i) && !excludeSet.has(i)) score += 3;
+            if (finalPool3.includes(i) && !excludeSet.has(i)) score += 2;
+            if (pool4.includes(i) && !excludeSet.has(i)) score += 3;
+            // TOP10 제외
+            scoreMapV23[i] = score;
+        }
+        const oneOrMore = Object.keys(freqMap).filter(k => freqMap[k] >= 1 && !excludeSet.has(parseInt(k))).map(Number);
+        const sortedOneOrMore = oneOrMore.sort((a,b) => (scoreMapV23[b]||0) - (scoreMapV23[a]||0));
+        const guaranteedV23 = sortedOneOrMore.slice(0, 5);
+        if (guaranteedV23.length < 5) {
+            const extra = [...validSet].filter(n => !guaranteedV23.includes(n) && !excludeSet.has(n)).sort((a,b) => (scoreMapV23[b]||0) - (scoreMapV23[a]||0));
+            while (guaranteedV23.length < 5 && extra.length > 0) guaranteedV23.push(extra.shift());
+        }
+        const sortedAllV23 = Object.entries(scoreMapV23).sort((a,b) => b[1] - a[1] || a[0] - b[0]).map(([num]) => parseInt(num));
+        const remainingV23 = sortedAllV23.filter(n => !guaranteedV23.includes(n));
+        const fillersV23 = remainingV23.slice(0, 5);
+        const v23Result = [...guaranteedV23, ...fillersV23].sort((a,b) => a-b);
+        lastV23Result = v23Result;
+
+        let hit9 = [], hit9Bonus = [], hitV23 = [], hitV23Bonus = [];
+        if (winData) {
+            final9.forEach(n => { if (winMain.includes(n)) hit9.push(n); else if (n === winBonus) hit9Bonus.push(n); });
+            v23Result.forEach(n => { if (winMain.includes(n)) hitV23.push(n); else if (n === winBonus) hitV23Bonus.push(n); });
+        }
+        const total9Hit = hit9.length + (hit9Bonus.length ? 1 : 0);
+        const totalV23Hit = hitV23.length + (hitV23Bonus.length ? 1 : 0);
+
+        // ====================================================================
+        // 🔥 TOP10 제외 전략 10가지 공식 실행
+        // ====================================================================
+        const pool3Numbers = finalPool3;
+        const pool4Numbers = pool4;
+        const topPredNums = topPred.map(p => p.num);
+
+        const excludeFormulas = {
+            '① ③만 우선': getExcludeTop10_Only3(pool3Numbers, pool4Numbers, topPredNums),
+            '② ③∩④∩③만': getExcludeTop10_TripleWithOnly3(pool3Numbers, pool4Numbers, topPredNums),
+            '③ ③만+④만': getExcludeTop10_Only3And4(pool3Numbers, pool4Numbers, topPredNums),
+            '④ 고저 2:4': getExcludeTop10_HighLow24(pool3Numbers, topPredNums),
+            '⑤ 저/고 4:2': getExcludeTop10_LowHigh42(pool3Numbers, topPredNums),
+            '⑥ 고저 3:3': getExcludeTop10_HighLow33(pool3Numbers, topPredNums),
+            '⑦ 홀짝 2:4': getExcludeTop10_OddEven24(pool3Numbers, topPredNums),
+            '⑧ ④만 우선': getExcludeTop10_Only4(pool3Numbers, pool4Numbers, topPredNums),
+            '⑨ 끝수 3:3:4': getExcludeTop10_EndDigit334(pool3Numbers, topPredNums),
+            '⑩ 합계 150': getExcludeTop10_Sum150(pool3Numbers, topPredNums)
+        };
+
+        // ====================================================================
+        // UI 렌더링
+        // ====================================================================
+        let html = `<div class="winning-info">🎯 기준 패턴 (${base+offset}회): <span>${baseNums.join(', ')}</span>`;
+        if (winData) html += ` &nbsp;|&nbsp; ✅ ${targetRound}회 실제 당첨 (검증용): <span style="color:#2ecc71;">${winData.main.join(', ')}</span> | 보너스: <span style="color:#ff6b6b;">${winData.bonus}</span>`;
+        else html += ` &nbsp;|&nbsp; ⚠️ ${targetRound}회 미추첨 (검증 데이터 없음)`;
+        html += `</div>`;
+        html += `<div class="recent-box"><strong>📊 상위 ${topN}개 유사회차 (오프셋 ${offset})</strong><br>🔹 유사회차: ${result.similar.map(s=>s.round).join(', ')}</div>`;
+        html += `<div style="margin-top:15px;"><div class="pool-box"><strong>③ 상위 ${topN}개 유사다음회차 동반수 (${finalPool3.length}개):</strong> ${colorArray(finalPool3, winMain, winBonus)}</div>`;
+        html += `<div class="pool-box" style="border-color:#e67e22;"><strong>④ 상위 ${topN}개 유사회차 2회 이상 동반수 (${pool4.length}개):</strong> ${colorArray(pool4, winMain, winBonus)}</div>`;
+        html += `<div class="intersection-box"><strong>⑤ 교집합 (③∩④, ${pool5.length}개):</strong> ${pool5.length > 0 ? colorArray(pool5, winMain, winBonus) : '없음'}</div></div>`;
+        html += `<div style="background:#0a1a0a; border:2px solid #ffd700; border-radius:10px; padding:12px; margin:10px 0;">`;
+        html += `<strong style="color:#ffd700;">🔮 ${targetRound}회 예상번호 - 예측 TOP 10 (${minMatch}회 이상)</strong><br>`;
+        if (topPred.length > 0) html += topPred.map(p => `${colorNum(p.num, winMain, winBonus)} (${p.score}점, ${p.count}회)`).join(' ');
+        else html += '⚠️ 조건을 만족하는 번호가 없습니다.';
+        html += `</div>`;
+
+        // ===== 🔥 TOP10 제외 전략 10가지 공식 =====
+        html += `<div style="background: #0a1a2a; border: 3px solid #e74c3c; border-radius: 15px; padding: 15px 20px; margin: 15px 0;">
+            <div style="color: #e74c3c; font-size: 18px; font-weight: bold; margin-bottom: 10px;">🔥 TOP10 제외 전략 10가지 공식 (6수 추천) <span class="badge-exclude">TOP10 제외</span></div>
+            <div class="formula-grid">`;
+
+        for (const [name, nums] of Object.entries(excludeFormulas)) {
+            const hitCount = nums.filter(n => winMain && winMain.includes(n)).length;
+            const bonusHit = winBonus !== null && nums.includes(winBonus) ? 1 : 0;
+            const totalHit = hitCount + bonusHit;
+            const color = totalHit >= 3 ? '#2ecc71' : (totalHit >= 2 ? '#ffd700' : '#e74c3c');
+            const numStr = nums.map(n => colorNum(n, winMain, winBonus)).join(' ');
+            html += `<div class="formula-card" style="border-left-color: ${color};">
+                <div class="fname" style="color: ${color};">${name} (${totalHit}개)</div>
+                <div class="fnums">${numStr}</div>
+            </div>`;
+        }
+
+        html += `</div>
+            <div style="font-size: 11px; color: #888; margin-top: 8px;">📌 TOP10에 있는 번호는 무조건 제외하고 생성 | ★ 본번호 | ☆ 보너스</div>
+        </div>`;
+
+        // 9MAX 결과 (5수로 사용)
+        html += `<div class="optimize-result" style="border-color: ${total9Hit >= 3 ? '#2ecc71' : '#e67e22'};">
+            <div class="label" style="color:#ffd700; font-size:18px; font-weight:bold;">🎯 9MAX 압축 결과 (${targetRound}회 예상) <span class="badge-9max">9MAX 공식</span></div>
+            <div style="background:#1a1a1a; border-radius:8px; padding:8px 15px; margin:10px 0; text-align:center;">
+                <span style="font-size:28px; font-weight:bold; letter-spacing:3px;">${final9.map(n => colorNum(n, winMain, winBonus)).join(' ')}</span>
+            </div>
+            <div class="desc">📊 본번호: ${hit9.length}개 (${hit9.join(', ') || '없음'})${hit9Bonus.length ? ` | 보너스: ${hit9Bonus.join(', ')}` : ''}</div>
+            <div style="font-size:28px; font-weight:bold; color:${total9Hit >= 3 ? '#2ecc71' : '#f1c40f'};">✅ ${winData ? '총 ' + total9Hit + '개 적중' : '⚠️ 검증 데이터 없음'}</div>
+            <div class="source">📌 기준: ${base+offset}회 | 🔒 ${minMatch}회 이상 | 9MAX (TOP10 제외)</div>
+        </div>`;
+
+        // v23.0 10수 결과
+        html += `<div class="v23-box">
+            <div class="title">🧬 v23.0 강제 보호 10수 <span class="badge-v23">1회 이상 우선</span> <span class="offset-badge">오프셋 ${offset}</span></div>
+            <div class="numbers">${v23Result.map(n => colorNum(n, winMain, winBonus)).join(' ')}</div>
+            <div class="stats">📊 본번호: ${hitV23.length}개 (${hitV23.join(', ') || '없음'})${hitV23Bonus.length ? ` | 보너스: ${hitV23Bonus.join(', ')}` : ''}</div>
+            <div class="stats" style="color: ${totalV23Hit >= 3 ? '#2ecc71' : '#e74c3c'}; font-size: 24px; font-weight: bold;">✅ ${winData ? '총 ' + totalV23Hit + '개 적중' : '⚠️ 검증 데이터 없음'}</div>
+        </div>`;
+
+        document.getElementById('resultArea').innerHTML = html;
+    }
+
+    // ========================================================================
+    // 💪 강력 1수 (5수 중 최고 점수)
+    // ========================================================================
+    function recommendStrong1() {
+        if (!lastTop9 || lastTop9.length === 0) { alert('⚠️ 먼저 "🚀 분석 실행"을 해주세요.'); return; }
+        const base = parseInt(document.getElementById('baseRound').value) || 1235;
+        const winMain = winData ? winData.main : [];
+        const winBonus = winData ? winData.bonus : null;
+        
+        // 1. 9MAX 상위 5개
+        const top5 = lastTop9.slice(0, 5);
+        
+        // 2. 5수 중에서 globalFreqData 점수 가장 높은 1개
+        const candidates = top5.map(num => ({ num, score: globalFreqData[num] || 0 }));
+        candidates.sort((a, b) => b.score - a.score || a.num - b.num);
+        
+        if (candidates.length === 0) { alert('⚠️ 추천할 번호가 없습니다.'); return; }
+        
+        const pick = candidates[0].num;
+        let color = '#e74c3c', label = '미당첨';
+        if (winMain.includes(pick)) { color = '#2ecc71'; label = '본번호 당첨!'; }
+        else if (pick === winBonus) { color = '#ff6b6b'; label = '보너스 당첨!'; }
+        
+        document.getElementById('resultArea').innerHTML += `
+            <div class="strong-result" style="border-color:#ffd700;background:#1a1a0a;">
+                <div class="label" style="color:#ffd700;">💪 강력 1수 (${base}회 예상) - 5수 중 최고 점수</div>
+                <div class="number" style="color:${color};">${pick}</div>
+                <div class="desc">${label} (TOP10 제외 후 5수 중 최우선)</div>
+                <div class="source">📌 후보 점수: ${candidates[0].score}점</div>
+            </div>
+        `;
+    }
 
     // ========================================================================
     // 💪 강력 5수 (9MAX 상위 5개)
@@ -270,3 +1046,5 @@
 </html>
 </body>
 </html>
+
+
